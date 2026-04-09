@@ -1,301 +1,8 @@
-import { useState } from "react";
-import { DonutChart, HBarChart, VBarChart, StackedHBar, LineChart, CHART_COLORS } from "./charts";
-
-// ─── Design Tokens (컬러칩 HTML 1:1 매핑) ────────────────────────────────
-const T = {
-  gray990:"#171719", gray950:"#303135", gray800:"#7B7E85",
-  gray400:"#CACCCF", gray300:"#DCDDDF", gray200:"#E6E7E9",
-  gray100:"#F0F0F2", gray50:"#F7F7F8",  white:"#FFFFFF",
-  black:"#000000", strong:"#0F0F10",
-  purple900:"#59168B", purple800:"#6E11B0", purple700:"#8200DB",
-  purple500:"#AD46FF", purple100:"#F3E8FF", purple50:"#FAF5FF",
-  dp700:"#6C58BE", dp600:"#7A65D0", dp500:"#8A77E0",
-  dp300:"#B5ABF2", dp100:"#EFEBFF",
-  green900:"#0D542B", green600:"#00A63E", green500:"#00C950",
-  green400:"#05DF72", green50:"#F0FDF4",
-  red900:"#82181A",  red600:"#E7000B",  red500:"#FB2C36", red50:"#FEF2F2",
-  orange50:"#fff7ed", orange:"#ff6900",
-  yellow400:"#FDC700", yellow50:"#FEFCE8",
-  blue600:"#155DFC", blue500:"#2B7FFF", blue50:"#EFF6FF",
-};
-
-// ─── Icons ────────────────────────────────────────────────────────────────
-const InfoIcon = ({ size=16, color }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{flexShrink:0}}>
-    <circle cx="8" cy="8" r="6.5" stroke={color} strokeWidth="1.2"/>
-    <rect x="7.3" y="6.8" width="1.4" height="4.6" rx="0.7" fill={color}/>
-    <circle cx="8" cy="4.8" r="0.8" fill={color}/>
-  </svg>
-);
-const WarnIcon = ({ size=16, color }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{flexShrink:0}}>
-    <path d="M8 2L14.5 13.5H1.5L8 2Z" stroke={color} strokeWidth="1.2" strokeLinejoin="round"/>
-    <rect x="7.3" y="6.5" width="1.4" height="3.8" rx="0.7" fill={color}/>
-    <circle cx="8" cy="11.5" r="0.8" fill={color}/>
-  </svg>
-);
-const CloseIcon = ({ size=12, color }) => (
-  <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
-    <path d="M2 2L10 10M10 2L2 10" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-);
-const PlusIcon  = ({ size=20 }) => <svg width={size} height={size} viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
-const DownIcon  = ({ size=20 }) => <svg width={size} height={size} viewBox="0 0 20 20" fill="none"><path d="M10 4v8M6 9l4 4 4-4M4 15h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-const ChevronR  = ({ size=16 }) => <svg width={size} height={size} viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-const StarIcon  = ({ size=12, color="currentColor" }) => <svg width={size} height={size} viewBox="0 0 12 12" fill={color}><path d="M6 1l1.545 3.13L11 4.635 8.5 7.07l.59 3.44L6 8.885 2.91 10.51l.59-3.44L1 4.635l3.455-.505L6 1z"/></svg>;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// BUTTON
-// ═══════════════════════════════════════════════════════════════════════════
-const BTN_SIZE = {
-  lg: { h:48, px:16, py:12, fs:16, lh:24, br:8 },
-  md: { h:40, px:16, py:10, fs:14, lh:22, br:8 },
-  sm: { h:32, px:12, py:6,  fs:14, lh:22, br:8 },
-};
-const BTN_RADIUS = { sm:8, md:12, full:9999 };
-
-const BTN_STYLES = {
-  "solid-primary":   { bg:T.gray990,    text:T.white,       border:T.gray950,   hBg:T.gray950,    aBg:T.gray800,    dBg:T.gray200,    dText:T.gray400,    dBorder:T.gray200 },
-  "solid-secondary": { bg:T.white,      text:T.gray990,     border:T.gray200,   hBg:T.gray50,     hBorder:T.gray300,aBg:T.gray100,    dBg:T.gray50,     dText:T.gray400,    dBorder:T.gray100 },
-  "solid-brand":     { bg:T.purple800,  text:T.white,       border:T.purple800, hBg:T.purple700,  aBg:T.purple900,  dBg:T.gray50,     dText:T.gray300,    dBorder:T.gray200 },
-  "solid-positive":  { bg:T.green600,   text:T.white,       border:T.green600,  hBg:T.green500,   aBg:T.green400,   dBg:T.gray50,     dText:T.gray300,    dBorder:T.gray200 },
-  "solid-negative":  { bg:T.red500,     text:T.white,       border:T.red500,    hBg:T.red600,     aBg:T.red600,     dBg:T.gray50,     dText:T.gray300,    dBorder:T.gray200 },
-  "solid-tertiary":  { bg:"transparent",text:T.gray990,     border:"transparent",hBg:T.gray100,   aBg:T.gray200,    dText:T.gray300 },
-  "outline-primary": { bg:"transparent",text:T.gray990,     border:T.gray800,   hBg:T.gray50,     aBg:T.gray100,    dText:T.gray300,  dBorder:T.gray200 },
-  "outline-brand":   { bg:"transparent",text:T.purple800,   border:T.purple500, hBg:T.purple50,   dText:T.purple500,dBorder:T.purple100,dOpacity:0.5 },
-  "outline-positive":{ bg:"transparent",text:T.green600,    border:T.green500,  hBg:T.green50,    dOpacity:0.4 },
-  "outline-negative":{ bg:"transparent",text:T.red500,      border:T.red500,    hBg:T.red50,      dOpacity:0.4 },
-  "text-secondary":  { bg:"transparent",text:T.gray800,     border:"transparent",hText:T.gray990,  dText:T.gray300,  isText:true },
-  "text-brand":      { bg:"transparent",text:T.purple800,   border:"transparent",hText:T.purple700,dOpacity:0.4,     isText:true },
-};
-
-function Btn({ variant="solid-primary", size="lg", radius="sm", disabled=false, icon=false, children, style:extStyle }) {
-  const [hov, setHov] = useState(false);
-  const [press, setPress] = useState(false);
-  const s = BTN_SIZE[size] || BTN_SIZE.lg;
-  const v = BTN_STYLES[variant] || BTN_STYLES["solid-primary"];
-  const br = BTN_RADIUS[radius] ?? 8;
-
-  let bg     = v.bg     || "transparent";
-  let text   = v.text   || T.gray990;
-  let border = v.border || "transparent";
-  let opacity = 1;
-
-  if (disabled) {
-    bg     = v.dBg     || v.bg     || "transparent";
-    text   = v.dText   || v.text;
-    border = v.dBorder || v.border || "transparent";
-    opacity = v.dOpacity || 1;
-  } else if (press) {
-    bg     = v.aBg     || v.bg;
-    text   = v.aText   || v.text;
-  } else if (hov) {
-    bg     = v.hBg     || v.bg;
-    text   = v.hText   || v.text;
-    border = v.hBorder || v.border || "transparent";
-  }
-
-  const px = v.isText ? 8 : s.px;
-
-  return (
-    <button
-      disabled={disabled}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => { setHov(false); setPress(false); }}
-      onMouseDown={() => setPress(true)}
-      onMouseUp={() => setPress(false)}
-      style={{
-        display:"inline-flex", alignItems:"center", justifyContent:"center",
-        gap:4, border:`1px solid ${border}`, borderRadius: br,
-        height: s.h, width: icon ? s.h : undefined,
-        padding: icon ? 0 : `${s.py}px ${px}px`,
-        fontSize:s.fs, lineHeight:`${s.lh}px`, fontWeight:500,
-        fontFamily:"Pretendard, sans-serif", letterSpacing:0,
-        background:bg, color:text, opacity,
-        cursor:disabled ? "not-allowed" : "pointer",
-        whiteSpace:"nowrap", userSelect:"none",
-        transition:"background .15s, border-color .15s, color .15s",
-        ...extStyle,
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// BADGE (피그마 스펙 기반)
-// ═══════════════════════════════════════════════════════════════════════════
-const BADGE_SIZE = {
-  Small:  { h:20, px:6, py:2, fs:12, lh:16 },
-  Medium: { h:24, px:6, py:4, fs:12, lh:16 },
-  Large:  { h:28, px:8, py:4, fs:14, lh:20 },
-};
-const BADGE_RADIUS = { Small:8, Large:9999 };
-
-const BADGE_COLORS = {
-  Solid: {
-    Primary:    { bg:T.gray100,  text:T.strong },
-    Secondary:  { bg:T.gray100,  text:T.gray800 },
-    Brand:      { bg:T.dp100,    text:T.dp700 },
-    Positive:   { bg:T.green50,  text:T.green500 },
-    Negative:   { bg:T.red50,    text:T.red500 },
-    Cautionary: { bg:T.yellow50, text:T.yellow400 },
-    Info:       { bg:T.blue50,   text:T.blue500 },
-  },
-  Strong: {
-    Primary:    { bg:T.gray950,    text:T.white },
-    Secondary:  { bg:T.gray800,    text:T.white },
-    Brand:      { bg:T.dp500,      text:T.white },
-    Positive:   { bg:T.green600,   text:T.white },
-    Negative:   { bg:T.red500,     text:T.white },
-    Cautionary: { bg:T.yellow400,  text:T.strong },
-    Info:       { bg:T.blue600,    text:T.white },
-  },
-  Outline: {
-    Primary:    { border:T.gray200,  text:T.strong },
-    Secondary:  { border:T.gray400,  text:T.gray800 },
-    Brand:      { border:T.dp300,    text:T.dp600 },
-    Positive:   { border:T.green500, text:T.green500 },
-    Negative:   { border:T.red500,   text:T.red500 },
-    Cautionary: { border:T.yellow400,text:T.yellow400 },
-    Info:       { border:T.blue500,  text:T.blue500 },
-  },
-};
-
-function Badge({ type="Solid", variant="Primary", size="Medium", radius="Small", text="텍스트", leadingIcon=false, trailingIcon=false }) {
-  const s = BADGE_SIZE[size] || BADGE_SIZE.Medium;
-  const r = BADGE_RADIUS[radius] ?? 8;
-  const colors = (BADGE_COLORS[type] || BADGE_COLORS.Solid)[variant] || BADGE_COLORS.Solid.Primary;
-
-  const isOutline = type === "Outline";
-  const bg = isOutline ? "transparent" : (colors.bg || "transparent");
-  const borderColor = isOutline ? (colors.border || T.gray200) : "transparent";
-
-  return (
-    <div style={{
-      display:"inline-flex", alignItems:"center", justifyContent:"center",
-      height:s.h, padding:`${s.py}px ${s.px}px`,
-      background:bg,
-      border: isOutline ? `1px solid ${borderColor}` : "1px solid transparent",
-      borderRadius:r,
-      overflow:"hidden",
-      fontFamily:"Pretendard, sans-serif",
-      boxSizing:"border-box",
-    }}>
-      <div style={{ display:"flex", alignItems:"center", gap:2, height:"100%" }}>
-        {leadingIcon && (
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"2px 0" }}>
-            <StarIcon size={size==="Large"?14:12} color={colors.text}/>
-          </div>
-        )}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
-          <span style={{
-            fontWeight:500, fontSize:s.fs, lineHeight:`${s.lh}px`,
-            color:colors.text, whiteSpace:"nowrap", letterSpacing:0,
-          }}>{text}</span>
-        </div>
-        {trailingIcon && (
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"2px 0" }}>
-            <CloseIcon size={size==="Large"?12:10} color={colors.text}/>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CALLOUT
-// ═══════════════════════════════════════════════════════════════════════════
-const CALLOUT = {
-  Primary:    { bg:T.gray50,     border:"transparent", icon:T.gray800,  title:T.gray800,  desc:T.gray800,  IconComp:InfoIcon },
-  Secondary:  { bg:T.gray50,     border:"transparent", icon:T.gray800,  title:T.gray800,  desc:T.gray800,  IconComp:InfoIcon },
-  Positive:   { bg:T.green50,    border:"transparent", icon:T.green600, title:T.green600, desc:T.green600, IconComp:InfoIcon },
-  Negative:   { bg:T.red50,      border:"transparent", icon:T.red500,   title:T.red500,   desc:T.red500,   IconComp:InfoIcon },
-  Cautionary: { bg:T.orange50,   border:"transparent", icon:T.orange,   title:T.orange,   desc:T.gray800,  IconComp:WarnIcon },
-  Info:       { bg:T.blue50,     border:"transparent", icon:T.blue500,  title:T.blue500,  desc:T.blue500,  IconComp:InfoIcon },
-  Brand:      { bg:T.purple50,   border:"transparent", icon:T.dp600,    title:T.dp600,    desc:T.dp600,    IconComp:InfoIcon },
-};
-const CALLOUT_SZ = {
-  Small:  { px:"12px", py:"10px", tsz:"13px", tlh:"18px", tw:500, dsz:"11px", dlh:"15px", dw:400, isz:14, gap:"6px" },
-  Medium: { px:"12px", py:"14px", tsz:"14px", tlh:"20px", tw:600, dsz:"12px", dlh:"16px", dw:400, isz:16, gap:"8px" },
-};
-
-function Callout({ variant="Primary", size="Medium", title="텍스트를 입력해 주세요.", description="안내 텍스트를 입력해 주세요.", showDesc=true, showIcon=true, width=240 }) {
-  const v = CALLOUT[variant] || CALLOUT.Primary;
-  const s = CALLOUT_SZ[size] || CALLOUT_SZ.Medium;
-  const Icon = v.IconComp;
-  return (
-    <div style={{ display:"flex", background:v.bg, border:`1px solid ${v.border!=="transparent"?v.border:"transparent"}`, borderRadius:8, padding:`${s.py} ${s.px}`, width, minWidth:200, boxSizing:"border-box", fontFamily:"Pretendard, sans-serif" }}>
-      <div style={{ display:"flex", alignItems:"flex-start", gap:s.gap, width:"100%" }}>
-        {showIcon && <div style={{paddingTop:"2px"}}><Icon size={s.isz} color={v.icon}/></div>}
-        <div style={{ flex:1, display:"flex", flexDirection:"column", gap:4 }}>
-          <span style={{ fontSize:s.tsz, lineHeight:s.tlh, fontWeight:s.tw, color:v.title, wordBreak:"break-word" }}>{title}</span>
-          {showDesc && <span style={{ fontSize:s.dsz, lineHeight:s.dlh, fontWeight:s.dw, color:v.desc, wordBreak:"break-word" }}>{description}</span>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CHIP
-// ═══════════════════════════════════════════════════════════════════════════
-const CHIP_SZ = {
-  "X-Small":{ h:"24px", px:"8px",  fs:"12px", lh:"16px", isz:10 },
-  "Small":  { h:"32px", px:"10px", fs:"13px", lh:"18px", isz:12 },
-  "Medium": { h:"36px", px:"12px", fs:"14px", lh:"20px", isz:14 },
-  "Large":  { h:"40px", px:"14px", fs:"14px", lh:"20px", isz:14 },
-};
-function chipCol(type, state, disabled, active) {
-  const solid = type==="Solid";
-  if (disabled) return { bg:solid?T.gray100:"transparent", text:T.gray400, border:solid?"transparent":T.gray200 };
-  if (active)   return { bg:solid?T.gray990:"transparent", text:solid?T.white:T.gray990, border:solid?"transparent":T.gray950 };
-  if (state==="Hovered") return { bg:solid?T.gray200:T.gray50,  text:T.gray990, border:solid?"transparent":T.gray300 };
-  if (state==="Pressed") return { bg:solid?T.gray950:T.gray100, text:solid?T.white:T.gray990, border:solid?"transparent":T.gray300 };
-  return { bg:solid?T.gray100:"transparent", text:T.gray800, border:solid?"transparent":T.gray200 };
-}
-function Chip({ type="Solid", size="Medium", disabled=false, active=false, label="텍스트", showTrailing=false, onClick }) {
-  const [hov, setHov] = useState(false);
-  const s = CHIP_SZ[size] || CHIP_SZ.Medium;
-  const st = hov && !disabled && !active ? "Hovered" : "Default";
-  const col = chipCol(type, st, disabled, active);
-  return (
-    <div onClick={!disabled?onClick:undefined} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:4, height:s.h, padding:`0 ${s.px}`, background:col.bg, border:`1px solid ${col.border!=="transparent"?col.border:"transparent"}`, borderRadius:9999, fontFamily:"Pretendard, sans-serif", fontWeight:500, fontSize:s.fs, lineHeight:s.lh, color:col.text, opacity:disabled?0.5:1, cursor:disabled?"not-allowed":"pointer", whiteSpace:"nowrap", userSelect:"none", boxSizing:"border-box", transition:"all .12s" }}>
-      {label}
-      {showTrailing && !disabled && <span style={{display:"flex",alignItems:"center",marginLeft:2}}><CloseIcon size={s.isz} color={col.text}/></span>}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// TAB
-// ═══════════════════════════════════════════════════════════════════════════
-function TabItem({ label, active, onClick }) {
-  return (
-    <div onClick={onClick} style={{ position:"relative", display:"flex", alignItems:"center", height:40, padding:"8px 0", cursor:"pointer", flexShrink:0, userSelect:"none" }}>
-      <span style={{ fontFamily:"Pretendard, sans-serif", fontWeight:500, fontSize:16, lineHeight:"24px", color:active?T.gray990:T.gray800, whiteSpace:"nowrap", transition:"color .15s" }}>{label}</span>
-      {active && <div style={{ position:"absolute", bottom:0, left:0, right:0, height:2, background:T.gray990, borderRadius:1 }}/>}
-    </div>
-  );
-}
-function TabBar({ tabs, activeIndex, onChange }) {
-  return (
-    <div style={{ position:"relative", display:"inline-flex", alignItems:"center", gap:24 }}>
-      <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:T.gray200 }}/>
-      {tabs.map((t,i) => <TabItem key={i} label={t} active={activeIndex===i} onClick={()=>onChange(i)}/>)}
-    </div>
-  );
-}
-function ChipTabs({ tabs, activeIndex, onChange, size="Medium", type="Solid" }) {
-  return (
-    <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-      {tabs.map((t,i) => <Chip key={i} label={t} type={type} size={size} active={activeIndex===i} onClick={()=>onChange(i)}/>)}
-    </div>
-  );
-}
+import { useState, lazy, Suspense } from "react";
+import { DonutChart, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, CHART_COLORS } from "./charts";
+import { T, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
+import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
+const ReportDemo = lazy(() => import("./ReportDemo"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -342,7 +49,7 @@ function Col({ label, children }) {
 // ═══════════════════════════════════════════════════════════════════════════
 // APP
 // ═══════════════════════════════════════════════════════════════════════════
-const CALLOUT_KEYS = Object.keys(CALLOUT);
+const CALLOUT_KEYS = ["Primary","Secondary","Positive","Negative","Cautionary","Info","Brand"];
 const CHIP_SIZE_KEYS = ["X-Small","Small","Medium","Large"];
 const CHIP_TYPES = ["Solid","Outline"];
 const BADGE_VARIANT_KEYS = ["Primary","Secondary","Brand","Positive","Negative","Cautionary","Info"];
@@ -355,7 +62,7 @@ const th = { padding:"8px 14px", textAlign:"left", fontSize:12, fontWeight:600, 
 const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlign:"middle" };
 
 export default function App() {
-  const [page, setPage] = useState("button");
+  const [page, setPage] = useState("charts");
 
   // button
   const [btnVariant, setBtnVariant] = useState("solid-primary");
@@ -397,8 +104,8 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["button","badge","callout","chip","tab","charts"];
-  const PAGE_LABELS = { button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", charts:"Charts" };
+  const PAGES = ["charts","button","badge","callout","chip","tab","report"];
+  const PAGE_LABELS = { charts:"Charts", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", report:"Report" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -743,6 +450,46 @@ export default function App() {
             </div>
           </Card>
 
+          {/* Semi Donut */}
+          <Card title="Semi Donut Chart (반원)" subtitle="감성 분석, 만족도 등 비율 분포에 적합">
+            <SemiDonutChart
+              title="Sentiment Analysis"
+              data={[
+                { id: "Positive", value: 65, description: "간편하고 빠른 결제 시스템에 높은 만족도를 보임." },
+                { id: "Neutral", value: 18, description: "결제 과정의 편리함과 속도가 긍정적으로 평가되나, 얼굴 인식 오류와 보안 우려가 지적됨." },
+                { id: "Negative", value: 7, description: "전반적으로 불편함을 느끼며, 인증 과정에서의 부담감도 지적됨." },
+                { id: "Unclassified", value: 8, hatched: true },
+              ]}
+              size={320}
+            />
+          </Card>
+
+          {/* Flow Table */}
+          <Card title="Flow Table (전환율 테이블)" subtitle="기능별 사용 경험 → 전환율 → 현재 사용률 흐름">
+            <FlowTable
+              columns={{ left: "사용해 본 기능", right: "사용 중인 기능" }}
+              groups={[
+                { label: "자동기능", rows: [
+                  { label: "자동 감지 기능", description: "세척량, 오염도, 식재료 등 스스로 감지", left: "35.5", rate: 84.6, right: "30.0" },
+                  { label: "자동 추천 기능", description: "세척 코스, 요리 모드, 레시피 등 추천", left: "35.5", rate: 69.2, right: "24.5" },
+                  { label: "자동 실행 기능", description: "추천/예약 설정을 알아서 실행", left: "29.1", rate: 82.8, right: "24.1" },
+                ]},
+                { label: "원격제어", rows: [
+                  { label: "음성 제어/조작", left: "28.2", rate: 67.7, right: "19.1" },
+                  { label: "원격 제어/조작", description: "모바일 앱 등", left: "44.1", rate: 77.3, right: "34.1" },
+                  { label: "다른 기기와의 연결 기능", description: "연동 및 통합 제어", left: "30.9", rate: 67.6, right: "20.9" },
+                ]},
+                { label: "상태 알림", rows: [
+                  { label: "고장 발생/관리 필요 시 알림", left: "26.4", rate: 79.3, right: "20.9" },
+                  { label: "사용 기록/상태를 보여주는 리포트 제공", left: "26.8", rate: 71.2, right: "19.1" },
+                ]},
+                { label: "맞춤 기능", rows: [
+                  { label: "사용자 맞춤형 학습 기능", description: "사용 습관, 환경 등", left: "22.7", rate: 72.0, right: "16.4" },
+                ]},
+              ]}
+            />
+          </Card>
+
           {/* Horizontal Bar */}
           <Card title="Horizontal Bar" subtitle="가로 막대 - 카테고리 비교에 적합">
             <HBarChart
@@ -770,17 +517,53 @@ export default function App() {
             />
           </Card>
 
-          {/* Vertical Bar */}
-          <Card title="Vertical Bar" subtitle="세로 막대 - 클러스터/시나리오 비교">
+          {/* Vertical Bar - Single */}
+          <Card title="Vertical Bar (Single)" subtitle="단일 막대 - 항목별 비교">
             <VBarChart
               title="Churn Rate by Cluster"
+              height={280}
               data={[
                 { label:"Premium Enthusiasts", value:65 },
                 { label:"Dormant Potential", value:60 },
-                { label:"Value Optimizers", value:65 },
+                { label:"Value Optimizers", value:55 },
                 { label:"Occasional Buyers", value:45 },
               ]}
               keys={["value"]}
+            />
+          </Card>
+
+          {/* Vertical Bar - Stacked */}
+          <Card title="Vertical Bar (Stacked)" subtitle="스택형 세로 막대 - 여러 시리즈 누적">
+            <VBarChart
+              title="Food Consumption by Country"
+              stacked
+              height={360}
+              data={[
+                { label:"AD", donut:40, fries:77, kebab:22, sandwich:35, burger:193, "hot dog":77 },
+                { label:"AE", donut:164, fries:141, kebab:169, sandwich:111, burger:77, "hot dog":111 },
+                { label:"AF", donut:70, fries:127, kebab:140, sandwich:111, burger:190, "hot dog":71 },
+                { label:"AG", donut:113, fries:55, kebab:86, sandwich:134, burger:180, "hot dog":139 },
+                { label:"AI", donut:121, fries:138, kebab:74, sandwich:106, burger:135, "hot dog":89 },
+                { label:"AL", donut:172, fries:89, kebab:85, sandwich:80, burger:21, "hot dog":187 },
+                { label:"AM", donut:136, fries:83, kebab:184, sandwich:24, burger:110, "hot dog":136 },
+              ]}
+              keys={["hot dog","burger","sandwich","kebab","fries","donut"]}
+            />
+          </Card>
+
+          {/* Vertical Bar - Grouped */}
+          <Card title="Vertical Bar (Grouped)" subtitle="그룹형 세로 막대 - 항목 간 비교">
+            <VBarChart
+              title="Satisfaction Score by Category"
+              height={300}
+              data={[
+                { label:"디자인", "만족도":82, "기대치":70 },
+                { label:"성능", "만족도":68, "기대치":85 },
+                { label:"가격", "만족도":75, "기대치":60 },
+                { label:"서비스", "만족도":90, "기대치":78 },
+                { label:"편의성", "만족도":72, "기대치":65 },
+              ]}
+              keys={["만족도","기대치"]}
             />
           </Card>
 
@@ -824,7 +607,53 @@ export default function App() {
             />
           </Card>
 
+          {/* Labeled Line Chart */}
+          <Card title="Labeled Line Chart" subtitle="데이터 포인트 라벨 + 하단 테이블 + 어노테이션">
+            <LabeledLineChart
+              title="AI 생성 정보/리뷰성 콘텐츠 신뢰도"
+              subtitle="[Base: 본 조사 1, 전체 응답자, N=3000, 평가형 5점, %]"
+              highlightFirst
+              series={[
+                { id: "신뢰도 높음", color: "#2B7FFF", data: [
+                  { x: "전체", y: 27.6 }, { x: "15~24세", y: 25.5 }, { x: "24~34세", y: 28.7 },
+                  { x: "35~44세", y: 28.0 }, { x: "45~54세", y: 25.7 }, { x: "55~59세", y: 31.1 },
+                ]},
+                { id: "신뢰도 낮음", color: "#B0B3B8", labelColor: "#7B7E85", data: [
+                  { x: "전체", y: 35.2 }, { x: "15~24세", y: 39.7 }, { x: "24~34세", y: 34.7 },
+                  { x: "35~44세", y: 36.4 }, { x: "45~54세", y: 34.5 }, { x: "55~59세", y: 30.1 },
+                ]},
+              ]}
+              categories={[
+                { label: "전체", count: 3000 },
+                { label: "15~24세", count: 466 },
+                { label: "24~34세", count: 654 },
+                { label: "35~44세", count: 667 },
+                { label: "45~54세", count: 795 },
+                { label: "55~59세", count: 418 },
+              ]}
+              annotations={[{ fromSeries: 1, toSeries: 0, index: 1 }]}
+            />
+          </Card>
+
+          <Card title="Quadrant Chart (Segment Matrix)" subtitle="2×2 매트릭스 - 세그먼트 분석에 적합">
+            <QuadrantChart
+              title="Segment Matrix"
+              subtitle="[Base: Survey respondents, N=1,000]"
+              yAxis={{ label: "Expectation", low: "Low", high: "High" }}
+              xAxis={{ label: "Concern", low: "Low", high: "High" }}
+              quadrants={[
+                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: "#C8F7D5", labelColor: "#171719" },
+                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: "#00C950", labelColor: "#fff" },
+                { label: "Negative Perceiver", value: "5.4", tag: "Low expectation, High concern", color: "#FFD6D6", labelColor: "#E7000B" },
+                { label: "Low Interest", value: "13.8", tag: "Low expectation, Low concern", color: T.gray100, labelColor: T.gray800 },
+              ]}
+            />
+          </Card>
+
+
         </>}
+
+        {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
       </div>
     </div>
   );

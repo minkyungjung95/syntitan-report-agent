@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
@@ -155,7 +155,105 @@ export function DonutChart({ data, title, size = 180 }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// 1-1. SEMI DONUT CHART (반원 도넛)
+// 1-1. PIE CHART (풀 원형 차트)
+//    - innerRadius 0, 호버 시 흰색 stroke + 나머지 opacity 0.2
+//    - 범례: DonutChart와 동일
+// ═══════════════════════════════════════════════════════════════════════
+export function PieChart({ data, title, size = 180 }) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  const [hoverActive, setHoverActive] = useState(false);
+  const pieColors = data.map((d, i) => d.color || CHART_COLORS[i % CHART_COLORS.length]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
+      <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+        <div style={{ width: size, height: size, flexShrink: 0 }}>
+          <ResponsivePie
+            data={data}
+            colors={pieColors}
+            innerRadius={0}
+            padAngle={0}
+            cornerRadius={hoverActive ? 4 : 0}
+            borderWidth={0}
+            enableArcLabels={false}
+            enableArcLinkLabels={false}
+            activeOuterRadiusOffset={0}
+            activeInnerRadiusOffset={0}
+            onMouseEnter={(_datum, event) => {
+              setHoverActive(true);
+              const svg = event.currentTarget.closest("svg");
+              if (!svg) return;
+              svg.querySelectorAll("path").forEach(p => {
+                p.style.transition = "opacity 0.15s ease";
+                p.style.opacity = "0.2";
+                p.style.stroke = "none";
+                p.style.strokeWidth = "0";
+                p.style.paintOrder = "";
+              });
+              const el = event.currentTarget;
+              el.style.opacity = "1";
+              el.style.stroke = WHITE;
+              el.style.strokeWidth = "4";
+              el.style.paintOrder = "stroke";
+            }}
+            onMouseLeave={(_datum, event) => {
+              setHoverActive(false);
+              const svg = event.currentTarget.closest("svg");
+              if (!svg) return;
+              svg.querySelectorAll("path").forEach(p => {
+                p.style.opacity = "1";
+                p.style.stroke = "none";
+                p.style.strokeWidth = "0";
+                p.style.paintOrder = "";
+              });
+            }}
+            animate
+            motionConfig="gentle"
+            theme={baseTheme}
+            tooltip={({ datum }) => (
+              <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(1)}% (${datum.value.toLocaleString()})`} />
+            )}
+          />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {data.map((d, i) => {
+            const pct = ((d.value / total) * 100).toFixed(0);
+            return (
+              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif" }}>
+                <LegendDot color={pieColors[i]} />
+                {d.icon && <span style={{ marginLeft: 8, display: "flex", alignItems: "center" }}>{d.icon}</span>}
+                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, minWidth: 80, marginLeft: 8 }}>{d.id}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, minWidth: 36, marginLeft: 8 }}>{pct}%</span>
+                <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginLeft: 4 }}>({d.value.toLocaleString()})</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Gender Icons ───────────────────────────────────────────────────
+export const MaleIcon = ({ size = 16, color = "#2B7FFF" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="14" r="6" />
+    <path d="M22 2l-5.5 5.5" />
+    <path d="M16 2h6v6" />
+  </svg>
+);
+
+export const FemaleIcon = ({ size = 16, color = "#F43F5E" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="9" r="6" />
+    <path d="M12 15v7" />
+    <path d="M9 19h6" />
+  </svg>
+);
+
+// ═══════════════════════════════════════════════════════════════════════
+// 1-2. SEMI DONUT CHART (반원 도넛)
 //    - 상단 반원, 슬라이스별 라벨(% + 건수)
 //    - 하단 범례: 컬러 + 라벨명 + 설명
 //    - hatched 패턴(Unclassified 등) 지원
@@ -505,7 +603,7 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
           layout={layout}
           margin={{ top: 10, right: 20, bottom: 50, left: 60 }}
           padding={0.25}
-          borderRadius={hoverActive ? 6 : 0}
+          borderRadius={0}
           enableLabel
           label={d => valueFormat ? valueFormat(d.value) : d.value}
           labelTextColor={WHITE}
@@ -728,13 +826,27 @@ export function LabeledLineChart({
   series,       // [{ id, color, data: [{ x, y }], labelColor? }]
   categories,   // [{ label, count }]
   highlightFirst = false,
-  width: propW,
   height: chartH = 260,
   annotations,  // [{ fromIdx, toIdx, seriesIdx }]  점선 화살표
 }) {
   const FF = "Pretendard, sans-serif";
   const [hovered, setHovered] = useState(null); // { si, di }
-  const margin = { top: 30, right: 30, bottom: 10, left: 30 };
+  const [hoveredCol, setHoveredCol] = useState(null); // column index
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const [containerW, setContainerW] = useState(600);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerW(entry.contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    setContainerW(containerRef.current.offsetWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  const margin = { top: 40, right: 40, bottom: 10, left: 40 };
   const catCount = categories?.length || (series[0]?.data.length || 0);
 
   // 값 범위 계산
@@ -742,8 +854,8 @@ export function LabeledLineChart({
   const minY = Math.floor(Math.min(...allY) - 3);
   const maxY = Math.ceil(Math.max(...allY) + 3);
 
-  // SVG 영역 크기
-  const totalW = propW || 600;
+  // SVG 영역 크기 (컨테이너 너비 기반)
+  const totalW = containerW;
   const plotW = totalW - margin.left - margin.right;
   const plotH = chartH - margin.top - margin.bottom;
 
@@ -752,11 +864,11 @@ export function LabeledLineChart({
   const toY = (v) => margin.top + plotH - ((v - minY) / (maxY - minY)) * plotH;
 
   // 하이라이트 컬럼 너비
-  const hlW = xStep * 0.8;
+  const hlW = xStep;
 
   return (
-    <div style={{ fontFamily: FF }}>
-      {title && <div style={{ fontSize: 20, fontWeight: 700, color: GRAY990, marginBottom: 2 }}>{title}</div>}
+    <div ref={containerRef} style={{ fontFamily: FF, width: "100%" }}>
+      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
       {subtitle && <div style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginBottom: 20 }}>{subtitle}</div>}
 
       <div style={{ position: "relative" }}>
@@ -765,7 +877,7 @@ export function LabeledLineChart({
           {series.map((s, i) => (
             <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <svg width="30" height="12">
-                <line x1="0" y1="6" x2="22" y2="6" stroke={s.color} strokeWidth="2.5" />
+                <line x1="0" y1="6" x2="22" y2="6" stroke={s.color} strokeWidth="2" />
                 <circle cx="11" cy="6" r="4" fill={WHITE} stroke={s.color} strokeWidth="2" />
               </svg>
               <span style={{ fontSize: 13, fontWeight: 500, color: GRAY990 }}>{s.id}</span>
@@ -773,10 +885,17 @@ export function LabeledLineChart({
           ))}
         </div>
 
-        <svg viewBox={`0 0 ${totalW} ${chartH}`} width="100%" style={{ display: "block", overflow: "visible" }}>
-          {/* 하이라이트 컬럼 */}
-          {highlightFirst && (
-            <rect x={toX(0) - hlW / 2} y={margin.top - 10} width={hlW} height={plotH + 20} rx={4} fill={GRAY100} />
+        <svg viewBox={`0 0 ${totalW} ${chartH}`} width="100%" style={{ display: "block", overflow: "hidden" }}>
+          {/* 호버 하이라이트 컬럼 */}
+          {hoveredCol !== null && (
+            <rect
+              x={toX(hoveredCol) - hlW / 2}
+              y={margin.top - 4}
+              width={hlW}
+              height={plotH + 8}
+              rx={4} ry={4}
+              fill={T.gray50 || "#F7F8F9"}
+            />
           )}
 
           {/* 라인 + 포인트 */}
@@ -788,15 +907,14 @@ export function LabeledLineChart({
             return (
               <g key={s.id} style={{ opacity: isOtherHovered ? 0.2 : 1, transition: "opacity 0.15s" }}>
                 {/* 라인 */}
-                <path d={linePath} fill="none" stroke={s.color} strokeWidth={2.5} />
+                <path d={linePath} fill="none" stroke={s.color} strokeWidth={2} />
                 {/* 포인트 + 라벨 */}
                 {pts.map((p) => {
                   const isH = hovered?.si === si && hovered?.di === p.di;
                   const lblColor = s.labelColor || s.color;
-                  // 라벨 위치: 값이 큰 시리즈는 위, 작은 시리즈는 아래
-                  const labelAbove = series.length === 1 || si === series.length - 1 ||
-                    (series.length > 1 && s.data[p.di].y >= series[si === 0 ? 1 : 0].data[p.di]?.y);
-                  const ly = labelAbove ? p.y - 14 : p.y + 20;
+                  // 라벨 위치: 첫 번째 시리즈는 항상 아래, 나머지는 위
+                  const labelAbove = series.length === 1 ? true : si > 0;
+                  const ly = labelAbove ? p.y - 20 : p.y + 26;
 
                   return (
                     <g key={p.di}
@@ -816,6 +934,35 @@ export function LabeledLineChart({
             );
           })}
 
+          {/* 컬럼별 호버 영역 (투명 rect) */}
+          {Array.from({ length: catCount }).map((_, ci) => (
+            <rect
+              key={`hover-col-${ci}`}
+              x={toX(ci) - hlW / 2}
+              y={0}
+              width={hlW}
+              height={chartH}
+              fill="transparent"
+              style={{ cursor: "default" }}
+              onMouseEnter={(e) => {
+                setHoveredCol(ci);
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (rect) {
+                  setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }
+              }}
+              onMouseMove={(e) => {
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (rect) {
+                  setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }
+              }}
+              onMouseLeave={() => {
+                setHoveredCol(null);
+              }}
+            />
+          ))}
+
           {/* 어노테이션 화살표 (점선 + 삼각형) */}
           {annotations?.map((ann, ai) => {
             const fromS = series[ann.fromSeries ?? 1];
@@ -826,31 +973,75 @@ export function LabeledLineChart({
             const toYPos = toY(toS.data[idx].y);
             const x = toX(idx);
             const color = toS.color || CHART_COLORS[0];
+            const topY = Math.min(fromY, toYPos);
+            const botY = Math.max(fromY, toYPos);
+            const gap = 9; // 원 중심에서 반지름5 + 간격4
             return (
               <g key={`ann-${ai}`}>
-                <line x1={x} y1={fromY + 8} x2={x} y2={toYPos - 8}
+                {/* 점선 */}
+                <line x1={x} y1={topY + gap + 6} x2={x} y2={botY - gap - 6}
                   stroke={color} strokeWidth={1.5} strokeDasharray="4 3" />
-                <polygon points={`${x - 4},${toYPos - 6} ${x + 4},${toYPos - 6} ${x},${toYPos - 1}`}
+                {/* 위쪽 화살표 (▲) */}
+                <polygon points={`${x},${topY + gap} ${x - 4},${topY + gap + 6} ${x + 4},${topY + gap + 6}`}
+                  fill={color} />
+                {/* 아래쪽 화살표 (▼) */}
+                <polygon points={`${x - 4},${botY - gap - 6} ${x + 4},${botY - gap - 6} ${x},${botY - gap}`}
                   fill={color} />
               </g>
             );
           })}
         </svg>
+
+        {/* 호버 툴팁 */}
+        {hoveredCol !== null && categories && (
+          <div style={{
+            position: "absolute",
+            left: tooltipPos.x + 12,
+            top: tooltipPos.y - 10,
+            background: GRAY990,
+            color: WHITE,
+            borderRadius: 8,
+            padding: "10px 14px",
+            fontSize: 13,
+            fontWeight: 500,
+            fontFamily: FF,
+            zIndex: 10,
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}>
+            <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13 }}>
+              {categories[hoveredCol]?.label}
+              {categories[hoveredCol]?.count != null && (
+                <span style={{ fontWeight: 400, color: "#999", marginLeft: 4 }}>
+                  ({categories[hoveredCol].count.toLocaleString()})
+                </span>
+              )}
+            </div>
+            {series.map((s, si) => (
+              <div key={si} style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
+                <span>{s.id}</span>
+                <span style={{ marginLeft: "auto", fontWeight: 700, paddingLeft: 12 }}>{s.data[hoveredCol]?.y}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 하단 테이블 */}
       {categories && (
-        <div style={{ borderTop: `1.5px solid ${GRAY990}`, marginTop: 8 }}>
+        <div style={{ borderTop: `2px solid ${GRAY990}`, marginTop: 8, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
           {/* 카테고리 라벨 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${catCount}, 1fr)`, textAlign: "center", padding: "10px 0 4px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "10px 0 4px" }}>
             {categories.map((c, i) => (
-              <span key={i} style={{ fontSize: 14, fontWeight: i === 0 && highlightFirst ? 700 : 500, color: GRAY990 }}>{c.label}</span>
+              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 14, fontWeight: 500, color: GRAY990 }}>{c.label}</span>
             ))}
           </div>
           {/* 건수 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${catCount}, 1fr)`, textAlign: "center", padding: "2px 0 8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "2px 0 8px" }}>
             {categories.map((c, i) => (
-              <span key={i} style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>({c.count?.toLocaleString()})</span>
+              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 13, fontWeight: 400, color: GRAY800 }}>({c.count?.toLocaleString()})</span>
             ))}
           </div>
         </div>
@@ -997,8 +1188,7 @@ export function QuadrantChart({
 
   return (
     <div style={{ fontFamily: F, ...style }}>
-      {title && <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990, marginBottom: 2 }}>{title}</div>}
-      {subtitle && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800, marginBottom: 24 }}>{subtitle}</div>}
+      {title && <div style={{ fontSize: 16, fontWeight: 600, color: T.gray990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
 
       {/* 전체를 table-like 구조로: Y라벨 | Y축선 | [그리드+X축선+X라벨] */}
       <div style={{ display: "grid", gridTemplateColumns: "auto 1.5px 1fr", gridTemplateRows: "auto auto auto", columnGap: 0, rowGap: 0 }}>
@@ -1098,6 +1288,179 @@ export function QuadrantChart({
       </div>
 
       {footnote && <div style={{ fontSize: 13, fontWeight: 400, color: T.gray800, marginTop: 16 }}>{footnote}</div>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLUSTER PROFILE TABLE
+//   클러스터별 프로필 비교 테이블
+//   - 헤더: 클러스터 이름 + 키워드
+//   - 카테고리별 순위 비교 (1순위 하이라이트)
+//   data: {
+//     clusters: [{ name:"클러스터1", keywords:["30대 초중반","재미있고","트렌디한 사람"] }],
+//     categories: [
+//       { label:"성별", ranks:["1순위","2순위"],
+//         values:[["중성","남성"],["여성","중성"],["여성","중성"]] },
+//     ]
+//   }
+// ═══════════════════════════════════════════════════════════════════════
+export function ClusterProfileTable({ title, data }) {
+  const { clusters, categories } = data;
+  const colCount = clusters.length;
+  const blue50 = T.blue50 || "#EFF6FF";
+  const blue500 = "#2B7FFF";
+
+  const cellBase = {
+    fontFamily: "Pretendard, sans-serif",
+    fontSize: 14,
+    fontWeight: 400,
+    color: GRAY990,
+    textAlign: "center",
+    padding: "10px 12px",
+  };
+
+  const highlightCell = {
+    ...cellBase,
+    fontWeight: 700,
+    color: blue500,
+    background: blue50,
+  };
+
+  const headerCell = {
+    fontFamily: "Pretendard, sans-serif",
+    fontSize: 14,
+    fontWeight: 600,
+    color: GRAY990,
+    textAlign: "center",
+    lineHeight: 1.5,
+    padding: "16px 12px",
+    background: T.gray25 || "#FAFAFA",
+  };
+
+  const labelCellBase = {
+    fontFamily: "Pretendard, sans-serif",
+    fontSize: 14,
+    fontWeight: 600,
+    color: GRAY990,
+    padding: "10px 12px",
+    textAlign: "left",
+    whiteSpace: "nowrap",
+  };
+
+  const rankLabelStyle = {
+    fontFamily: "Pretendard, sans-serif",
+    fontSize: 13,
+    fontWeight: 400,
+    color: T.gray800,
+    padding: "10px 12px",
+    textAlign: "center",
+    whiteSpace: "nowrap",
+  };
+
+  // Badge style for TOP N labels (성격 카테고리 등)
+  const badgeStyle = (idx) => ({
+    display: "inline-block",
+    fontFamily: "Pretendard, sans-serif",
+    fontSize: 12,
+    fontWeight: 600,
+    color: T.white,
+    background: idx === 0 ? blue500 : idx === 1 ? "#60A5FA" : idx === 2 ? "#93C5FD" : "#BFDBFE",
+    borderRadius: 4,
+    padding: "3px 8px",
+    lineHeight: 1.3,
+  });
+
+  // Grid template: category-label | rank-label | cluster1 | cluster2 | ...
+  const gridCols = `100px 64px ${"1fr ".repeat(colCount).trim()}`;
+
+  return (
+    <div style={{ fontFamily: "Pretendard, sans-serif" }}>
+      {title && (
+        <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", marginBottom: 16 }}>
+          {title}
+        </div>
+      )}
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: gridCols,
+        border: `1px solid ${T.gray200}`,
+        borderRadius: 8,
+        overflow: "hidden",
+        background: T.white,
+      }}>
+        {/* ── Header row ── */}
+        <div style={{ ...labelCellBase, background: T.white, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>이미지</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.gray800 }}>Keyword</div>
+        </div>
+        <div style={{ background: T.white, borderBottom: `1px solid ${T.gray200}` }} />
+        {clusters.map((c, ci) => (
+          <div key={ci} style={{ ...headerCell, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
+            {c.keywords.map((kw, ki) => (
+              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 600, fontSize: ki === 0 ? 15 : 14 }}>{kw}</div>
+            ))}
+          </div>
+        ))}
+
+        {/* ── Category rows ── */}
+        {categories.map((cat, catIdx) => {
+          const isLast = catIdx === categories.length - 1;
+          const rowCount = cat.ranks.length;
+
+          return cat.ranks.map((rank, ri) => {
+            const isFirstInCat = ri === 0;
+            const isLastInCat = ri === rowCount - 1;
+            const borderBot = (isLastInCat && !isLast) ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
+
+            return (
+              <div key={`${catIdx}-${ri}`} style={{ display: "contents" }}>
+                {/* Category label (spans rows visually via empty cells) */}
+                {isFirstInCat ? (
+                  <div style={{
+                    ...labelCellBase,
+                    fontSize: 15,
+                    display: "flex",
+                    alignItems: "center",
+                    gridRow: `span ${rowCount}`,
+                    borderBottom: (isLast ? "none" : `2px solid ${T.gray200}`),
+                    borderRight: `1px solid ${T.gray200}`,
+                  }}>
+                    {cat.label}
+                  </div>
+                ) : null}
+
+                {/* Rank label */}
+                <div style={{
+                  ...rankLabelStyle,
+                  borderBottom: borderBot,
+                  ...(cat.useBadge ? { padding: "8px 8px" } : {}),
+                }}>
+                  {cat.useBadge ? (
+                    <span style={badgeStyle(ri)}>{rank}</span>
+                  ) : rank}
+                </div>
+
+                {/* Cluster values */}
+                {clusters.map((_c, ci) => {
+                  const val = cat.values[ci]?.[ri] ?? "";
+                  const isTop = ri === 0;
+                  return (
+                    <div key={ci} style={{
+                      ...(isTop ? highlightCell : cellBase),
+                      borderBottom: borderBot,
+                      borderLeft: `1px solid ${T.gray200}`,
+                    }}>
+                      {val}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          });
+        })}
+      </div>
     </div>
   );
 }

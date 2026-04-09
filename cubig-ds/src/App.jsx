@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, CHART_COLORS } from "./charts";
 import { T, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
@@ -450,6 +450,39 @@ export default function App() {
             </div>
           </Card>
 
+          {/* Pie Chart */}
+          <Card title="Pie Chart (원형)" subtitle="전체 비율 표시 - 최대 6색상, 호버 툴팁">
+            <div style={{ display:"flex", gap:40, flexWrap:"wrap" }}>
+              <PieChart
+                title="Market Share by Brand"
+                data={[
+                  { id:"Brand A", value:350 },
+                  { id:"Brand B", value:280 },
+                  { id:"Brand C", value:190 },
+                  { id:"Brand D", value:120 },
+                  { id:"Brand E", value:80 },
+                  { id:"Brand F", value:60 },
+                ]}
+              />
+              <PieChart
+                title="Satisfaction Level"
+                data={[
+                  { id:"매우 만족", value:420 },
+                  { id:"만족", value:310 },
+                  { id:"보통", value:180 },
+                  { id:"불만족", value:90 },
+                ]}
+              />
+              <PieChart
+                title="Gender Distribution"
+                data={[
+                  { id:"남성", value:2800, color:"#2B7FFF", icon:<MaleIcon size={18} color="#2B7FFF" /> },
+                  { id:"여성", value:2200, color:"#F43F5E", icon:<FemaleIcon size={18} color="#F43F5E" /> },
+                ]}
+              />
+            </div>
+          </Card>
+
           {/* Semi Donut */}
           <Card title="Semi Donut Chart (반원)" subtitle="감성 분석, 만족도 등 비율 분포에 적합">
             <SemiDonutChart
@@ -611,8 +644,6 @@ export default function App() {
           <Card title="Labeled Line Chart" subtitle="데이터 포인트 라벨 + 하단 테이블 + 어노테이션">
             <LabeledLineChart
               title="AI 생성 정보/리뷰성 콘텐츠 신뢰도"
-              subtitle="[Base: 본 조사 1, 전체 응답자, N=3000, 평가형 5점, %]"
-              highlightFirst
               series={[
                 { id: "신뢰도 높음", color: "#2B7FFF", data: [
                   { x: "전체", y: 27.6 }, { x: "15~24세", y: 25.5 }, { x: "24~34세", y: 28.7 },
@@ -638,7 +669,6 @@ export default function App() {
           <Card title="Quadrant Chart (Segment Matrix)" subtitle="2×2 매트릭스 - 세그먼트 분석에 적합">
             <QuadrantChart
               title="Segment Matrix"
-              subtitle="[Base: Survey respondents, N=1,000]"
               yAxis={{ label: "Expectation", low: "Low", high: "High" }}
               xAxis={{ label: "Concern", low: "Low", high: "High" }}
               quadrants={[
@@ -650,6 +680,45 @@ export default function App() {
             />
           </Card>
 
+          {/* Cluster Profile Table */}
+          <Card title="Cluster Profile Table" subtitle="클러스터별 프로필 비교 테이블">
+            <ClusterProfileTable
+              title="클러스터별 이미지 프로필"
+              data={{
+                clusters: [
+                  { keywords: ["30대 초중반", "재미있고", "트렌디한 사람"] },
+                  { keywords: ["20대 초중반", "트렌디하고", "사교적인 여성"] },
+                  { keywords: ["20대 초중반", "매니아스럽고", "트렌디한 여성"] },
+                ],
+                categories: [
+                  {
+                    label: "성별",
+                    ranks: ["1순위", "2순위"],
+                    values: [["중성", "남성"], ["여성", "중성"], ["여성", "중성"]],
+                  },
+                  {
+                    label: "연령",
+                    ranks: ["1순위", "2순위", "3순위"],
+                    values: [
+                      ["30대 초중반", "20대 초중반", "20대 후반"],
+                      ["20대 초중반", "20대 후반", "30대 초중반"],
+                      ["20대 초중반", "10대 후반", "20대 후반"],
+                    ],
+                  },
+                  {
+                    label: "성격",
+                    useBadge: true,
+                    ranks: ["TOP 1", "TOP 2", "TOP 3", "TOP 4"],
+                    values: [
+                      ["재미있는", "트렌디한", "창의적인", "도전적인"],
+                      ["트렌디한", "사교적인", "허세가 많은", "재미있는"],
+                      ["매니아스러운", "트렌디한", "참견을 잘하는", "산만한"],
+                    ],
+                  },
+                ],
+              }}
+            />
+          </Card>
 
         </>}
 

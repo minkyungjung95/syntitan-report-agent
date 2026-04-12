@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveRadar } from "@nivo/radar";
+import { ResponsiveSankey } from "@nivo/sankey";
 import { T } from "./tokens.jsx";
 
 // ─── Chart Color Palette ──────────────────────────────────────────────
@@ -85,8 +86,8 @@ export function DonutChart({ data, title, size = 180 }) {
   const [hoverActive, setHoverActive] = useState(false);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 60 }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
       <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
@@ -106,7 +107,7 @@ export function DonutChart({ data, title, size = 180 }) {
               if (!svg) return;
               svg.querySelectorAll("path").forEach(p => {
                 p.style.transition = "opacity 0.15s ease";
-                p.style.opacity = "0.2";
+                p.style.opacity = "0.5";
                 p.style.stroke = "none";
                 p.style.strokeWidth = "0";
                 p.style.paintOrder = "";
@@ -136,15 +137,14 @@ export function DonutChart({ data, title, size = 180 }) {
             )}
           />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
           {data.map((d, i) => {
             const pct = ((d.value / total) * 100).toFixed(0);
             return (
-              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif" }}>
+              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
                 <LegendDot color={CHART_COLORS[i % CHART_COLORS.length]} />
-                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, minWidth: 80, marginLeft: 8 }}>{d.id}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, minWidth: 36, marginLeft: 8 }}>{pct}%</span>
-                <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginLeft: 4 }}>({d.value.toLocaleString()})</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginLeft: 8 }}>{pct}%</span>
               </div>
             );
           })}
@@ -159,14 +159,14 @@ export function DonutChart({ data, title, size = 180 }) {
 //    - innerRadius 0, 호버 시 흰색 stroke + 나머지 opacity 0.2
 //    - 범례: DonutChart와 동일
 // ═══════════════════════════════════════════════════════════════════════
-export function PieChart({ data, title, size = 180 }) {
+export function PieChart({ data, title, size = 180, showInnerLabels = false, hideValues = false }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
   const pieColors = data.map((d, i) => d.color || CHART_COLORS[i % CHART_COLORS.length]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 60 }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
       <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
@@ -176,7 +176,11 @@ export function PieChart({ data, title, size = 180 }) {
             padAngle={0}
             cornerRadius={hoverActive ? 4 : 0}
             borderWidth={0}
-            enableArcLabels={false}
+            enableArcLabels={true}
+            arcLabel={d => `${((d.value / total) * 100).toFixed(0)}%`}
+            arcLabelsTextColor={WHITE}
+            arcLabelsSkipAngle={30}
+            theme={{ ...baseTheme, labels: { text: { fontSize: 14, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
             enableArcLinkLabels={false}
             activeOuterRadiusOffset={0}
             activeInnerRadiusOffset={0}
@@ -186,7 +190,7 @@ export function PieChart({ data, title, size = 180 }) {
               if (!svg) return;
               svg.querySelectorAll("path").forEach(p => {
                 p.style.transition = "opacity 0.15s ease";
-                p.style.opacity = "0.2";
+                p.style.opacity = "0.5";
                 p.style.stroke = "none";
                 p.style.strokeWidth = "0";
                 p.style.paintOrder = "";
@@ -212,20 +216,18 @@ export function PieChart({ data, title, size = 180 }) {
             motionConfig="gentle"
             theme={baseTheme}
             tooltip={({ datum }) => (
-              <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(1)}% (${datum.value.toLocaleString()})`} />
+              <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(1)}%${hideValues ? "" : ` (${datum.value.toLocaleString()})`}`} />
             )}
           />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
           {data.map((d, i) => {
             const pct = ((d.value / total) * 100).toFixed(0);
             return (
-              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif" }}>
+              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", flexWrap: "nowrap", minWidth: 0 }}>
                 <LegendDot color={pieColors[i]} />
                 {d.icon && <span style={{ marginLeft: 8, display: "flex", alignItems: "center" }}>{d.icon}</span>}
-                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, minWidth: 80, marginLeft: 8 }}>{d.id}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, minWidth: 36, marginLeft: 8 }}>{pct}%</span>
-                <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginLeft: 4 }}>({d.value.toLocaleString()})</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8, whiteSpace: "nowrap" }}>{d.id}</span>
               </div>
             );
           })}
@@ -325,7 +327,7 @@ export function SemiDonutChart({
 
   return (
     <div style={{ fontFamily: FF }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
 
       {/* 반원 차트 */}
       <div style={{ maxWidth: size + 80, margin: "0 auto", position: "relative" }}>
@@ -493,12 +495,12 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
 
   return (
     <div
-      style={{ display: "flex", alignItems: "center", gap: 60, height: 56, position: "relative" }}
+      style={{ display: "flex", alignItems: "center", gap: 16, height: 56, position: "relative" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {/* Label */}
-      <div style={{ width: 220, minWidth: 220, flexShrink: 0, display: "flex", alignItems: "center", height: 48 }}>
+      <div style={{ width: 120, minWidth: 120, flexShrink: 0, display: "flex", alignItems: "center", height: 48 }}>
         <span style={{
           fontSize: 16, fontWeight: 500, lineHeight: "24px", color: GRAY990,
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%",
@@ -506,26 +508,29 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
       </div>
       {/* Container */}
       <div style={{
-        flex: 1, display: "flex", alignItems: "center", gap: 16,
+        flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 16,
         borderLeft: `1px solid ${GRAY200}`, padding: "12px 12px 12px 0",
         position: "relative",
       }}>
-        {/* Bar */}
-        <div style={{
-          width: `${Math.max(pct, 0.5)}%`, height: 48, flexShrink: 0,
-          background: displayColor,
-          borderRadius: "0 8px 8px 0",
-          transition: "width 0.6s ease, background 0.15s ease",
-        }} />
-        {/* Hover overlay on bar only */}
-        {hovered && pct > 0 && (
+        {/* Bar area */}
+        <div style={{ flex: 1, minWidth: 0, position: "relative", height: 48 }}>
+          {/* Bar */}
           <div style={{
-            position: "absolute", top: 12, left: 0,
             width: `${Math.max(pct, 0.5)}%`, height: 48,
-            background: "rgba(0,0,0,0.10)",
-            borderRadius: "0 8px 8px 0", pointerEvents: "none",
+            background: displayColor,
+            borderRadius: "0 2px 2px 0",
+            transition: "width 0.6s ease, background 0.15s ease",
           }} />
-        )}
+          {/* Hover overlay on bar only */}
+          {hovered && pct > 0 && (
+            <div style={{
+              position: "absolute", top: 0, left: 0,
+              width: `${Math.max(pct, 0.5)}%`, height: 48,
+              background: "rgba(0,0,0,0.10)",
+              borderRadius: "0 2px 2px 0", pointerEvents: "none",
+            }} />
+          )}
+        </div>
         {/* Counter */}
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
           <span style={{ fontSize: 20, fontWeight: 500, lineHeight: "28px", color: GRAY990 }}>{value}%</span>
@@ -546,14 +551,14 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
   );
 }
 
-export function HBarChart({ data, title, maxValue }) {
+export function HBarChart({ data, title, maxValue = 100 }) {
   const [itemCount, setItemCount] = useState(data.length);
   const visibleData = data.slice(0, itemCount);
-  const max = maxValue || Math.max(...visibleData.map(d => d.value));
+  const max = maxValue;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       {/* 항목 수 필터 */}
       <div style={{ display: "flex", gap: 6 }}>
         {[2,3,4,5,6].filter(n => n <= data.length).map(n => (
@@ -591,8 +596,8 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
   actualKeys.forEach((k, i) => { colorMap[k] = CHART_COLORS[i % CHART_COLORS.length]; });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center" }}>{title}</div>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div style={{ width: "100%", height }}>
         <ResponsiveBar
           data={data}
@@ -608,40 +613,25 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
           label={d => valueFormat ? valueFormat(d.value) : d.value}
           labelTextColor={WHITE}
           labelSkipWidth={24}
-          labelSkipHeight={14}
+          labelSkipHeight={16}
           animate
           motionConfig="gentle"
-          theme={baseTheme}
+          theme={{ ...baseTheme, labels: { text: { fontSize: 16, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
           enableGridX={false}
           enableGridY
+          gridYValues={5}
           onMouseEnter={(_datum, event) => {
             setHoverActive(true);
-            const svg = event.currentTarget.closest("svg");
-            if (!svg) return;
-            const bars = svg.querySelectorAll("g[transform] rect");
-            bars.forEach(r => {
-              const fill = r.getAttribute("fill");
-              if (fill && fill !== "transparent" && !fill.startsWith("url")) {
-                r.style.transition = "opacity 0.15s ease";
-                r.style.opacity = "0.2";
-              }
-            });
             const el = event.currentTarget;
-            el.style.opacity = "1";
-            el.style.stroke = WHITE;
-            el.style.strokeWidth = "3";
+            el.style.filter = "brightness(0.85)";
+            el.style.transition = "filter 0.15s ease";
           }}
           onMouseLeave={(_datum, event) => {
             setHoverActive(false);
-            const svg = event.currentTarget.closest("svg");
-            if (!svg) return;
-            svg.querySelectorAll("g[transform] rect").forEach(r => {
-              r.style.opacity = "1";
-              r.style.stroke = "none";
-              r.style.strokeWidth = "0";
-            });
+            const el = event.currentTarget;
+            el.style.filter = "none";
           }}
           tooltip={({ id, indexValue, value }) => (
             <Tooltip label={isSingleKey ? indexValue : `${indexValue} — ${id}`} value={valueFormat ? valueFormat(value) : value} />
@@ -649,15 +639,15 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
         />
       </div>
       {/* 범례 */}
-      <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
         {isSingleKey ? data.map((d, i) => (
           <div key={d[indexBy]} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
             <span style={{ fontSize: 12, color: GRAY990 }}>{d[indexBy]}</span>
           </div>
         )) : actualKeys.map((k, i) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
             <span style={{ fontSize: 12, color: GRAY990 }}>{k}</span>
           </div>
         ))}
@@ -671,11 +661,35 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
 // ═══════════════════════════════════════════════════════════════════════
 export function StackedHBar({ data, keys, indexBy = "label", title }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
+  const [hoveredKey, setHoveredKey] = useState(null);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ width: "100%", height: Math.max(80 * data.length + 80, 180) }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
+      {/* 3:7 레이아웃 - 라벨 : 그래프 */}
+      <div style={{ display: "flex", width: "100%", gap: 0 }}>
+        {/* 왼쪽 라벨 (30%) - Nivo horizontal bar는 아래→위 순서로 렌더링 */}
+        {(() => {
+          const totalH = Math.max(80 * data.length + 80, 180);
+          const mTop = 10, mBot = 40;
+          const plotH = totalH - mTop - mBot;
+          return (
+            <div style={{ width: "30%", flexShrink: 0, display: "flex", flexDirection: "column-reverse", paddingRight: 16, paddingTop: mTop, paddingBottom: mBot }}>
+              {data.map((d, i) => (
+                <div key={i} style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-end",
+                }}>
+                  <span style={{
+                    fontSize: 14, fontWeight: 500, color: GRAY990, fontFamily: "Pretendard, sans-serif",
+                    textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%",
+                  }}>{d[indexBy]}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+        {/* 오른쪽 그래프 (70%) */}
+        <div style={{ width: "70%", height: Math.max(80 * data.length + 80, 180) }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
@@ -683,7 +697,8 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           colors={CHART_COLORS}
           groupMode="stacked"
           layout="horizontal"
-          margin={{ top: 10, right: 100, bottom: 40, left: 200 }}
+          maxValue={100}
+          margin={{ top: 10, right: 20, bottom: 40, left: 0 }}
           padding={0.35}
           borderRadius={0}
           enableLabel
@@ -691,15 +706,43 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           labelTextColor={WHITE}
           animate
           motionConfig="gentle"
-          theme={baseTheme}
-          axisBottom={{ tickSize: 0, tickPadding: 8 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12 }}
+          theme={{
+            ...baseTheme,
+            axis: {
+              ...baseTheme.axis,
+              ticks: { text: { fontSize: 14, fill: GRAY990, fontFamily: "Pretendard, sans-serif", fontWeight: 500 } },
+            },
+          }}
+          axisBottom={null}
+          axisLeft={null}
           enableGridX={false}
           enableGridY={false}
+          onMouseEnter={(bar) => setHoveredKey(bar.key)}
+          onMouseLeave={() => setHoveredKey(null)}
+          barComponent={({ bar, style }) => {
+            const isHovered = hoveredKey !== null;
+            const isThisHovered = bar.key === hoveredKey;
+            return (
+              <g transform={`translate(${bar.x},${bar.y})`}>
+                <rect
+                  width={bar.width} height={bar.height}
+                  fill={bar.color}
+                  style={{ opacity: isHovered && !isThisHovered ? 0.5 : 1, transition: "opacity 0.15s ease" }}
+                />
+                {bar.data.value > 5 && (
+                  <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
+                    fill={WHITE} fontSize={12} fontFamily="Pretendard, sans-serif" fontWeight={500}>
+                    {bar.data.value}%
+                  </text>
+                )}
+              </g>
+            );
+          }}
           tooltip={({ id, value, indexValue }) => (
-            <Tooltip label={indexValue} value={`${value}%`} />
+            <Tooltip label={`${indexValue} · ${id}`} value={`${value}%`} />
           )}
         />
+        </div>
       </div>
     </div>
   );
@@ -728,16 +771,18 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
   const isRed = variant === "red";
   const lineColor = isRed ? RED500 : CHART_COLORS[0];
 
-  // Y축: red는 최소/최대만, blue는 자동 5개
+  // Y축: 5단계 통일
   const allY = data.flatMap(s => s.data.map(d => d.y));
   const yMin = Math.min(...allY);
   const yMax = Math.max(...allY);
-  const yTickValues = isRed ? [yMin, yMax] : 5;
   const yFormat = isRed ? (v => `${v}%`) : undefined;
 
+  // areaBaselineValue를 yScale min과 일치시켜 넘침 방지
+  const scaleMin = isRed ? 0 : yMin;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center" }}>{title}</div>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div style={{ width: "100%", height: 280 }}>
         <ResponsiveLine
           data={data}
@@ -746,9 +791,9 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           lineWidth={2}
           enableArea={enableArea}
           areaOpacity={isRed ? 0.08 : 0.12}
-          areaBaselineValue={0}
+          areaBaselineValue={scaleMin}
           margin={{ top: 20, right: 40, bottom: 50, left: 60 }}
-          yScale={{ type: "linear", min: isRed ? 0 : "auto", max: "auto" }}
+          yScale={{ type: "linear", min: scaleMin, max: "auto" }}
           enablePoints
           pointSize={10}
           pointBorderWidth={2}
@@ -756,12 +801,12 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           pointColor={WHITE}
           enableGridX={false}
           enableGridY
-          gridYValues={isRed ? [yMin, yMax] : undefined}
+          gridYValues={5}
           animate
           motionConfig="gentle"
           theme={baseTheme}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: yTickValues, format: yFormat }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5, format: yFormat }}
           useMesh
           enableCrosshair
           crosshairType="x"
@@ -868,7 +913,7 @@ export function LabeledLineChart({
 
   return (
     <div ref={containerRef} style={{ fontFamily: FF, width: "100%" }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
       {subtitle && <div style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginBottom: 20 }}>{subtitle}</div>}
 
       <div style={{ position: "relative" }}>
@@ -905,7 +950,7 @@ export function LabeledLineChart({
             const isOtherHovered = hovered !== null && hovered.si !== si;
 
             return (
-              <g key={s.id} style={{ opacity: isOtherHovered ? 0.2 : 1, transition: "opacity 0.15s" }}>
+              <g key={s.id} style={{ opacity: isOtherHovered ? 0.5 : 1, transition: "opacity 0.15s" }}>
                 {/* 라인 */}
                 <path d={linePath} fill="none" stroke={s.color} strokeWidth={2} />
                 {/* 포인트 + 라벨 */}
@@ -998,8 +1043,9 @@ export function LabeledLineChart({
             position: "absolute",
             left: tooltipPos.x + 12,
             top: tooltipPos.y - 10,
-            background: GRAY990,
-            color: WHITE,
+            background: WHITE,
+            color: GRAY990,
+            border: `1px solid ${GRAY200}`,
             borderRadius: 8,
             padding: "10px 14px",
             fontSize: 13,
@@ -1008,12 +1054,12 @@ export function LabeledLineChart({
             zIndex: 10,
             pointerEvents: "none",
             whiteSpace: "nowrap",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
           }}>
-            <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13 }}>
+            <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13, color: GRAY990 }}>
               {categories[hoveredCol]?.label}
               {categories[hoveredCol]?.count != null && (
-                <span style={{ fontWeight: 400, color: "#999", marginLeft: 4 }}>
+                <span style={{ fontWeight: 400, color: GRAY800, marginLeft: 4 }}>
                   ({categories[hoveredCol].count.toLocaleString()})
                 </span>
               )}
@@ -1021,8 +1067,8 @@ export function LabeledLineChart({
             {series.map((s, si) => (
               <div key={si} style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
-                <span>{s.id}</span>
-                <span style={{ marginLeft: "auto", fontWeight: 700, paddingLeft: 12 }}>{s.data[hoveredCol]?.y}</span>
+                <span style={{ color: GRAY800 }}>{s.id}</span>
+                <span style={{ marginLeft: "auto", fontWeight: 700, paddingLeft: 12, color: GRAY990 }}>{s.data[hoveredCol]?.y}</span>
               </div>
             ))}
           </div>
@@ -1188,7 +1234,7 @@ export function QuadrantChart({
 
   return (
     <div style={{ fontFamily: F, ...style }}>
-      {title && <div style={{ fontSize: 16, fontWeight: 600, color: T.gray990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990, textAlign: "center", marginBottom: 60 }}>{title}</div>}
 
       {/* 전체를 table-like 구조로: Y라벨 | Y축선 | [그리드+X축선+X라벨] */}
       <div style={{ display: "grid", gridTemplateColumns: "auto 1.5px 1fr", gridTemplateRows: "auto auto auto", columnGap: 0, rowGap: 0 }}>
@@ -1243,17 +1289,24 @@ export function QuadrantChart({
                         position: "relative", zIndex: isHovered ? 2 : 1,
                       }}
                     >
-                      {/* tag: 작은 영역이면 호버 시에만 표시 */}
-                      {q.tag && (
+                      {/* tag: 큰 영역은 칩, 작은 영역은 호버 시 툴팁 */}
+                      {q.tag && !isSmall && (
                         <div style={{
-                          background: T.white, borderRadius: 8, padding: "6px 12px", marginBottom: 10,
-                          fontSize: 13, fontWeight: 400, color: T.gray800, lineHeight: "18px", textAlign: "center",
-                          boxShadow: isHovered ? "0 2px 8px rgba(0,0,0,0.1)" : "0 1px 3px rgba(0,0,0,0.06)",
-                          transition: "box-shadow 0.2s, opacity 0.2s",
-                          ...(isSmall && !isHovered ? { opacity: 0, position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 10, pointerEvents: "none" } : {}),
-                          ...(isSmall && isHovered ? { position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 10, opacity: 1 } : {}),
+                          background: "rgba(255,255,255,0.85)", borderRadius: 9999, padding: "4px 12px", marginBottom: 10,
+                          fontSize: 12, fontWeight: 500, color: T.gray800, lineHeight: "16px", textAlign: "center",
+                          whiteSpace: "nowrap",
                         }}>
                           {q.tag}
+                        </div>
+                      )}
+                      {q.tag && isSmall && isHovered && (
+                        <div style={{
+                          position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", zIndex: 10,
+                          pointerEvents: "none",
+                        }}>
+                          <div style={{ ...tooltipBox, padding: "4px 10px" }}>
+                            <span style={{ fontSize: 12, fontWeight: 500, color: GRAY800 }}>{q.tag}</span>
+                          </div>
                         </div>
                       )}
                       <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: q.labelColor || T.gray990, textAlign: "center" }}>
@@ -1358,17 +1411,12 @@ export function ClusterProfileTable({ title, data }) {
     whiteSpace: "nowrap",
   };
 
-  // Badge style for TOP N labels (성격 카테고리 등)
-  const badgeStyle = (idx) => ({
-    display: "inline-block",
+  // Rank text style: 1순위만 SemiBold + blue500, 나머지 Regular + gray800
+  const rankTextStyle = (idx) => ({
     fontFamily: "Pretendard, sans-serif",
-    fontSize: 12,
-    fontWeight: 600,
-    color: T.white,
-    background: idx === 0 ? blue500 : idx === 1 ? "#60A5FA" : idx === 2 ? "#93C5FD" : "#BFDBFE",
-    borderRadius: 4,
-    padding: "3px 8px",
-    lineHeight: 1.3,
+    fontSize: 13,
+    fontWeight: idx === 0 ? 600 : 400,
+    color: idx === 0 ? blue500 : T.gray800,
   });
 
   // Grid template: category-label | rank-label | cluster1 | cluster2 | ...
@@ -1377,7 +1425,7 @@ export function ClusterProfileTable({ title, data }) {
   return (
     <div style={{ fontFamily: "Pretendard, sans-serif" }}>
       {title && (
-        <div style={{ fontSize: 16, fontWeight: 600, color: GRAY990, textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>
           {title}
         </div>
       )}
@@ -1391,11 +1439,11 @@ export function ClusterProfileTable({ title, data }) {
         background: T.white,
       }}>
         {/* ── Header row ── */}
-        <div style={{ ...labelCellBase, background: T.white, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div style={{ ...labelCellBase, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <div style={{ fontSize: 15, fontWeight: 700 }}>이미지</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.gray800 }}>Keyword</div>
         </div>
-        <div style={{ background: T.white, borderBottom: `1px solid ${T.gray200}` }} />
+        <div style={{ background: T.gray25, borderBottom: `1px solid ${T.gray200}` }} />
         {clusters.map((c, ci) => (
           <div key={ci} style={{ ...headerCell, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
             {c.keywords.map((kw, ki) => (
@@ -1435,11 +1483,8 @@ export function ClusterProfileTable({ title, data }) {
                 <div style={{
                   ...rankLabelStyle,
                   borderBottom: borderBot,
-                  ...(cat.useBadge ? { padding: "8px 8px" } : {}),
                 }}>
-                  {cat.useBadge ? (
-                    <span style={badgeStyle(ri)}>{rank}</span>
-                  ) : rank}
+                  <span style={rankTextStyle(ri)}>{rank}</span>
                 </div>
 
                 {/* Cluster values */}
@@ -1465,3 +1510,601 @@ export function ClusterProfileTable({ title, data }) {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════
+// GROUPED BAR (Nivo - 세로 그룹/스택 막대)
+// ═══════════════════════════════════════════════════════════════════════
+export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked = false, layout = "vertical" }) {
+  const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
+      <div style={{ width: "100%", height: 300 }}>
+        <ResponsiveBar
+          data={data}
+          keys={actualKeys}
+          indexBy={indexBy}
+          colors={CHART_COLORS}
+          groupMode={stacked ? "stacked" : "grouped"}
+          layout={layout}
+          margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+          padding={0.25}
+          innerPadding={stacked ? 0 : 4}
+          borderRadius={stacked ? 0 : 4}
+          enableLabel={false}
+          animate
+          motionConfig="gentle"
+          theme={baseTheme}
+          axisBottom={{ tickSize: 0, tickPadding: 12 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
+          enableGridX={false}
+          enableGridY
+          gridYValues={5}
+          onMouseEnter={(_datum, event) => {
+            event.currentTarget.style.filter = "brightness(0.85)";
+            event.currentTarget.style.transition = "filter 0.15s ease";
+          }}
+          onMouseLeave={(_datum, event) => {
+            event.currentTarget.style.filter = "none";
+          }}
+          tooltip={({ id, value, indexValue, color }) => (
+            <Tooltip label={`${indexValue} · ${id}`} value={value} />
+          )}
+        />
+      </div>
+      {/* 범례 */}
+      <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
+        {actualKeys.map((k, i) => (
+          <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, fontFamily: "Pretendard, sans-serif" }}>{k}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RADAR CHART
+// ═══════════════════════════════════════════════════════════════════════
+export function RadarChart({ data, keys, indexBy = "category", title, color = "#2B7FFF" }) {
+  const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
+      <div style={{ width: "100%", height: 360 }}>
+        <ResponsiveRadar
+          data={data}
+          keys={actualKeys}
+          indexBy={indexBy}
+          maxValue={100}
+          margin={{ top: 40, right: 60, bottom: 40, left: 60 }}
+          colors={[color]}
+          fillOpacity={0.2}
+          borderWidth={2}
+          borderColor={color}
+          dotSize={8}
+          dotColor={WHITE}
+          dotBorderWidth={2}
+          dotBorderColor={color}
+          gridLevels={4}
+          gridShape="linear"
+          gridLabelOffset={24}
+          enableDotLabel={false}
+          isInteractive
+          animate
+          motionConfig="gentle"
+          theme={{
+            ...baseTheme,
+            grid: { line: { stroke: GRAY200, strokeWidth: 1 } },
+          }}
+          sliceTooltip={({ index, data: sliceData }) => (
+            <div style={tooltipBox}>
+              <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{index}</span>
+              {sliceData.map((d, i) => (
+                <span key={i} style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{d.formattedValue || d.value}%</span>
+              ))}
+            </div>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PSM 가격 수요 곡선 그래프
+// ═══════════════════════════════════════════════════════════════════════
+const PSM_COLORS = ["#00A63E", "#FDC700", "#8A77E0", "#FF6467"];
+const PSM_DASH = [null, "8 4", "8 4", null];
+const PSM_LABELS = ["Too Cheap", "Cheap", "Expensive", "Too Expensive"];
+
+function PSMIntersectionDots({ intersections, xScale, yScale }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  return (
+    <g>
+      {/* 1단계: 모든 dot 원 먼저 렌더 */}
+      {intersections.map((pt, i) => {
+        const cx = xScale(pt.x), cy = yScale(pt.y);
+        const isH = hoveredIdx === i;
+        return (
+          <g key={`dot-${i}`}>
+            <circle cx={cx} cy={cy} r={isH ? 7 : 6} fill={WHITE} stroke={GRAY800} strokeWidth={1.5}
+              style={{ cursor: "pointer", transition: "r 0.15s ease" }}
+              onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} />
+            <circle cx={cx} cy={cy} r={16} fill="transparent"
+              onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} />
+          </g>
+        );
+      })}
+      {/* 2단계: 호버된 tooltip만 모든 dot 위에 렌더 */}
+      {hoveredIdx !== null && (() => {
+        const pt = intersections[hoveredIdx];
+        const cx = xScale(pt.x), cy = yScale(pt.y);
+        return (
+          <foreignObject x={cx - 140} y={cy - 75} width={280} height={66} style={{ overflow: "visible", pointerEvents: "none" }}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div style={{ ...tooltipBox, padding: "6px 12px" }}>
+                <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{pt.fullLabel || pt.label}</span>
+                <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{pt.price}</span>
+              </div>
+            </div>
+          </foreignObject>
+        );
+      })()}
+    </g>
+  );
+}
+
+// 두 곡선의 교차점을 선형 보간으로 자동 계산
+function findCrossing(seriesA, seriesB) {
+  const dA = seriesA.data, dB = seriesB.data;
+  for (let i = 0; i < dA.length - 1; i++) {
+    const b1 = dB.find(d => d.x === dA[i].x);
+    const b2 = dB.find(d => d.x === dA[i + 1].x);
+    if (!b1 || !b2) continue;
+    const d1 = dA[i].y - b1.y, d2 = dA[i + 1].y - b2.y;
+    if (d1 * d2 <= 0 && d1 !== d2) {
+      const t = d1 / (d1 - d2);
+      return { x: Math.round(dA[i].x + t * (dA[i + 1].x - dA[i].x)), y: Math.round((dA[i].y + t * (dA[i + 1].y - dA[i].y)) * 10) / 10 };
+    }
+  }
+  return null;
+}
+
+export function PSMChart({ data, title, intersections: manualPts }) {
+  // data: [0]Too Cheap, [1]Cheap, [2]Expensive, [3]Too Expensive
+  const auto = data.length === 4 ? [
+    { label: "PMC", fullLabel: "PMC (Point of Marginal Cheapness)", color: "#8EC5FF", ...findCrossing(data[0], data[2]) },
+    { label: "OPP", fullLabel: "OPP (Optimal Price Point)", color: "#2B7FFF", ...findCrossing(data[0], data[3]) },
+    { label: "IPP", fullLabel: "IPP (Indifference Price Point)", color: "#7CCF00", ...findCrossing(data[1], data[2]) },
+    { label: "PME", fullLabel: "PME (Point of Marginal Expensiveness)", color: "#8A77E0", ...findCrossing(data[3], data[1]) },
+  ].filter(p => p.x != null).map(p => ({ ...p, price: `$${p.x?.toLocaleString()}` })) : [];
+  const intersections = (manualPts && manualPts.length > 0) ? manualPts : auto;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
+      <div style={{ width: "100%", height: 380 }}>
+        <ResponsiveLine
+          data={data}
+          colors={PSM_COLORS}
+          curve="monotoneX"
+          lineWidth={2.5}
+          enableArea={false}
+          margin={{ top: 20, right: 40, bottom: 40, left: 60 }}
+          xScale={{ type: "linear", min: "auto", max: "auto" }}
+          yScale={{ type: "linear", min: 0, max: 100 }}
+          enablePoints={false}
+          enableGridX
+          enableGridY
+          gridYValues={[0, 25, 50, 75, 100]}
+          animate
+          motionConfig="gentle"
+          theme={baseTheme}
+          axisBottom={{ tickSize: 0, tickPadding: 12, tickValues: 10 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: [0, 25, 50, 75, 100], format: v => `${v}%` }}
+          useMesh={false}
+          enableCrosshair={false}
+          isInteractive={false}
+          layers={[
+            "grid", "markers", "axes",
+            ({ xScale, innerHeight }) => {
+              if (intersections.length < 2) return null;
+              const xs = intersections.map(p => xScale(p.x)).sort((a, b) => a - b);
+              return <rect x={xs[0]} y={0} width={xs[xs.length - 1] - xs[0]} height={innerHeight} fill="#EFF6FF" opacity={0.5} />;
+            },
+            ({ series, lineGenerator }) => series.map((s, i) => (
+              <path key={s.id} d={lineGenerator(s.data.map(d => ({ x: d.position.x, y: d.position.y })))}
+                fill="none" stroke={PSM_COLORS[i]} strokeWidth={2.5}
+                strokeDasharray={PSM_DASH[i] || "none"} strokeLinecap="round" />
+            )),
+            ({ xScale, yScale }) => (
+              <PSMIntersectionDots intersections={intersections} xScale={xScale} yScale={yScale} />
+            ),
+          ]}
+        />
+      </div>
+      {/* 커스텀 범례 - 선 스타일(실선/점선) */}
+      <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap" }}>
+        {PSM_LABELS.map((label, i) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width={32} height={3}>
+              <line x1={0} y1={1.5} x2={32} y2={1.5}
+                stroke={PSM_COLORS[i]} strokeWidth={2.5}
+                strokeDasharray={PSM_DASH[i] || "none"} strokeLinecap="round" />
+            </svg>
+            <span style={{ fontSize: 14, fontWeight: 500, color: GRAY990, fontFamily: "Pretendard, sans-serif" }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FUNNEL CHART (퍼널 차트 – 단계별 전환율 + 이탈율)
+//   steps: [{ label, value, sublabel? }]
+//   각 단계별 바 높이가 값에 비례, 단계 간 흐름 영역 표시, 이탈율 계산
+// ═══════════════════════════════════════════════════════════════════════
+
+const BLUE_SCALE = [
+  T.blue600 || "#155DFC",
+  T.blue500 || "#2B7FFF",
+  T.blue400 || "#51A2FF",
+  T.blue300 || "#8EC5FF",
+  T.blue200 || "#BEDBFF",
+  T.blue100 || "#DBEAFE",
+];
+
+export function FunnelChart({
+  title,
+  steps = [],
+  height: chartHeight = 460,
+  showDropoff = true,
+  style,
+}) {
+  const FF = "Pretendard, sans-serif";
+  const containerRef = useRef(null);
+  const [containerW, setContainerW] = useState(800);
+  const [hoveredStep, setHoveredStep] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(([entry]) => setContainerW(entry.contentRect.width));
+    ro.observe(containerRef.current);
+    setContainerW(containerRef.current.offsetWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  // 값 계산
+  const maxVal = steps.length > 0 ? steps[0].value : 1;
+  const stepsData = useMemo(() => steps.map((s, i) => {
+    const prev = i > 0 ? steps[i - 1].value : s.value;
+    const pct = maxVal > 0 ? (s.value / maxVal * 100) : 0;
+    const convRate = prev > 0 ? (s.value / prev * 100) : 100;
+    const dropoff = prev > 0 ? ((prev - s.value) / prev * 100) : 0;
+    const dropoffCount = i > 0 ? prev - s.value : 0;
+    return { ...s, pct, convRate, dropoff, dropoffCount, index: i };
+  }), [steps, maxVal]);
+
+  // 레이아웃 계산
+  const margin = { top: 50, right: 40, bottom: 80, left: 40 };
+  const plotW = containerW - margin.left - margin.right;
+  const plotH = chartHeight - margin.top - margin.bottom;
+  const stepCount = stepsData.length;
+  // 전체 barW * stepCount + barGap * (stepCount-1) = plotW 이내에 맞추기
+  const idealBarW = plotW / stepCount * 0.6;
+  const barW = Math.max(28, Math.min(idealBarW, 80));
+  const barGap = stepCount > 1 ? (plotW - barW * stepCount) / (stepCount - 1) : 0;
+  const stepW = barW + barGap;
+  // 실제 전체 너비 → 가운데 정렬용 오프셋
+  const totalBarsW = barW * stepCount + barGap * (stepCount - 1);
+  const offsetX = margin.left + (plotW - totalBarsW) / 2;
+
+  // 바 높이 (최대 바가 plotH의 90% 차지)
+  const maxBarH = plotH * 0.9;
+  const getBarH = (val) => maxVal > 0 ? (val / maxVal) * maxBarH : 0;
+
+  // 색상: 단계가 6개 이하면 BLUE_SCALE, 넘으면 보간
+  const getColor = (i) => {
+    if (stepCount <= BLUE_SCALE.length) return BLUE_SCALE[Math.min(i, BLUE_SCALE.length - 1)];
+    const t = i / (stepCount - 1);
+    const idx = t * (BLUE_SCALE.length - 1);
+    return BLUE_SCALE[Math.min(Math.round(idx), BLUE_SCALE.length - 1)];
+  };
+
+  return (
+    <div ref={containerRef} style={{ fontFamily: FF, width: "100%", ...style }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>{title}</div>}
+
+      <div style={{ position: "relative" }}>
+        <svg viewBox={`0 0 ${containerW} ${chartHeight}`} width="100%" style={{ display: "block", overflow: "visible" }}>
+          {/* 흐름 영역 (단계 간 연결) */}
+          {stepsData.map((s, i) => {
+            if (i === 0) return null;
+            const prev = stepsData[i - 1];
+            const x1 = offsetX + (i - 1) * stepW + barW;
+            const x2 = offsetX + i * stepW;
+            const prevH = getBarH(prev.value);
+            const curH = getBarH(s.value);
+            const y1Top = margin.top + (maxBarH - prevH);
+            const y1Bot = margin.top + maxBarH;
+            const y2Top = margin.top + (maxBarH - curH);
+            const y2Bot = margin.top + maxBarH;
+            const isH = hoveredStep === i || hoveredStep === i - 1;
+
+            // 곡선 연결 path
+            const midX = (x1 + x2) / 2;
+            const pathD = [
+              `M ${x1} ${y1Top}`,
+              `C ${midX} ${y1Top}, ${midX} ${y2Top}, ${x2} ${y2Top}`,
+              `L ${x2} ${y2Bot}`,
+              `C ${midX} ${y2Bot}, ${midX} ${y1Bot}, ${x1} ${y1Bot}`,
+              `Z`,
+            ].join(" ");
+
+            return (
+              <path key={`flow-${i}`} d={pathD}
+                fill={getColor(i)}
+                opacity={isH ? 0.25 : 0.1}
+                style={{ transition: "opacity 0.2s" }}
+              />
+            );
+          })}
+
+          {/* 이탈 표시 영역 (드롭오프) */}
+          {showDropoff && stepsData.map((s, i) => {
+            if (i === 0 || s.dropoffCount <= 0) return null;
+            const prev = stepsData[i - 1];
+            const x1 = offsetX + (i - 1) * stepW + barW;
+            const x2 = offsetX + i * stepW;
+            const prevH = getBarH(prev.value);
+            const curH = getBarH(s.value);
+            const y1Top = margin.top + (maxBarH - prevH);
+            const y2Top = margin.top + (maxBarH - curH);
+
+            // 이탈 영역: 이전 바 상단 → 현재 바 상단 위쪽 (이탈분)
+            const dropH = prevH - curH;
+            if (dropH <= 2) return null;
+
+            const midX = (x1 + x2) / 2;
+            const isH = hoveredStep === i;
+            // 이탈 path: 이전 상단 → 현재 상단 수평선 → 아래로 0 (사라짐)
+            const dPath = [
+              `M ${x1} ${y1Top}`,
+              `C ${midX} ${y1Top}, ${midX} ${y2Top - dropH * 0.3}, ${x2 - barGap * 0.15} ${y2Top - dropH * 0.15}`,
+              `L ${x2 - barGap * 0.15} ${y2Top}`,
+              `C ${midX} ${y2Top}, ${midX} ${y1Top + (prevH - curH) * 0.5}, ${x1} ${y1Top + 0}`,
+              `Z`,
+            ].join(" ");
+
+            return (
+              <g key={`drop-${i}`}>
+                <path d={dPath}
+                  fill={RED500}
+                  opacity={isH ? 0.15 : 0.06}
+                  style={{ transition: "opacity 0.2s" }}
+                />
+                {/* 이탈율 라벨 */}
+                {isH && (
+                  <text
+                    x={(x1 + x2) / 2}
+                    y={Math.min(y1Top, y2Top) - 4}
+                    textAnchor="middle"
+                    style={{ fontSize: 12, fontWeight: 600, fill: RED500, fontFamily: FF }}
+                  >
+                    -{s.dropoff.toFixed(1)}%
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* 바 + 라벨 */}
+          {stepsData.map((s, i) => {
+            const x = offsetX + i * stepW;
+            const barH = getBarH(s.value);
+            const y = margin.top + (maxBarH - barH);
+            const isH = hoveredStep === i;
+            const color = getColor(i);
+
+            return (
+              <g key={`bar-${i}`}
+                onMouseEnter={(e) => {
+                  setHoveredStep(i);
+                  const rect = containerRef.current?.getBoundingClientRect();
+                  if (rect) setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }}
+                onMouseMove={(e) => {
+                  const rect = containerRef.current?.getBoundingClientRect();
+                  if (rect) setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }}
+                onMouseLeave={() => setHoveredStep(null)}
+                style={{ cursor: "default" }}
+              >
+                {/* 바 */}
+                <rect x={x} y={y} width={barW} height={barH}
+                  rx={4} fill={color}
+                  style={{ transition: "height 0.4s ease, y 0.4s ease" }}
+                />
+                {/* 호버: 바 위에 블랙 오버레이 */}
+                {isH && (
+                  <rect x={x} y={y} width={barW} height={barH}
+                    rx={4} fill="rgba(0,0,0,0.10)"
+                    style={{ pointerEvents: "none" }}
+                  />
+                )}
+                {/* 퍼센트 라벨 (바 위) */}
+                <text x={x + barW / 2} y={y - 10}
+                  textAnchor="middle"
+                  style={{
+                    fontSize: isH ? 15 : 13,
+                    fontWeight: 700,
+                    fill: isH ? GRAY990 : GRAY800,
+                    fontFamily: FF,
+                    transition: "font-size 0.15s",
+                  }}>
+                  {s.pct.toFixed(1)}%
+                </text>
+                {/* 전환율 (첫 단계 제외, 바 위 퍼센트 위) */}
+                {i > 0 && (
+                  <text x={x + barW / 2} y={y - 28}
+                    textAnchor="middle"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 500,
+                      fill: s.convRate >= 80 ? (T.green600 || "#00A63E") : s.convRate >= 50 ? GRAY800 : RED500,
+                      fontFamily: FF,
+                    }}>
+                    conv. {s.convRate.toFixed(1)}%
+                  </text>
+                )}
+                {/* 단계 라벨 (하단) */}
+                <text x={x + barW / 2} y={margin.top + maxBarH + 24}
+                  textAnchor="middle"
+                  style={{ fontSize: 13, fontWeight: isH ? 600 : 500, fill: isH ? GRAY990 : GRAY800, fontFamily: FF }}>
+                  {s.label}
+                </text>
+                {/* 유저 수 (하단 2행) */}
+                <text x={x + barW / 2} y={margin.top + maxBarH + 44}
+                  textAnchor="middle"
+                  style={{ fontSize: 11, fontWeight: 400, fill: GRAY800, fontFamily: FF }}>
+                  {s.value.toLocaleString()}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* 호버 툴팁 */}
+        {hoveredStep !== null && (() => {
+          const s = stepsData[hoveredStep];
+          return (
+            <div style={{
+              position: "absolute",
+              left: Math.min(tooltipPos.x + 16, containerW - 220),
+              top: tooltipPos.y - 80,
+              ...tooltipBox,
+              padding: "10px 16px",
+              zIndex: 10,
+              pointerEvents: "none",
+              minWidth: 160,
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>
+                Step {s.index + 1}: {s.label}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 13, color: GRAY800 }}>유저 수</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{s.value.toLocaleString()}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 13, color: GRAY800 }}>전체 대비</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: T.blue500 }}>{s.pct.toFixed(1)}%</span>
+                </div>
+                {s.index > 0 && (
+                  <>
+                    <div style={{ height: 1, background: GRAY200, margin: "2px 0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                      <span style={{ fontSize: 13, color: GRAY800 }}>전환율</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: s.convRate >= 80 ? (T.green600 || "#00A63E") : GRAY990 }}>{s.convRate.toFixed(1)}%</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                      <span style={{ fontSize: 13, color: GRAY800 }}>이탈</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.dropoffCount.toLocaleString()} ({s.dropoff.toFixed(1)}%)</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SANKEY CHART (Nivo Sankey – 사용자 흐름 분석)
+//   Amplitude Pathfinder 스타일 흐름 시각화
+// ═══════════════════════════════════════════════════════════════════════
+
+const SANKEY_BLUE = {
+  node: T.blue500 || "#2B7FFF",
+  link: T.blue200 || "#BEDBFF",
+  hover: T.blue400 || "#51A2FF",
+  drop: GRAY200,
+};
+
+export function SankeyChart({
+  title,
+  data,          // { nodes: [{ id }], links: [{ source, target, value }] }
+  height = 480,
+  style,
+}) {
+  const FF = "Pretendard, sans-serif";
+  const [hovered, setHovered] = useState(null);
+
+  // 노드 색상: "drop"/"other" 계열은 회색, 나머지 블루 그라데이션
+  const getNodeColor = (node) => {
+    const id = (node.id || "").toLowerCase();
+    if (id.includes("drop") || id.includes("other") || id.includes("이탈")) return GRAY200;
+    return SANKEY_BLUE.node;
+  };
+
+  return (
+    <div style={{ fontFamily: FF, width: "100%", ...style }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>{title}</div>}
+      <div style={{ width: "100%", height }}>
+        <ResponsiveSankey
+          data={data}
+          margin={{ top: 20, right: 160, bottom: 20, left: 80 }}
+          align="justify"
+          colors={getNodeColor}
+          nodeOpacity={1}
+          nodeHoverOthersOpacity={0.25}
+          nodeThickness={24}
+          nodeSpacing={16}
+          nodeBorderWidth={0}
+          nodeBorderRadius={4}
+          linkOpacity={0.2}
+          linkHoverOthersOpacity={0.05}
+          linkContract={1}
+          linkBlendMode="normal"
+          enableLinkGradient
+          labelPosition="outside"
+          labelOrientation="horizontal"
+          labelPadding={12}
+          labelTextColor={{ from: "color", modifiers: [["darker", 1.4]] }}
+          animate
+          motionConfig="gentle"
+          theme={{
+            ...baseTheme,
+            labels: { text: { fontSize: 13, fontWeight: 500, fontFamily: FF, fill: GRAY990 } },
+          }}
+          nodeTooltip={({ node }) => (
+            <div style={{ ...tooltipBox, padding: "8px 14px" }}>
+              <span style={{ fontSize: 14, fontWeight: 600, lineHeight: "20px", color: GRAY990 }}>{node.label}</span>
+              <span style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: node.color }}>{node.value.toLocaleString()}</span>
+            </div>
+          )}
+          linkTooltip={({ link }) => (
+            <div style={{ ...tooltipBox, padding: "8px 14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{link.source.label}</span>
+                <span style={{ fontSize: 12, color: GRAY800 }}>→</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{link.target.label}</span>
+              </div>
+              <span style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: GRAY990 }}>{link.value.toLocaleString()}</span>
+            </div>
+          )}
+        />
+      </div>
+    </div>
+  );
+}

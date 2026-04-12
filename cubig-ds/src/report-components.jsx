@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, CheckCircleIcon, CheckCircleFillIcon, PersonIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
+import { T, CheckCircleIcon, PersonIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
 import { Badge, Btn, Chip, ChipTabs, Callout } from "./ui-components.jsx";
 import { CHART_COLORS } from "./charts";
 
@@ -59,7 +59,7 @@ export function ReportSection({ children, gap = 24, style }) {
 // ── ContentHeader: 세미 타이틀 (border 안, gray50 밖) ──
 export function ContentHeader({ title, description, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 16, fontFamily: F, ...style }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, fontFamily: F, ...style }}>
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
         <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
@@ -212,27 +212,29 @@ export function PersonaCard({ name, subtitle, metrics = [], icon, style }) {
       borderRadius: 16,
       fontFamily: F,
       boxSizing: "border-box",
-      padding: "20px 24px",
+      padding: 24,
+      display: "flex", flexDirection: "column", gap: 16,
+      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
       ...style,
     }}>
       {/* Header: icon + name + badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 12, background: T.gray100, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {icon || <PersonIcon size={20} color={T.gray800} />}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {icon || <PersonIcon size={24} color={T.gray800} />}
         </div>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: T.gray990 }}>{name}</div>
-          {subtitle && <div style={{ marginTop: 4 }}><Badge type="Solid" variant="Secondary" size="Small" text={subtitle} /></div>}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+          {subtitle && <Badge type="Outline" variant="Secondary" size="Small" text={subtitle} />}
         </div>
       </div>
       {/* Divider */}
-      <div style={{ height: 1, background: T.gray200, margin: "16px 0" }} />
+      <div style={{ height: 1, background: T.gray200 }} />
       {/* Metrics */}
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {metrics.map((m, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
-            <span style={{ fontSize: 14, fontWeight: 400, color: T.gray800 }}>{m.key}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: T.gray990 }}>{m.value}</span>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, width: 200, flexShrink: 0 }}>{m.key}</span>
+            <span style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990, flex: 1, textAlign: "right" }}>{m.value}</span>
           </div>
         ))}
       </div>
@@ -309,17 +311,17 @@ export function TextBlock({ title, icon, children, items = [], bordered = true, 
   return (
     <div style={{ padding: "20px 24px", fontFamily: F, border: bordered ? `1px solid ${T.gray200}` : "none", borderRadius: bordered ? 16 : 0, ...style }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        {icon || <CheckCircleFillIcon size={20} color={T.gray990} />}
+        {icon || <CheckCircleIcon size={20} color={T.gray990} />}
         <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: T.gray990 }}>{title}</span>
       </div>
       {items.length > 0 && (
         <ul style={{ margin: 0, paddingLeft: 16 }}>
           {items.map((item, i) => (
-            <li key={i} style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800, marginBottom: 4 }}>{item}</li>
+            <li key={i} style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, marginBottom: 4 }}>{item}</li>
           ))}
         </ul>
       )}
-      {children && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{children}</div>}
+      {children && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{children}</div>}
     </div>
   );
 }
@@ -604,17 +606,17 @@ export function StatRow({ label, value, items = [], style }) {
   );
 }
 
-export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", style }) {
+export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", bordered = true, style }) {
   return (
     <div style={{
-      flex: "1 1 calc(33.33% - 12px)", minWidth: 300,
-      border: `1px solid ${T.gray200}`,
+      flex: 1, minWidth: 0,
+      border: bordered ? `1px solid ${T.gray200}` : "none",
       borderRadius: 16,
-      overflow: "hidden",
       fontFamily: F,
       display: "flex", flexDirection: "column",
       padding: 24,
       gap: 0,
+      background: T.white,
       ...style,
     }}>
       {/* Badge */}
@@ -625,9 +627,9 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
       <div style={{ marginTop: 24 }}>
         <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: T.gray990 }}>{title}</div>
       </div>
-      {/* Divider */}
-      <div style={{ height: 1, background: T.gray200, margin: "16px 0" }} />
-      {/* Description bullets — 간격 16 */}
+      <div style={{ height: 16, borderBottom: `1px solid ${T.gray200}` }} />
+      <div style={{ height: 16 }} />
+      {/* Description bullets */}
       <div style={{ flex: 1 }}>
         <ul style={{ margin: 0, paddingLeft: 16 }}>
           {items.map((item, i) => (
@@ -713,20 +715,23 @@ export function InsightCard({ icon, title, children, items, style }) {
   return <TextBlock title={title} icon={icon || <InfoFillIcon size={20} color={T.gray800} />} items={items} style={style}>{children}</TextBlock>;
 }
 
-export function StrategyCard({ badge, price, priceLabel, children, style }) {
+export function StrategyCard({ badge, price, priceLabel, children, bordered = true, style }) {
   return (
     <div style={{
-      flex: "1 1 calc(33.33% - 12px)", minWidth: 300,
-      border: `1px solid ${T.gray200}`,
+      flex: 1, minWidth: 0,
+      border: bordered ? `1px solid ${T.gray200}` : "none",
       borderRadius: 16,
       padding: "20px 24px",
       fontFamily: F,
+      background: T.white,
       ...style,
     }}>
-      {badge && <div style={{ marginBottom: 12 }}><Badge type="Outline" variant={badge.variant || "Primary"} size="Small" text={badge.text} /></div>}
+      {badge && <div style={{ marginBottom: 12 }}><Badge type={badge.type || "Outline"} variant={badge.variant || "Primary"} size={badge.size || "Small"} text={badge.text} /></div>}
       <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{price}</div>
-      {priceLabel && <div style={{ fontSize: 14, fontWeight: 400, color: T.gray800, marginTop: 2, marginBottom: 12 }}>{priceLabel}</div>}
-      <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{children}</div>
+      {priceLabel && <div style={{ fontSize: 14, fontWeight: 400, color: T.gray800, marginTop: 2, marginBottom: 16 }}>{priceLabel}</div>}
+      <div style={{ borderTop: `1px solid ${T.gray200}`, paddingTop: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{children}</div>
+      </div>
     </div>
   );
 }
@@ -736,33 +741,109 @@ export function RespondentCard({ name, profile, response, onViewDetail, style })
     <div style={{
       flex: "1 1 calc(50% - 8px)", minWidth: 380,
       border: `1px solid ${T.gray200}`,
-      borderRadius: 12,
-      padding: "20px 24px",
+      borderRadius: 20,
+      padding: "32px 32px 26px",
       fontFamily: F,
-      display: "flex", flexDirection: "column",
+      display: "flex", flexDirection: "column", gap: 20,
       ...style,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.gray200, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <PersonIcon size={18} color={T.gray800} />
+      {/* Header + Divider + Response */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <PersonIcon size={24} color={T.gray800} />
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+            {profile && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{profile}</div>}
+          </div>
         </div>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: T.gray990 }}>{name}</div>
-          {profile && <div style={{ fontSize: 12, fontWeight: 400, color: T.gray800 }}>{profile}</div>}
-        </div>
+        {/* Divider */}
+        <div style={{ height: 1, background: T.gray200 }} />
+        {/* Response */}
+        <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{response}</div>
       </div>
-      <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "22px", color: T.gray800, flex: 1, marginBottom: 16 }}>{response}</div>
+      {/* View Detail Button */}
       <button
         onClick={onViewDetail}
         style={{
-          width: "100%", padding: "10px 0",
-          background: T.white, border: `1px solid ${T.gray200}`,
-          borderRadius: 8, fontSize: 14, fontWeight: 500,
-          color: T.gray990, cursor: "pointer", fontFamily: F,
+          width: "100%", height: 48, padding: "12px 16px",
+          background: T.gray50, border: `1px solid ${T.gray200}`,
+          borderRadius: 8, fontSize: 16, fontWeight: 500, lineHeight: "24px",
+          color: T.strong, cursor: "pointer", fontFamily: F,
+          boxSizing: "border-box",
         }}
       >
         View Detail
       </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STRATEGY ROADMAP TABLE (피그마 17132:517)
+//   periods: [{ badge, period, rows: [{ strategy, objective, actionPlan, expectedImpact }] }]
+// ═══════════════════════════════════════════════════════════════════════════
+export function StrategyRoadmapTable({ periods = [], style }) {
+  const PERIOD_W = 232;
+  const COLS = ["Strategy", "Objective", "Action Plan", "Expected Impact"];
+  const border = `1px solid ${T.gray200}`;
+  const colStyle = { width: "25%", boxSizing: "border-box" };
+  const cellStyle = {
+    ...colStyle, display: "flex", alignItems: "center", justifyContent: "center",
+    padding: "18px 16px", borderRight: border,
+  };
+  const textStyle = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, textAlign: "center", fontFamily: F };
+
+  return (
+    <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
+      {/* 헤더 */}
+      <div style={{ display: "flex", height: 56, background: T.gray25, borderBottom: border }}>
+        <div style={{ width: PERIOD_W, flexShrink: 0 }} />
+        {COLS.map((col, i) => (
+          <div key={col} style={{ ...colStyle, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", borderRight: i < COLS.length - 1 ? border : "none" }}>
+            <span style={{ fontSize: 16, fontWeight: 400, color: T.gray800, fontFamily: F }}>{col}</span>
+          </div>
+        ))}
+      </div>
+      {/* 본문 */}
+      {periods.map((period, pi) => {
+        const isLast = pi === periods.length - 1;
+        return (
+          <div key={pi} style={{ display: "flex", borderBottom: isLast ? "none" : border }}>
+            {/* 타임라인 셀 */}
+            <div style={{
+              width: PERIOD_W, flexShrink: 0, display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", gap: 6,
+              padding: 16, borderRight: border,
+            }}>
+              <div style={{
+                background: T.blue50, borderRadius: 8, padding: "4px 8px",
+                fontSize: 14, fontWeight: 500, color: T.blue500, lineHeight: "20px", whiteSpace: "nowrap",
+              }}>
+                {period.badge}
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray1000 || T.strong, textAlign: "center" }}>
+                {period.period}
+              </div>
+            </div>
+            {/* 로우들 */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              {period.rows.map((row, ri) => {
+                const isLastRow = ri === period.rows.length - 1;
+                return (
+                  <div key={ri} style={{ display: "flex", borderBottom: isLastRow ? "none" : border }}>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.strategy}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.objective}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.actionPlan}</span></div>
+                    <div style={{ ...cellStyle, borderRight: "none" }}><span style={textStyle}>{row.expectedImpact}</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, InfoIcon, WarnIcon, InfoFillIcon, WarnFillIcon, CloseIcon, StarIcon } from "./tokens.jsx";
+import { T, InfoIcon, WarnIcon, InfoFillIcon, ErrorFillIcon, WarnFillIcon, StarAiFillIcon, CloseIcon, StarIcon } from "./tokens.jsx";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BUTTON
@@ -166,13 +166,13 @@ export function Badge({ type="Solid", variant="Primary", size="Medium", radius="
 // CALLOUT
 // ═══════════════════════════════════════════════════════════════════════════
 const CALLOUT = {
-  Primary:    { bg:T.gray50,     border:"transparent", icon:T.gray800,  title:T.gray800,  desc:T.gray800,  IconComp:InfoFillIcon },
+  Primary:    { bg:T.gray50,     border:"transparent", icon:T.gray990,  title:T.gray990,  desc:T.gray800,  IconComp:InfoFillIcon },
   Secondary:  { bg:T.gray50,     border:"transparent", icon:T.gray800,  title:T.gray800,  desc:T.gray800,  IconComp:InfoFillIcon },
   Positive:   { bg:T.green50,    border:"transparent", icon:T.green600, title:T.green600, desc:T.green600, IconComp:InfoFillIcon },
-  Negative:   { bg:T.red50,      border:"transparent", icon:T.red500,   title:T.red500,   desc:T.red500,   IconComp:InfoFillIcon },
+  Negative:   { bg:T.red50,      border:"transparent", icon:T.red500,   title:T.red500,   desc:T.red500,   IconComp:ErrorFillIcon },
   Cautionary: { bg:T.orange50,   border:"transparent", icon:T.orange,   title:T.orange,   desc:T.gray800,  IconComp:WarnFillIcon },
   Info:       { bg:T.blue50,     border:"transparent", icon:T.blue500,  title:T.blue500,  desc:T.blue500,  IconComp:InfoFillIcon },
-  Brand:      { bg:T.purple50,   border:"transparent", icon:T.dp600,    title:T.dp600,    desc:T.dp600,    IconComp:InfoFillIcon },
+  Brand:      { bg:T.purple50,   border:"transparent", icon:T.dp600,    title:T.dp600,    desc:T.dp600,    IconComp:StarAiFillIcon },
 };
 const CALLOUT_SZ = {
   Small:  { px:"12px", py:"10px", tsz:"13px", tlh:"18px", tw:500, dsz:"11px", dlh:"15px", dw:400, isz:14, gap:"6px" },
@@ -184,7 +184,7 @@ export function Callout({ variant="Primary", size="Medium", title="텍스트를 
   const s = CALLOUT_SZ[size] || CALLOUT_SZ.Medium;
   const Icon = v.IconComp;
   return (
-    <div style={{ display:"flex", background:v.bg, border:`1px solid ${v.border!=="transparent"?v.border:"transparent"}`, borderRadius:8, padding:`${s.py} ${s.px}`, width, minWidth:200, boxSizing:"border-box", fontFamily:"Pretendard, sans-serif" }}>
+    <div style={{ display:"flex", background:v.bg, border:`1px solid ${v.border!=="transparent"?v.border:"transparent"}`, borderRadius:8, padding:`${s.py} ${s.px}`, width, minWidth:0, maxWidth:"100%", boxSizing:"border-box", fontFamily:"Pretendard, sans-serif" }}>
       <div style={{ display:"flex", alignItems:"flex-start", gap:s.gap, width:"100%" }}>
         {showIcon && <div style={{paddingTop:"2px"}}><Icon size={s.isz} color={v.icon}/></div>}
         <div style={{ flex:1, display:"flex", flexDirection:"column", gap:4 }}>

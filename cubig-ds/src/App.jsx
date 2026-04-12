@@ -1,7 +1,8 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, GroupedBarChart, RadarChart, PSMChart, FunnelChart, SankeyChart, CHART_COLORS } from "./charts";
 import { T, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
+import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -104,8 +105,8 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["charts","button","badge","callout","chip","tab","report"];
-  const PAGE_LABELS = { charts:"Charts", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", report:"Report" };
+  const PAGES = ["charts","button","badge","callout","chip","tab","icons","report"];
+  const PAGE_LABELS = { charts:"Charts", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -476,9 +477,11 @@ export default function App() {
               <PieChart
                 title="Gender Distribution"
                 data={[
-                  { id:"남성", value:2800, color:"#2B7FFF", icon:<MaleIcon size={18} color="#2B7FFF" /> },
-                  { id:"여성", value:2200, color:"#F43F5E", icon:<FemaleIcon size={18} color="#F43F5E" /> },
+                  { id:"남성", value:2800, color:"#2B7FFF" },
+                  { id:"여성", value:2200, color:"#7CCF00" },
                 ]}
+                showInnerLabels
+                hideValues
               />
             </div>
           </Card>
@@ -672,8 +675,8 @@ export default function App() {
               yAxis={{ label: "Expectation", low: "Low", high: "High" }}
               xAxis={{ label: "Concern", low: "Low", high: "High" }}
               quadrants={[
-                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: "#C8F7D5", labelColor: "#171719" },
-                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: "#00C950", labelColor: "#fff" },
+                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: T.blue200, labelColor: "#171719" },
+                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: T.blue400, labelColor: "#fff" },
                 { label: "Negative Perceiver", value: "5.4", tag: "Low expectation, High concern", color: "#FFD6D6", labelColor: "#E7000B" },
                 { label: "Low Interest", value: "13.8", tag: "Low expectation, Low concern", color: T.gray100, labelColor: T.gray800 },
               ]}
@@ -707,8 +710,7 @@ export default function App() {
                   },
                   {
                     label: "성격",
-                    useBadge: true,
-                    ranks: ["TOP 1", "TOP 2", "TOP 3", "TOP 4"],
+                    ranks: ["1순위", "2순위", "3순위", "4순위"],
                     values: [
                       ["재미있는", "트렌디한", "창의적인", "도전적인"],
                       ["트렌디한", "사교적인", "허세가 많은", "재미있는"],
@@ -720,7 +722,118 @@ export default function App() {
             />
           </Card>
 
+          {/* Grouped Bar */}
+          <Card title="Grouped Bar" subtitle="그룹형 세로 막대 - 여러 시리즈 비교">
+            <GroupedBarChart
+              title="Cluster Comparison"
+              data={[
+                { label:"Q1", revenue:120, cost:80, profit:40 },
+                { label:"Q2", revenue:180, cost:95, profit:85 },
+                { label:"Q3", revenue:220, cost:110, profit:110 },
+                { label:"Q4", revenue:280, cost:130, profit:150 },
+              ]}
+              keys={["revenue","cost","profit"]}
+            />
+          </Card>
+
+          {/* Stacked Bar */}
+          <Card title="Stacked Bar" subtitle="스택형 세로 막대 - 구성비 누적">
+            <GroupedBarChart
+              title="Revenue Breakdown"
+              stacked
+              data={[
+                { label:"Q1", product:60, service:35, other:25 },
+                { label:"Q2", product:80, service:55, other:45 },
+                { label:"Q3", product:90, service:70, other:60 },
+                { label:"Q4", product:110, service:90, other:80 },
+              ]}
+              keys={["product","service","other"]}
+            />
+          </Card>
+
+          {/* Radar */}
+          <Card title="Radar Chart" subtitle="레이더 차트 - 다차원 지표 비교">
+            <RadarChart
+              title="Data Quality Score"
+              data={[
+                { category:"Privacy", score:85 },
+                { category:"Traceability", score:72 },
+                { category:"Operational Reliability", score:68 },
+                { category:"Conciseness", score:90 },
+                { category:"Contextuality", score:78 },
+                { category:"Integrity", score:82 },
+              ]}
+              keys={["score"]}
+            />
+          </Card>
+
+          {/* PSM */}
+          <Card title="PSM Chart" subtitle="가격 수요 곡선 - 교차점 기반 최적 가격 분석">
+            <PSMChart
+              title="PSM 가격 수요 곡선 기반 주요 교차점 그래프"
+              data={[
+                { id:"Too Cheap", data:[{x:800,y:90},{x:1000,y:72},{x:1200,y:48},{x:1400,y:25},{x:1600,y:12},{x:1800,y:5},{x:2000,y:2},{x:2400,y:0},{x:3000,y:0}] },
+                { id:"Cheap", data:[{x:800,y:95},{x:1000,y:82},{x:1200,y:62},{x:1400,y:40},{x:1600,y:22},{x:1800,y:10},{x:2000,y:4},{x:2400,y:1},{x:3000,y:0}] },
+                { id:"Expensive", data:[{x:800,y:2},{x:1000,y:8},{x:1200,y:18},{x:1400,y:35},{x:1600,y:55},{x:1800,y:72},{x:2000,y:85},{x:2400,y:95},{x:3000,y:99}] },
+                { id:"Too Expensive", data:[{x:800,y:0},{x:1000,y:2},{x:1200,y:6},{x:1400,y:15},{x:1600,y:28},{x:1800,y:45},{x:2000,y:62},{x:2400,y:82},{x:3000,y:95}] },
+              ]}
+              /* intersections 자동 계산 */
+            />
+          </Card>
+
+          {/* Funnel Chart - 전환율 퍼널 */}
+          <Card title="Funnel Chart" subtitle="단계별 전환율 + 이탈율 퍼널 차트">
+            <FunnelChart
+              title="사용자 전환 퍼널"
+              steps={[
+                { label: "앱 실행", value: 322341 },
+                { label: "검색/탐색", value: 292343 },
+                { label: "상품 클릭", value: 189520 },
+                { label: "장바구니", value: 86250 },
+                { label: "결제 시작", value: 52100 },
+                { label: "결제 완료", value: 38420 },
+              ]}
+            />
+          </Card>
+
+          {/* Sankey Chart - 사용자 흐름 */}
+          <Card title="Sankey Chart (User Flow)" subtitle="Nivo Sankey – 사용자 경로 흐름 분석">
+            <SankeyChart
+              title="사용자 경로 흐름"
+              data={{
+                nodes: [
+                  { id: "앱 실행" },
+                  { id: "홈 탐색" },
+                  { id: "검색" },
+                  { id: "카테고리" },
+                  { id: "상품 상세" },
+                  { id: "장바구니" },
+                  { id: "결제 완료" },
+                  { id: "이탈 (홈)" },
+                  { id: "이탈 (검색)" },
+                  { id: "이탈 (상세)" },
+                ],
+                links: [
+                  { source: "앱 실행", target: "홈 탐색", value: 180000 },
+                  { source: "앱 실행", target: "검색", value: 95000 },
+                  { source: "앱 실행", target: "카테고리", value: 47000 },
+                  { source: "홈 탐색", target: "상품 상세", value: 120000 },
+                  { source: "홈 탐색", target: "이탈 (홈)", value: 60000 },
+                  { source: "검색", target: "상품 상세", value: 72000 },
+                  { source: "검색", target: "이탈 (검색)", value: 23000 },
+                  { source: "카테고리", target: "상품 상세", value: 38000 },
+                  { source: "상품 상세", target: "장바구니", value: 86000 },
+                  { source: "상품 상세", target: "이탈 (상세)", value: 144000 },
+                  { source: "장바구니", target: "결제 완료", value: 38420 },
+                ],
+              }}
+              height={520}
+            />
+          </Card>
+
         </>}
+
+        {page==="icons" && <IconsTab />}
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
       </div>

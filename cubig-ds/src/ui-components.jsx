@@ -26,7 +26,7 @@ export const BTN_STYLES = {
   "text-brand":      { bg:"transparent",text:T.purple800,   border:"transparent",hText:T.purple700,dOpacity:0.4,     isText:true },
 };
 
-export function Btn({ variant="solid-primary", size="lg", radius="sm", disabled=false, icon=false, children, style:extStyle }) {
+export function Btn({ variant="solid-primary", size="lg", radius="sm", disabled=false, icon=false, children, onClick, style:extStyle }) {
   const [hov, setHov] = useState(false);
   const [press, setPress] = useState(false);
   const s = BTN_SIZE[size] || BTN_SIZE.lg;
@@ -57,6 +57,7 @@ export function Btn({ variant="solid-primary", size="lg", radius="sm", disabled=
   return (
     <button
       disabled={disabled}
+      onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => { setHov(false); setPress(false); }}
       onMouseDown={() => setPress(true)}
@@ -103,7 +104,7 @@ export const BADGE_COLORS = {
   Strong: {
     Primary:    { bg:T.gray950,    text:T.white },
     Secondary:  { bg:T.gray800,    text:T.white },
-    Brand:      { bg:T.dp500,      text:T.white },
+    Brand:      { bg:T.dp600,      text:T.white },
     Positive:   { bg:T.green600,   text:T.white },
     Negative:   { bg:T.red500,     text:T.white },
     Cautionary: { bg:T.yellow400,  text:T.strong },
@@ -170,7 +171,7 @@ const CALLOUT = {
   Secondary:  { bg:T.gray50,     border:"transparent", icon:T.gray800,  title:T.gray800,  desc:T.gray800,  IconComp:InfoFillIcon },
   Positive:   { bg:T.green50,    border:"transparent", icon:T.green600, title:T.green600, desc:T.green600, IconComp:InfoFillIcon },
   Negative:   { bg:T.red50,      border:"transparent", icon:T.red500,   title:T.red500,   desc:T.red500,   IconComp:ErrorFillIcon },
-  Cautionary: { bg:T.orange50,   border:"transparent", icon:T.orange,   title:T.orange,   desc:T.gray800,  IconComp:WarnFillIcon },
+  Cautionary: { bg:T.orange50,   border:"transparent", icon:T.orange500, title:T.orange500, desc:T.gray800,  IconComp:WarnFillIcon },
   Info:       { bg:T.blue50,     border:"transparent", icon:T.blue500,  title:T.blue500,  desc:T.blue500,  IconComp:InfoFillIcon },
   Brand:      { bg:T.purple50,   border:"transparent", icon:T.dp600,    title:T.dp600,    desc:T.dp600,    IconComp:StarAiFillIcon },
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, CheckCircleIcon, PersonIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
+import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
 import { Badge, Btn, Chip, ChipTabs, Callout } from "./ui-components.jsx";
 import { CHART_COLORS } from "./charts";
 
@@ -99,6 +99,109 @@ export function ContentCard({ children, padding = 0, style }) {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// INSIGHT CONTENT CARD (Figma 17206:36716)
+//   - Icon header (wrap + container + 20px icon) + title (18 Medium)
+//   - Divider
+//   - Subtitle (18 SemiBold) + Description (16 Regular)
+//   - `wrap` toggle: true → standalone white rounded card (32 padding),
+//                    false → bare inner layout (to embed inside another ContentArea)
+// ═══════════════════════════════════════════════════════════════════════════
+export function InsightContent({
+  layout = "vertical",
+  // vertical
+  icon, header, title, description,
+  // horizontal
+  label, value, items,
+  wrap = true, style,
+}) {
+  if (layout === "horizontal") {
+    const inner = (
+      <div style={{ display: "flex", gap: 32, alignItems: "stretch", width: "100%", fontFamily: F }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 240, flexShrink: 0 }}>
+          <div style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: T.gray800 }}>{label}</div>
+          <div style={{ fontSize: 22, fontWeight: 600, lineHeight: "30px", color: T.gray990 }}>{value}</div>
+        </div>
+        <div style={{ width: 1, background: T.gray200, alignSelf: "stretch" }} />
+        <ul style={{ flex: 1, minWidth: 0, margin: 0, paddingLeft: 24, display: "flex", flexDirection: "column", gap: 8, color: T.gray990, fontSize: 16, fontWeight: 400, lineHeight: "24px" }}>
+          {(items || []).map((it, i) => <li key={i}>{it}</li>)}
+        </ul>
+      </div>
+    );
+    return (
+      <div style={{
+        background: T.white, borderRadius: 16, padding: 24,
+        border: wrap ? "none" : `1px solid ${T.gray200}`,
+        width: "100%", boxSizing: "border-box",
+        display: "flex", flexDirection: "column",
+        ...style,
+      }}>
+        {inner}
+      </div>
+    );
+  }
+  const inner = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", fontFamily: F }}>
+      {/* Header */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{ background: T.gray50, padding: 4, borderRadius: 10, display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <div style={{
+            background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 8,
+            padding: 6, display: "flex", alignItems: "center", justifyContent: "center",
+            width: 32, height: 32, boxSizing: "border-box",
+          }}>
+            {icon}
+          </div>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: T.gray990 }}>{header}</div>
+      </div>
+      {/* Divider */}
+      <div style={{ height: 1, background: T.gray200, width: "100%" }} />
+      {/* Body */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>}
+        {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800 }}>{description}</div>}
+      </div>
+    </div>
+  );
+  return (
+    <div style={{
+      background: T.white, borderRadius: 16, padding: 24,
+      border: wrap ? "none" : `1px solid ${T.gray200}`,
+      width: "100%", boxSizing: "border-box",
+      display: "flex", flexDirection: "column",
+      ...style,
+    }}>
+      {inner}
+    </div>
+  );
+}
+
+// ContentArea: vertical stack wrapper for InsightContent items (gap 8)
+//   wrap prop — true: each child kept as-is (assumes each is a wrapped card)
+//               false: renders a single outer white card containing all children separated by Divider
+export function ContentArea({ children, wrap = true, gap = 8, style }) {
+  if (wrap) {
+    return (
+      <div style={{
+        display: "flex", flexDirection: "column", gap, width: "100%",
+        background: T.gray50, padding: 8, borderRadius: 20, boxSizing: "border-box",
+        ...style,
+      }}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", gap, width: "100%", boxSizing: "border-box",
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
 export function Divider({ spacing = 0, vertical = false, style }) {
   if (vertical) {
     return <div style={{ width: 1, background: T.gray200, alignSelf: "stretch", margin: `0 ${spacing}px`, ...style }} />;
@@ -145,8 +248,14 @@ export function QuestionTitle({ number, text, style }) {
 // variant="solid" → gray50 배경, 보더 없음
 // variant="outline" → white 배경, gray200 보더
 // description 있으면 value 아래에 표시
-export function InfoCard({ label, value, suffix, description, variant = "solid", icon, style }) {
+// size: "lg" (기본, 20/700 bold) | "md" (16/600 semibold)
+export function InfoCard({ label, value, suffix, description, variant = "solid", size = "lg", icon, style }) {
   const isSolid = variant === "solid";
+  const isLg = size === "lg";
+  const valueSize = isLg ? 20 : 16;
+  const valueWeight = isLg ? 700 : 600;
+  const valueLh = isLg ? "28px" : "24px";
+  const suffixSize = isLg ? 16 : 14;
   return (
     <div style={{
       flex: "1 1 0%", minWidth: 160,
@@ -158,10 +267,10 @@ export function InfoCard({ label, value, suffix, description, variant = "solid",
       boxSizing: "border-box",
       ...style,
     }}>
-      <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800, marginBottom: 8 }}>{label}</div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-        <span style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{value}</span>
-        {suffix && <span style={{ fontSize: 16, fontWeight: 400, color: T.gray400 }}>{suffix}</span>}
+        <span style={{ fontSize: valueSize, fontWeight: valueWeight, lineHeight: valueLh, color: T.gray990 }}>{value}</span>
+        {suffix && <span style={{ fontSize: suffixSize, fontWeight: 400, color: T.gray400 }}>{suffix}</span>}
         {icon}
       </div>
       {description && <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800, marginTop: 4 }}>{description}</div>}
@@ -179,9 +288,6 @@ export function InfoCardRow({ children, style }) {
 }
 
 // 하위호환을 위한 alias
-export function UserCard({ label, value, subValue, variant = "solid", style }) {
-  return <InfoCard label={label} value={value} description={subValue} variant={variant} style={style} />;
-}
 export function ScoreCard({ label, score, total = 10, variant = "solid", style }) {
   return <InfoCard label={label} value={<>{score}<span style={{ fontSize: 14, fontWeight: 400, color: T.gray800 }}>/{total}</span></>} variant={variant} style={style} />;
 }
@@ -220,7 +326,7 @@ export function PersonaCard({ name, subtitle, metrics = [], icon, style }) {
       {/* Header: icon + name + badge */}
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {icon || <PersonIcon size={24} color={T.gray800} />}
+          {icon || <IdentityPlatformIcon size={24} color={T.gray800} />}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
@@ -242,13 +348,118 @@ export function PersonaCard({ name, subtitle, metrics = [], icon, style }) {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// USER CARD — 3 types (Figma 17206:50474)
+//   type="simple":  bg gray25, name + subtitle + description
+//   type="stats":   bg white, title + badge + detail rows (4개)
+//   type="detail":  bg white, name + subtitle + description + CTA button
+// ═══════════════════════════════════════════════════════════════════════════
+export function UserCard({
+  type = "simple",
+  icon,
+  name,
+  subtitle,
+  badge,
+  description,
+  details = [],
+  buttonLabel = "View Detail",
+  onButtonClick,
+  style,
+}) {
+  const Icon = icon || <IdentityPlatformIcon size={24} color={T.gray800} />;
+  const IconContainer = (
+    <div style={{
+      width: 48, height: 48, borderRadius: 12,
+      background: T.gray50, border: `1px solid ${T.gray200}`,
+      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+    }}>{Icon}</div>
+  );
+  const Divider = <div style={{ height: 1, background: T.gray200, width: "100%" }} />;
+
+  if (type === "stats") {
+    return (
+      <div style={{
+        width: "100%", background: T.white,
+        border: `1px solid ${T.gray200}`, borderRadius: 16,
+        padding: 24, fontFamily: F, boxSizing: "border-box",
+        display: "flex", flexDirection: "column", gap: 16,
+        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
+        ...style,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {IconContainer}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+            {badge && <Badge type="Outline" variant="Secondary" size="Large" text={badge} />}
+          </div>
+        </div>
+        {Divider}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {details.map((d, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, width: 200, flexShrink: 0 }}>{d.key}</span>
+              <span style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990, flex: 1, textAlign: "right" }}>{d.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "detail") {
+    return (
+      <div style={{
+        width: "100%", background: T.white,
+        border: `1px solid ${T.gray200}`, borderRadius: 20,
+        padding: 24, fontFamily: F, boxSizing: "border-box",
+        display: "flex", flexDirection: "column", gap: 20,
+        ...style,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {IconContainer}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+            {subtitle && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{subtitle}</div>}
+          </div>
+        </div>
+        {Divider}
+        {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
+        <Btn variant="solid-secondary" size="lg" radius="sm" style={{ width: "100%" }} onClick={onButtonClick}>
+          {buttonLabel}
+        </Btn>
+      </div>
+    );
+  }
+
+  // simple
+  return (
+    <div style={{
+      width: "100%", background: T.gray25,
+      border: `1px solid ${T.gray200}`, borderRadius: 16,
+      padding: 24, fontFamily: F, boxSizing: "border-box",
+      display: "flex", flexDirection: "column", gap: 20,
+      ...style,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        {IconContainer}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+          {subtitle && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{subtitle}</div>}
+        </div>
+      </div>
+      {Divider}
+      {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
+    </div>
+  );
+}
+
 export function PersonaSummaryCard({ name, trait, items = [], style }) {
   return (
     <div style={{
       flex: "1 1 calc(50% - 8px)", minWidth: 380,
       border: `1px solid ${T.gray200}`,
       borderRadius: 12,
-      padding: "20px 24px",
+      padding: 24,
       fontFamily: F,
       boxSizing: "border-box",
       ...style,
@@ -309,8 +520,8 @@ export function GrowthCard({ label, amount, color = CHART_COLORS[0], percentage 
 // items: bullet 리스트 or []
 export function TextBlock({ title, icon, children, items = [], bordered = true, style }) {
   return (
-    <div style={{ padding: "20px 24px", fontFamily: F, border: bordered ? `1px solid ${T.gray200}` : "none", borderRadius: bordered ? 16 : 0, ...style }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+    <div style={{ padding: 24, fontFamily: F, border: bordered ? `1px solid ${T.gray200}` : "none", borderRadius: bordered ? 16 : 0, ...style }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         {icon || <CheckCircleIcon size={20} color={T.gray990} />}
         <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: T.gray990 }}>{title}</span>
       </div>
@@ -373,6 +584,48 @@ export function DataTable({ columns = [], data = [], style }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+// 2-column Q&A table (Figma 17206:36795)
+//   rows: [{ question, prefix, answer }]  — prefix is bolded (e.g. "{유저 입력값}"), answer is medium
+export function QATable({ columns = ["Question", "Answer"], rows = [], bordered = true, style }) {
+  return (
+    <div style={{
+      width: "100%", background: T.white,
+      border: bordered ? `1px solid ${T.gray200}` : "none",
+      borderRadius: 16, overflow: "hidden", fontFamily: F, ...style,
+    }}>
+      <div style={{ display: "flex", height: 56, background: T.gray25, borderBottom: `1px solid ${T.gray200}` }}>
+        {columns.map((c, i) => (
+          <div key={i} style={{
+            flex: 1, minWidth: 0, display: "flex", alignItems: "center",
+            padding: "0 16px",
+            fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray800,
+          }}>{c}</div>
+        ))}
+      </div>
+      {rows.map((r, ri) => (
+        <div key={ri} style={{
+          display: "flex", minHeight: 60, alignItems: "stretch",
+          borderBottom: ri < rows.length - 1 ? `1px solid ${T.gray200}` : "none",
+        }}>
+          <div style={{
+            flex: 1, minWidth: 0, display: "flex", alignItems: "center",
+            padding: "16px",
+            fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800,
+          }}>{r.question}</div>
+          <div style={{
+            flex: 1, minWidth: 0, display: "flex", alignItems: "center",
+            padding: "16px",
+            fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990,
+          }}>
+            {r.prefix && <span style={{ fontWeight: 700, marginRight: 4 }}>{r.prefix}</span>}
+            <span>{r.answer}</span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -555,7 +808,7 @@ export function HorizontalBarChart({ items = [], style }) {
 
 export function ClusterHeader({ badge, name, description, icon, style }) {
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 16, padding: "20px 24px", fontFamily: F, ...style }}>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 16, padding: 24, fontFamily: F, ...style }}>
       {badge && <div style={{ marginBottom: 8 }}><Badge type="Solid" variant={badge.variant || "Cautionary"} size="Small" text={badge.text} /></div>}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {icon && <div style={{ width: 40, height: 40, borderRadius: 8, background: T.gray100, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>}
@@ -623,21 +876,22 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
       <div style={{ display: "flex" }}>
         <Badge type="Solid" variant="Secondary" size="Medium" text={`Signal ${number}`} />
       </div>
-      {/* gap 24 */}
+      {/* Badge → Title gap 24 */}
       <div style={{ marginTop: 24 }}>
         <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: T.gray990 }}>{title}</div>
       </div>
-      <div style={{ height: 16, borderBottom: `1px solid ${T.gray200}` }} />
-      <div style={{ height: 16 }} />
-      {/* Description bullets */}
+      {/* Title ↔ Line ↔ Description gap 16 total (8+8) */}
+      <div style={{ height: 8, borderBottom: `1px solid ${T.gray200}` }} />
+      <div style={{ height: 8 }} />
+      {/* Description bullets (flex:1 → 카드 높이 맞춤, Callout 하단 정렬) */}
       <div style={{ flex: 1 }}>
         <ul style={{ margin: 0, paddingLeft: 16 }}>
           {items.map((item, i) => (
-            <li key={i} style={{ fontSize: 14, fontWeight: 400, lineHeight: "24px", color: T.gray800, marginBottom: 2 }}>{item}</li>
+            <li key={i} style={{ fontSize: 14, fontWeight: 400, lineHeight: "24px", color: T.gray990, marginBottom: 2 }}>{item}</li>
           ))}
         </ul>
       </div>
-      {/* gap 24 + Callout */}
+      {/* Description → Callout 최소 간격 24 */}
       {alert && (
         <div style={{ marginTop: 24 }}>
           <Callout variant={alertVariant} size="Small" title={alert} showDesc={false} width="100%" />
@@ -721,7 +975,7 @@ export function StrategyCard({ badge, price, priceLabel, children, bordered = tr
       flex: 1, minWidth: 0,
       border: bordered ? `1px solid ${T.gray200}` : "none",
       borderRadius: 16,
-      padding: "20px 24px",
+      padding: 24,
       fontFamily: F,
       background: T.white,
       ...style,
@@ -730,7 +984,7 @@ export function StrategyCard({ badge, price, priceLabel, children, bordered = tr
       <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{price}</div>
       {priceLabel && <div style={{ fontSize: 14, fontWeight: 400, color: T.gray800, marginTop: 2, marginBottom: 16 }}>{priceLabel}</div>}
       <div style={{ borderTop: `1px solid ${T.gray200}`, paddingTop: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{children}</div>
+        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray990 }}>{children}</div>
       </div>
     </div>
   );
@@ -751,7 +1005,7 @@ export function RespondentCard({ name, profile, response, onViewDetail, style })
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <PersonIcon size={24} color={T.gray800} />
+            <IdentityPlatformIcon size={24} color={T.gray800} />
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
             <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
@@ -802,7 +1056,7 @@ export function StrategyRoadmapTable({ periods = [], style }) {
         <div style={{ width: PERIOD_W, flexShrink: 0 }} />
         {COLS.map((col, i) => (
           <div key={col} style={{ ...colStyle, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", borderRight: i < COLS.length - 1 ? border : "none" }}>
-            <span style={{ fontSize: 16, fontWeight: 400, color: T.gray800, fontFamily: F }}>{col}</span>
+            <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, fontFamily: F }}>{col}</span>
           </div>
         ))}
       </div>
@@ -944,6 +1198,109 @@ export function ExpectedResultsGrid({ items = [], columns = 2, style }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXECUTION ROADMAP  (Figma 17236-55398)
+// ═══════════════════════════════════════════════════════════════════════════
+export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
+  const [active, setActive] = useState(0);
+  const current = weeks[active] || {};
+  const priorityVariant = (p) => {
+    if (p === "High") return "Info";
+    if (p === "Medium") return "Positive";
+    if (p === "Low") return "Neutral";
+    return "Neutral";
+  };
+  return (
+    <div style={{
+      background: "#fff",
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 16,
+      padding: 40,
+      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
+      fontFamily: F,
+      display: "flex",
+      flexDirection: "column",
+      gap: 32,
+      ...style,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {title && <div style={{ fontSize: 18, fontWeight: 600, color: T.gray990, lineHeight: "26px" }}>{title}</div>}
+          {subtitle && <div style={{ fontSize: 16, fontWeight: 500, color: T.gray800, lineHeight: "24px" }}>{subtitle}</div>}
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {weeks.map((w, i) => {
+            const isActive = i === active;
+            return (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                style={{
+                  height: 36,
+                  padding: "8px 12px",
+                  borderRadius: 9999,
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: F,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                  background: isActive ? T.gray925 : T.gray100,
+                  color: isActive ? "#fff" : T.gray800,
+                }}
+              >
+                {w.tab}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Week Content */}
+      {current.weekLabel && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, color: "#171719", lineHeight: "26px" }}>
+            {current.weekLabel}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {(current.items || []).map((it, idx) => {
+              const isLast = idx === (current.items.length - 1);
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    padding: "16px 0",
+                    borderTop: `1px solid ${T.gray200}`,
+                    borderBottom: isLast ? `1px solid ${T.gray200}` : "none",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 16, fontWeight: 500, color: "#0f0f10", lineHeight: "24px" }}>{it.title}</span>
+                    {it.priority && (
+                      <Badge type="Outline" size="Large" variant={priorityVariant(it.priority)} text={it.priority} />
+                    )}
+                  </div>
+                  {it.bullets && it.bullets.length > 0 && (
+                    <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+                      {it.bullets.map((b, bi) => (
+                        <li key={bi} style={{ fontSize: 16, fontWeight: 400, color: T.gray800, lineHeight: "24px" }}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

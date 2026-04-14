@@ -754,20 +754,44 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
 //    - 툴팁: 날짜 + 값 + 뱃지(옵션)
 //    - X축: 좌측 시작점/우측 끝점 정렬
 // ═══════════════════════════════════════════════════════════════════════
-function LineTooltip({ point, valueLabel }) {
+function LineTooltip({ point, valueLabel, valuePrefix, badge, badgeVariant = "red" }) {
+  const badgeColors = badgeVariant === "red"
+    ? { bg: "#FEF2F2", color: RED500 }
+    : { bg: GRAY100, color: GRAY990 };
   return (
-    <div style={tooltipBox}>
+    <div style={{
+      background: WHITE,
+      border: `1px solid ${GRAY200}`,
+      borderRadius: 6,
+      padding: "10px 12px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+      fontFamily: "Pretendard, sans-serif",
+      display: "inline-flex",
+      flexDirection: "column",
+      gap: 6,
+      whiteSpace: "nowrap",
+    }}>
       <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{point.data.x}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990 }}>
-          {valueLabel || point.data.yFormatted}
+          {valuePrefix}{valueLabel || point.data.yFormatted}
         </span>
+        {badge && (
+          <span style={{
+            display: "inline-flex", alignItems: "center",
+            height: 28, padding: "4px 8px", borderRadius: 8,
+            background: badgeColors.bg, color: badgeColors.color,
+            fontSize: 14, fontWeight: 500, lineHeight: "20px",
+          }}>
+            {badge}
+          </span>
+        )}
       </div>
     </div>
   );
 }
 
-export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue" }) {
+export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", badgeFormatter, badgeLabel }) {
   const isRed = variant === "red";
   const lineColor = isRed ? RED500 : CHART_COLORS[0];
 
@@ -804,13 +828,36 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           gridYValues={5}
           animate
           motionConfig="gentle"
-          theme={baseTheme}
+          theme={{
+            ...baseTheme,
+            crosshair: { line: { stroke: isRed ? RED500 : GRAY800, strokeWidth: 1, strokeOpacity: 0.8 } },
+          }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
           axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5, format: yFormat }}
           useMesh
           enableCrosshair
           crosshairType="x"
-          tooltip={({ point }) => <LineTooltip point={point} valueLabel={isRed ? `${point.data.yFormatted}%` : undefined} />}
+          tooltip={({ point }) => {
+            let badge = null;
+            if (isRed) {
+              if (typeof badgeFormatter === "function") {
+                badge = badgeFormatter(point.data);
+              } else if (point.data.badge) {
+                badge = point.data.badge;
+              } else if (point.data.churn != null) {
+                badge = `${point.data.churn > 0 ? "+" : ""}${point.data.churn}${badgeLabel || "명 이탈"}`;
+              }
+            }
+            return (
+              <LineTooltip
+                point={point}
+                valuePrefix={valuePrefix || (isRed ? "이탈률 " : "")}
+                valueLabel={isRed ? `${point.data.yFormatted}%` : undefined}
+                badge={badge}
+                badgeVariant="red"
+              />
+            );
+          }}
           legends={data.length > 1 ? [{
             anchor: "bottom", direction: "row", translateY: 50,
             itemWidth: 120, itemHeight: 20, symbolSize: 10, symbolShape: "circle",

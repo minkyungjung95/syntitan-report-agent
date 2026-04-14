@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, GroupedBarChart, RadarChart, PSMChart, FunnelChart, SankeyChart, CHART_COLORS } from "./charts";
-import { T, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
+import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
@@ -57,7 +57,7 @@ const BADGE_VARIANT_KEYS = ["Primary","Secondary","Brand","Positive","Negative",
 const BADGE_TYPE_KEYS = ["Solid","Outline","Strong"];
 const BADGE_SIZE_KEYS = ["Small","Medium","Large"];
 const BADGE_RADIUS_KEYS = ["Small","Large"];
-const VARIANT_ACCENT = { Primary:T.gray990, Secondary:T.gray800, Brand:T.dp600, Positive:T.green600, Negative:T.red500, Info:T.blue500, Cautionary:T.orange };
+const VARIANT_ACCENT = { Primary:T.gray990, Secondary:T.gray800, Brand:T.dp600, Positive:T.green600, Negative:T.red500, Info:T.blue500, Cautionary:T.orange500 };
 
 const th = { padding:"8px 14px", textAlign:"left", fontSize:12, fontWeight:600, color:"#7B7E85", borderBottom:"1px solid #E6E7E9", whiteSpace:"nowrap" };
 const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlign:"middle" };
@@ -105,8 +105,8 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["charts","button","badge","callout","chip","tab","icons","report"];
-  const PAGE_LABELS = { charts:"Charts", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report" };
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -125,6 +125,227 @@ export default function App() {
       </div>
 
       <div style={{ padding:"28px 24px", maxWidth:960, margin:"0 auto" }}>
+
+        {/* ══ COLOR ══ */}
+        {page==="color" && <>
+          <div style={{ marginBottom:24 }}>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 2px" }}>CUBIG Design System</p>
+            <h1 style={{ fontSize:20, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Color Palette</h1>
+            <p style={{ fontSize:13, color:T.gray800 }}>Figma Variables 기반 팔레트 · 시맨틱 · 사이징 토큰입니다.</p>
+          </div>
+
+          {/* ── Palette Colors (Figma 163색 전체) ── */}
+          {[
+            { name:"Gray", colors:[
+              {k:"25",v:T.gray25},{k:"50",v:T.gray50},{k:"100",v:T.gray100},{k:"200",v:T.gray200},{k:"300",v:T.gray300},{k:"400",v:T.gray400},
+              {k:"500",v:T.gray500},{k:"600",v:T.gray600},{k:"700",v:T.gray700},{k:"800",v:T.gray800},{k:"850",v:T.gray850},{k:"900",v:T.gray900},
+              {k:"925",v:T.gray925},{k:"950",v:T.gray950},{k:"975",v:T.gray975},{k:"990",v:T.gray990},{k:"1000",v:T.gray1000},
+            ]},
+            { name:"Neutral", colors:[
+              {k:"50",v:T.neutral50},{k:"100",v:T.neutral100},{k:"200",v:T.neutral200},{k:"300",v:T.neutral300},{k:"400",v:T.neutral400},
+              {k:"500",v:T.neutral500},{k:"600",v:T.neutral600},{k:"700",v:T.neutral700},{k:"800",v:T.neutral800},{k:"900",v:T.neutral900},{k:"950",v:T.neutral950},
+            ]},
+            { name:"Red", colors:[
+              {k:"50",v:T.red50},{k:"100",v:T.red100},{k:"200",v:T.red200},{k:"300",v:T.red300},{k:"400",v:T.red400},
+              {k:"500",v:T.red500},{k:"600",v:T.red600},{k:"700",v:T.red700},{k:"800",v:T.red800},{k:"900",v:T.red900},{k:"950",v:T.red950},
+            ]},
+            { name:"Orange", colors:[
+              {k:"50",v:T.orange50},{k:"100",v:T.orange100},{k:"200",v:T.orange200},{k:"300",v:T.orange300},{k:"400",v:T.orange400},
+              {k:"500",v:T.orange500},{k:"600",v:T.orange600},{k:"700",v:T.orange700},{k:"800",v:T.orange800},{k:"900",v:T.orange900},{k:"950",v:T.orange950},
+            ]},
+            { name:"Yellow", colors:[
+              {k:"50",v:T.yellow50},{k:"100",v:T.yellow100},{k:"200",v:T.yellow200},{k:"300",v:T.yellow300},{k:"400",v:T.yellow400},
+              {k:"500",v:T.yellow500},{k:"600",v:T.yellow600},{k:"700",v:T.yellow700},{k:"800",v:T.yellow800},{k:"900",v:T.yellow900},{k:"950",v:T.yellow950},
+            ]},
+            { name:"Lime", colors:[
+              {k:"50",v:T.lime50},{k:"100",v:T.lime100},{k:"200",v:T.lime200},{k:"300",v:T.lime300},{k:"400",v:T.lime400},
+              {k:"500",v:T.lime500},{k:"600",v:T.lime600},{k:"700",v:T.lime700},{k:"800",v:T.lime800},{k:"900",v:T.lime900},{k:"950",v:T.lime950},
+            ]},
+            { name:"Green", colors:[
+              {k:"50",v:T.green50},{k:"100",v:T.green100},{k:"200",v:T.green200},{k:"300",v:T.green300},{k:"400",v:T.green400},
+              {k:"500",v:T.green500},{k:"600",v:T.green600},{k:"700",v:T.green700},{k:"800",v:T.green800},{k:"900",v:T.green900},{k:"950",v:T.green950},
+            ]},
+            { name:"Emerald", colors:[
+              {k:"50",v:T.emerald50},{k:"100",v:T.emerald100},{k:"200",v:T.emerald200},{k:"300",v:T.emerald300},{k:"400",v:T.emerald400},
+              {k:"500",v:T.emerald500},{k:"600",v:T.emerald600},{k:"700",v:T.emerald700},{k:"800",v:T.emerald800},{k:"900",v:T.emerald900},{k:"950",v:T.emerald950},
+            ]},
+            { name:"Teal", colors:[
+              {k:"50",v:T.teal50},{k:"100",v:T.teal100},{k:"200",v:T.teal200},{k:"300",v:T.teal300},{k:"400",v:T.teal400},
+              {k:"500",v:T.teal500},{k:"600",v:T.teal600},{k:"700",v:T.teal700},{k:"800",v:T.teal800},{k:"900",v:T.teal900},{k:"950",v:T.teal950},
+            ]},
+            { name:"Cyan", colors:[
+              {k:"50",v:T.cyan50},{k:"100",v:T.cyan100},{k:"200",v:T.cyan200},{k:"300",v:T.cyan300},{k:"400",v:T.cyan400},
+              {k:"600",v:T.cyan600},{k:"700",v:T.cyan700},{k:"800",v:T.cyan800},{k:"900",v:T.cyan900},{k:"950",v:T.cyan950},
+            ]},
+            { name:"Blue", colors:[
+              {k:"50",v:T.blue50},{k:"100",v:T.blue100},{k:"200",v:T.blue200},{k:"300",v:T.blue300},{k:"400",v:T.blue400},
+              {k:"500",v:T.blue500},{k:"600",v:T.blue600},{k:"700",v:T.blue700},{k:"800",v:T.blue800},{k:"900",v:T.blue900},{k:"950",v:T.blue950},
+            ]},
+            { name:"Purple", colors:[
+              {k:"50",v:T.purple50},{k:"100",v:T.purple100},{k:"200",v:T.purple200},{k:"300",v:T.purple300},{k:"400",v:T.purple400},
+              {k:"500",v:T.purple500},{k:"600",v:T.purple600},{k:"700",v:T.purple700},{k:"800",v:T.purple800},{k:"900",v:T.purple900},{k:"950",v:T.purple950},
+            ]},
+            { name:"Deep Purple", colors:[
+              {k:"50",v:T.dp50},{k:"100",v:T.dp100},{k:"200",v:T.dp200},{k:"300",v:T.dp300},{k:"400",v:T.dp400},
+              {k:"600",v:T.dp600},{k:"700",v:T.dp700},{k:"800",v:T.dp800},{k:"900",v:T.dp900},{k:"950",v:T.dp950},
+            ]},
+            { name:"Pink", colors:[
+              {k:"50",v:T.pink50},{k:"100",v:T.pink100},{k:"200",v:T.pink200},{k:"300",v:T.pink300},{k:"400",v:T.pink400},
+              {k:"500",v:T.pink500},{k:"600",v:T.pink600},{k:"700",v:T.pink700},{k:"800",v:T.pink800},{k:"900",v:T.pink900},{k:"950",v:T.pink950},
+            ]},
+          ].map(group => (
+            <div key={group.name} style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+              <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>{group.name}</h3>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                {group.colors.map(c => (
+                  <div key={c.k} style={{ textAlign:"center" }}>
+                    <div style={{ width:56, height:56, borderRadius:8, background:c.v, border:`1px solid ${T.gray200}` }} />
+                    <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>{c.k}</div>
+                    <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{c.v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* ── Semantic: Foreground ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 16px" }}>Semantic · Foreground (fg)</h3>
+            {Object.entries(Semantic.fg).map(([group, tokens]) => (
+              <div key={group} style={{ marginBottom:16 }}>
+                <div style={{ fontSize:12, fontWeight:600, color:T.gray800, marginBottom:8 }}>fg / {group}</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                  {Object.entries(tokens).map(([name, hex]) => (
+                    <div key={name} style={{ textAlign:"center" }}>
+                      <div style={{ width:48, height:48, borderRadius:8, background:hex, border:`1px solid ${T.gray200}` }} />
+                      <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>{name}</div>
+                      <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{hex}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Semantic: Background ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 16px" }}>Semantic · Background (bg)</h3>
+            {Object.entries(Semantic.bg).map(([group, tokens]) => (
+              <div key={group} style={{ marginBottom:16 }}>
+                <div style={{ fontSize:12, fontWeight:600, color:T.gray800, marginBottom:8 }}>bg / {group}</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                  {Object.entries(tokens).map(([name, hex]) => (
+                    <div key={name} style={{ textAlign:"center" }}>
+                      <div style={{ width:48, height:48, borderRadius:8, background:hex, border:`1px solid ${T.gray200}` }} />
+                      <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>{name}</div>
+                      <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{hex}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Sizing: Radius ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Sizing · Radius</h3>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:12, alignItems:"end" }}>
+              {Object.entries(Radius).map(([name, val]) => (
+                <div key={name} style={{ textAlign:"center" }}>
+                  <div style={{ width:48, height:48, borderRadius:val, background:T.blue500, border:`1px solid ${T.gray200}` }} />
+                  <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>rounded-{name}</div>
+                  <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{val}px</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Sizing: Spacing (Gap) ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Sizing · Spacing (Gap)</h3>
+            <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+              {Object.entries(Gap).map(([name, val]) => (
+                <div key={name} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontSize:10, color:T.gray800, width:48, textAlign:"right" }}>gap-{name}</span>
+                  <div style={{ width:val, height:12, borderRadius:2, background:T.blue500, minWidth:val === 0 ? 2 : val }} />
+                  <span style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{val}px</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Opacity ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Opacity</h3>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+              {Object.entries(Opacity).map(([name, val]) => (
+                <div key={name} style={{ textAlign:"center" }}>
+                  <div style={{ width:48, height:48, borderRadius:8, background:`rgba(15,15,16,${val/100})`, border:`1px solid ${T.gray200}` }} />
+                  <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>opacity-{name}</div>
+                  <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{val}%</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Chart Colors ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Chart Colors</h3>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+              {CHART_COLORS.map((c, i) => (
+                <div key={i} style={{ textAlign:"center" }}>
+                  <div style={{ width:56, height:56, borderRadius:8, background:c, border:`1px solid ${T.gray200}` }} />
+                  <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>{i+1}번</div>
+                  <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{c}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Shadow Tokens ── */}
+          <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Shadow (Light)</h3>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 16px" }}>컴포넌트 계층을 표현하는 그림자 엘리베이션 토큰입니다.</p>
+            <div style={{ border:`1px solid ${T.gray200}`, borderRadius:8, overflow:"hidden" }}>
+              <div style={{
+                display:"grid",
+                gridTemplateColumns:"220px 140px 100px 180px 1fr",
+                background:T.gray25,
+                borderBottom:`1px solid ${T.gray200}`,
+                fontSize:12, fontWeight:500, color:T.gray800, fontFamily:"Pretendard, sans-serif",
+              }}>
+                <div style={{ padding:"14px 16px" }}>명칭</div>
+                <div style={{ padding:"14px 16px" }}>위치(px)</div>
+                <div style={{ padding:"14px 16px" }}>블러(px)</div>
+                <div style={{ padding:"14px 16px" }}>컬러</div>
+                <div style={{ padding:"14px 16px" }}>역할</div>
+              </div>
+              {[
+                { name:"shadow-xs-light", offset:"0, 1", blur:"2",  color:"rgba(0,0,0,0.06)", role:"버튼 호버 등 미세 인터랙션의 은은한 그림자",  shadow:"0px 1px 2px rgba(0,0,0,0.06)" },
+                { name:"shadow-sm-light", offset:"0, 2", blur:"12", color:"rgba(0,0,0,0.06)", role:"라이트 컴포넌트 계층을 표현하는 기본 그림자",   shadow:"0px 2px 12px rgba(0,0,0,0.06)" },
+                { name:"shadow-md-light", offset:"0, 4", blur:"16", color:"rgba(0,0,0,0.08)", role:"표준 계층에 사용하는 중간 강도의 그림자",      shadow:"0px 4px 16px rgba(0,0,0,0.08)" },
+                { name:"shadow-lg-light", offset:"0, 6", blur:"20", color:"rgba(0,0,0,0.10)", role:"상위 계층 컴포넌트에 사용하는 깊은 그림자",   shadow:"0px 6px 20px rgba(0,0,0,0.10)" },
+              ].map((row, i, arr) => (
+                <div key={row.name} style={{
+                  display:"grid",
+                  gridTemplateColumns:"220px 140px 100px 180px 1fr",
+                  alignItems:"center",
+                  borderBottom: i < arr.length - 1 ? `1px solid ${T.gray200}` : "none",
+                  fontSize:13, color:T.gray990, fontFamily:"Pretendard, sans-serif",
+                }}>
+                  <div style={{ padding:"14px 16px", display:"flex", alignItems:"center", gap:12 }}>
+                    <div style={{ width:28, height:28, borderRadius:6, background:T.white, border:`1px solid ${T.gray100}`, boxShadow:row.shadow, flexShrink:0 }} />
+                    <span style={{ fontFamily:"monospace", fontSize:12 }}>{row.name}</span>
+                  </div>
+                  <div style={{ padding:"14px 16px", fontFamily:"monospace", fontSize:12, color:T.gray800 }}>{row.offset}</div>
+                  <div style={{ padding:"14px 16px", fontFamily:"monospace", fontSize:12, color:T.gray800 }}>{row.blur}</div>
+                  <div style={{ padding:"14px 16px", fontFamily:"monospace", fontSize:11, color:T.gray800 }}>{row.color}</div>
+                  <div style={{ padding:"14px 16px", fontSize:13, color:T.gray800 }}>{row.role}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
 
         {/* ══ BUTTON ══ */}
         {page==="button" && <>
@@ -624,7 +845,7 @@ export default function App() {
           </Card>
 
           {/* Line / Area - Red */}
-          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이">
+          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이 (호버 시 이탈 수 뱃지)">
             <LineChart
               title="Churn Rate Trend"
               variant="red"
@@ -632,12 +853,11 @@ export default function App() {
               data={[{
                 id: "Churn Rate",
                 data: [
-                  { x:"2024-01", y:5 },
-                  { x:"2024-02", y:8 },
-                  { x:"2024-03", y:12 },
-                  { x:"2024-04", y:18 },
-                  { x:"2024-05", y:22 },
-                  { x:"2024-06", y:28 },
+                  { x:"2024-05", y:77, churn: -12 },
+                  { x:"2024-06", y:83, churn: -15 },
+                  { x:"2024-07", y:90, churn: -18 },
+                  { x:"2024-08", y:95, churn: -22 },
+                  { x:"2024-09", y:100, churn: -28 },
                 ],
               }]}
             />

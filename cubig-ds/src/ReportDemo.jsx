@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { T } from "./tokens.jsx";
+import { T, InfoFillIcon, MoneyIcon, FlagIcon, PrivacyIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
 import { CHART_COLORS } from "./charts";
 import {
   PageWrapper, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
   InfoCard, InfoCardRow,
   PersonaCard, PersonaSummaryCard, MiniStatGrid,
   TextBlock, KeyFindings, Interpretation, InsightCard,
-  DataTable, DefinitionTable,
+  DataTable, DefinitionTable, QATable,
   StatRowGroup, StatRow, SignalCard,
   StrategyCard,
+  InsightContent,
+  ContentArea,
+  UserCard,
   RespondentCard,
   StrategyRoadmapTable,
   ExpectedResultsGrid,
+  ExecutionRoadmap,
 } from "./report-components";
 
 const F = "Pretendard, sans-serif";
@@ -56,6 +60,9 @@ export default function ReportDemo() {
   const [signalCount, setSignalCount] = useState("3");
   const [signalCallout, setSignalCallout] = useState("Cautionary");
   const [signalWrapped, setSignalWrapped] = useState(false);
+  const [contentAreaWrapped, setContentAreaWrapped] = useState(true);
+  const [insightLayout, setInsightLayout] = useState("vertical");
+  const [userCardType, setUserCardType] = useState("simple");
   const [textBlockStyle, setTextBlockStyle] = useState("bullets");
   const [textBlockWrapped, setTextBlockWrapped] = useState(false);
   const [compTab, setCompTab] = useState("wrapped");
@@ -283,40 +290,68 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>3. PersonaSummaryCard</Label>
-        <Row>
-          <PersonaSummaryCard name="Group Name A" trait="Trait Label" items={[
-            "Bullet point 1",
-            "Bullet point 2",
-            "Bullet point 3",
-          ]} />
-          <PersonaSummaryCard name="Group Name B" trait="Trait Label" items={[
-            "Bullet point 1",
-            "Bullet point 2",
-            "Bullet point 3",
-          ]} />
-        </Row>
-      </Section>
-
-      <Section>
-        <Label>4. StatRow</Label>
-        <StatRowGroup>
-          <StatRow label="Label A" value="24" items={[
-            "Bullet description 1",
-            "Bullet description 2",
-            "Bullet description 3",
-          ]} />
-          <StatRow label="Label B" value="20.2" items={[
-            "Bullet description 1",
-            "Bullet description 2",
-            "Bullet description 3",
-          ]} />
-          <StatRow label="Label C" value="5.25" items={[
-            "Bullet description 1",
-            "Bullet description 2",
-            "Bullet description 3",
-          ]} />
-        </StatRowGroup>
+        <Label>2-2. InsightContent (Content Area)</Label>
+        {(() => {
+          const vItems = [
+            { icon: <MoneyIcon size={20} color={T.gray800} />, header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
+            { icon: <FlagIcon size={20} color={T.gray800} />, header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
+            { icon: <PrivacyIcon size={20} color={T.gray800} />, header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
+          ];
+          const hItems = [
+            { label: "고유 고객 수", value: "24명", items: [
+              "전체 고객 대비 약 30%를 차지하는 대규모 이탈 위험 고객군으로, 서비스 안정성에 중대한 영향을 미침",
+              "24명으로 전체 80명 중 상당 비중 차지",
+              "대규모 군집인 만큼 개별 맞춤형보다는 군집 특성 기반의 전략 수립이 효과적",
+            ]},
+            { label: "고객 1인당 평균 이벤트 수", value: "20.2건", items: [
+              "중간 수준의 활동량으로 초기 관심은 있으나 습관화 실패 가능성 높음",
+              "20.2건으로 중간 범위에 해당, 장기 이용 후 이탈 가능성 시사",
+              "이벤트 수는 있으나 자산 연결 기능 체험 부족, 온보딩 및 기능 유도 강화 필요",
+            ]},
+            { label: "세션 간 평균 간격", value: "5.25일", items: [
+              "주 1회 이하 접속 빈도로 이탈 가능성 증가 구간",
+              "전체 평균 대비 117.8% 수준으로 재방문 주기 다소 길어짐",
+              "접속 빈도 증가를 위한 리마인더 및 개인화 알림 전략 필요",
+            ]},
+          ];
+          return (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+                <PillFilter
+                  options={[{ value: "vertical", label: "Vertical" }, { value: "horizontal", label: "Horizontal" }]}
+                  value={insightLayout}
+                  onChange={setInsightLayout}
+                  style={{ marginBottom: 0 }}
+                />
+                <Toggle value={contentAreaWrapped} onChange={setContentAreaWrapped} label="Content Area Wrap" />
+              </div>
+              <ContentArea wrap={contentAreaWrapped}>
+                {insightLayout === "vertical"
+                  ? vItems.map((it, i) => (
+                    <InsightContent
+                      key={i}
+                      layout="vertical"
+                      wrap={contentAreaWrapped}
+                      icon={it.icon}
+                      header={it.header}
+                      title={it.title}
+                      description={it.description}
+                    />
+                  ))
+                  : hItems.map((it, i) => (
+                    <InsightContent
+                      key={i}
+                      layout="horizontal"
+                      wrap={contentAreaWrapped}
+                      label={it.label}
+                      value={it.value}
+                      items={it.items}
+                    />
+                  ))}
+              </ContentArea>
+            </>
+          );
+        })()}
       </Section>
 
       <Section>
@@ -335,6 +370,7 @@ export default function ReportDemo() {
           <PillFilter
             options={[
               { value: "data", label: "DataTable" },
+              { value: "qa", label: "QATable (2-col)" },
               { value: "def", label: "DefinitionTable" },
               { value: "roadmap", label: "StrategyRoadmapTable" },
             ]}
@@ -359,6 +395,18 @@ export default function ReportDemo() {
                     { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
                     { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
                     { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
+                  ]}
+                />
+              )}
+              {tableType === "qa" && (
+                <QATable
+                  bordered={!tableWrapped}
+                  columns={["Question", "Answer"]}
+                  rows={[
+                    { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
+                    { question: "Q. Who is the target customer, and what challenges are they facing?", answer: "Home entertainment enthusiasts frustrated by LCD blooming, motion blur, and limited smart TV ecosystems" },
+                    { question: "Q. How does the product solve the customer's problem?", answer: "Perfect blacks via OLED, smooth 120Hz gaming, webOS 24 with built-in AI recommendations" },
+                    { question: "Q. Enter any competitor products you would like us to reference.", answer: "Sansung 65-inch OLED 4K Smart TV" },
                   ]}
                 />
               )}
@@ -407,15 +455,89 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>7. ExpectedResultsGrid</Label>
-        <ContentCard style={{ padding: 16 }}>
-          <ExpectedResultsGrid items={[
-            { label: "Result A", value: "Value description" },
-            { label: "Result B", value: "Value description" },
-            { label: "Result C", value: "Value description" },
-            { label: "Result D", value: "Value description" },
-          ]} />
-        </ContentCard>
+        <Label>7. ExecutionRoadmap</Label>
+        <ExecutionRoadmap
+          title="30-Day Execution Roadmap"
+          subtitle="(Baseline Scenario)"
+          weeks={[
+            {
+              tab: "Week 1",
+              weekLabel: "Week 1 (D+1 to D+7): Foundation Setup & Design",
+              items: [
+                {
+                  title: "Premium Membership Design Completed",
+                  priority: "High",
+                  bullets: [
+                    "Owner: Product Team",
+                    "Define: Tier structure, benefits matrix, pricing",
+                    "Output: Membership spec document",
+                  ],
+                },
+                {
+                  title: "PB Product Initial Lineup Finalized",
+                  priority: "Medium",
+                  bullets: [
+                    "Owner: Merchandising Team",
+                    "Define: 20 SKUs across 5 categories",
+                    "Output: Product spec sheet",
+                  ],
+                },
+                {
+                  title: "IT System Development Scope Definition",
+                  priority: "High",
+                  bullets: [
+                    "Owner: Engineering Team",
+                    "Define: Backend API, membership DB schema",
+                    "Output: Technical requirements document",
+                    "Dependency: Membership Design Completion",
+                  ],
+                },
+              ],
+            },
+            {
+              tab: "Week 2",
+              weekLabel: "Week 2 (D+8 to D+14): Development & Validation",
+              items: [
+                {
+                  title: "Membership API Development",
+                  priority: "High",
+                  bullets: [
+                    "Owner: Engineering Team",
+                    "Output: Working API endpoints",
+                  ],
+                },
+              ],
+            },
+            {
+              tab: "Week 3",
+              weekLabel: "Week 3 (D+15 to D+21): Pilot Launch",
+              items: [
+                {
+                  title: "Pilot Group Rollout",
+                  priority: "Medium",
+                  bullets: [
+                    "Owner: Operations Team",
+                    "Output: 1,000 pilot users onboarded",
+                  ],
+                },
+              ],
+            },
+            {
+              tab: "Week 4",
+              weekLabel: "Week 4 (D+22 to D+30): Full Launch",
+              items: [
+                {
+                  title: "Public Launch",
+                  priority: "High",
+                  bullets: [
+                    "Owner: Marketing Team",
+                    "Output: Full-scale rollout with PR announcement",
+                  ],
+                },
+              ],
+            },
+          ]}
+        />
       </Section>
 
       </>}
@@ -424,6 +546,76 @@ export default function ReportDemo() {
       {/* ▸ 단일 컴포넌트                                           */}
       {/* ══════════════════════════════════════════════════════════ */}
       {compTab === "standalone" && <>
+
+      <Section>
+        <Label>UserCard (3 Types)</Label>
+        <PillFilter
+          options={[
+            { value: "simple", label: "Simple" },
+            { value: "stats", label: "Stats" },
+            { value: "detail", label: "Detail + CTA" },
+          ]}
+          value={userCardType}
+          onChange={setUserCardType}
+        />
+        {userCardType === "simple" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            <UserCard type="simple" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="최은영" subtitle="여성, 29세, 마케터"
+              description='"매우 높음"으로 응답했습니다. 경쟁사 프리미엄 멤버십을 비교 중이며, 광고 제거와 콘텐츠 품질에 매우 민감합니다.' />
+            <UserCard type="simple" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="박지훈" subtitle="남성, 34세, 개발자"
+              description='"높음"으로 응답. 콘텐츠 다운로드와 여러 기기 지원에 관심이 많으며 주말 장시간 시청 패턴을 보입니다.' />
+            <UserCard type="simple" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="김서연" subtitle="여성, 26세, 디자이너"
+              description='"보통"으로 응답. 가격 민감도가 높지만 UI/UX 품질을 중요하게 여기며 트라이얼 체험을 선호합니다.' />
+          </div>
+        )}
+        {userCardType === "stats" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            <UserCard type="stats" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Premium Enthusiasts" badge="54,200 people (45.2%)"
+              details={[
+                { key: "Avg Purchase", value: "₩421,000" },
+                { key: "Frequency", value: "2.3 / month" },
+                { key: "LTV (12m)", value: "₩8,450,000" },
+                { key: "Churn Risk", value: "Score 12 (Low)" },
+              ]} />
+            <UserCard type="stats" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Value Optimizers" badge="32,100 people (26.8%)"
+              details={[
+                { key: "Avg Purchase", value: "₩185,000" },
+                { key: "Frequency", value: "1.1 / month" },
+                { key: "LTV (12m)", value: "₩2,420,000" },
+                { key: "Churn Risk", value: "Score 67 (High)" },
+              ]} />
+            <UserCard type="stats" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Occasional Buyers" badge="13,800 people (11.5%)"
+              details={[
+                { key: "Avg Purchase", value: "₩89,000" },
+                { key: "Frequency", value: "1.2 / quarter" },
+                { key: "LTV (12m)", value: "₩1,120,000" },
+                { key: "Churn Risk", value: "Score 78 (High)" },
+              ]} />
+          </div>
+        )}
+        {userCardType === "detail" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            <UserCard type="detail" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Kang Taehoon" subtitle="Male, Age 27, Game Developer"
+              description={'"Ad-free viewing", "Extra connections", "Offline download" 선택. 출퇴근 지하철 루틴으로 다운로드 콘텐츠 시청.'}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Kang Taehoon")} />
+            <UserCard type="detail" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Lee Minjung" subtitle="Female, Age 31, Marketing Lead"
+              description={'"4K 스트리밍", "동시 접속" 선호. 가족 공유 계정에서 개인 프로필로 전환 고려 중.'}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Lee Minjung")} />
+            <UserCard type="detail" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Park Jisoo" subtitle="Female, Age 24, Student"
+              description={'"학생 할인", "모바일 플랜" 관심. 광고 시청 대신 저가 플랜 제공 시 전환 가능성 높음.'}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Park Jisoo")} />
+          </div>
+        )}
+      </Section>
 
       <Section>
         <Label>1. InfoCard — Solid</Label>

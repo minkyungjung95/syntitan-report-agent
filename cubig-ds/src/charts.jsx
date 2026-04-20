@@ -717,8 +717,17 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           axisLeft={null}
           enableGridX={false}
           enableGridY={false}
-          onMouseEnter={(bar) => setHoveredKey(bar.key)}
-          onMouseLeave={() => setHoveredKey(null)}
+          onMouseEnter={(_datum, event) => {
+            setHoveredKey(_datum.key);
+            const el = event.currentTarget;
+            el.style.filter = "brightness(0.85)";
+            el.style.transition = "filter 0.15s ease";
+          }}
+          onMouseLeave={(_datum, event) => {
+            setHoveredKey(null);
+            const el = event.currentTarget;
+            el.style.filter = "none";
+          }}
           barComponent={({ bar, style }) => {
             const isHovered = hoveredKey !== null;
             const isThisHovered = bar.key === hoveredKey;
@@ -727,7 +736,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
                 <rect
                   width={bar.width} height={bar.height}
                   fill={bar.color}
-                  style={{ opacity: isHovered && !isThisHovered ? 0.5 : 1, transition: "opacity 0.15s ease" }}
+                  style={{ opacity: isHovered && !isThisHovered ? 0.5 : 1, transition: "opacity 0.15s ease, filter 0.15s ease" }}
                 />
                 {bar.data.value > 5 && (
                   <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
@@ -739,7 +748,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
             );
           }}
           tooltip={({ id, value, indexValue }) => (
-            <Tooltip label={`${indexValue} · ${id}`} value={`${value}%`} />
+            <Tooltip label={`${indexValue} — ${id}`} value={`${value}%`} />
           )}
         />
         </div>

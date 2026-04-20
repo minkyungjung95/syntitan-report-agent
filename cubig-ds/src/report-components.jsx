@@ -5,13 +5,29 @@ import { CHART_COLORS } from "./charts";
 
 const F = "Pretendard, sans-serif";
 
+// ─── Responsive Layout Constants ──────────────────────────────────────────
+export const LAYOUT = {
+  maxWidth: 1544,     // 리포트 최대 폭
+  minWidth: 838,      // 리포트 최소 폭
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PHASE 1: LAYOUT
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function PageWrapper({ children, style }) {
   return (
-    <div style={{ padding: 32, background: T.white, fontFamily: F, maxWidth: 1544, minWidth: 0, width: "100%", boxSizing: "border-box", ...style }}>
+    <div style={{
+      padding: "32px clamp(16px, 4vw, 32px)",
+      background: T.white,
+      fontFamily: F,
+      maxWidth: 1544,
+      minWidth: 838,
+      width: "100%",
+      boxSizing: "border-box",
+      margin: "0 auto",
+      ...style,
+    }}>
       {children}
     </div>
   );
@@ -44,11 +60,12 @@ export function ReportSection({ children, gap = 24, style }) {
     <div style={{
       border: `1px solid ${T.gray200}`,
       borderRadius: 20,
-      padding: 40,
+      padding: "clamp(20px, 4vw, 40px)",
       display: "flex",
       flexDirection: "column",
       gap,
       fontFamily: F,
+      overflow: "hidden",
       ...style,
     }}>
       {children}
@@ -281,7 +298,7 @@ export function InfoCard({ label, value, suffix, description, variant = "solid",
 // ── InfoCardRow: InfoCard 여러개를 감싸는 row (gap 8) ──
 export function InfoCardRow({ children, style }) {
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", ...style }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 8, ...style }}>
       {children}
     </div>
   );
@@ -477,7 +494,7 @@ export function PersonaSummaryCard({ name, trait, items = [], style }) {
 
 export function MiniStatGrid({ items = [], columns = 2, style }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: 0, fontFamily: F, background: T.gray50, borderRadius: 16, padding: "16px 20px", ...style }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, gap: 0, fontFamily: F, background: T.gray50, borderRadius: 16, padding: "16px 20px", ...style }}>
       {items.map((item, i) => (
         <div key={i} style={{ padding: "8px 0" }}>
           <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800, marginBottom: 4 }}>{item.label}</div>
@@ -1203,6 +1220,74 @@ export function ExpectedResultsGrid({ items = [], columns = 2, style }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// EXECUTIVE SUMMARY CARD  (Figma 17748-89837)
+//   - 외곽: white, 1px gray200 border, radius 16, padding 40, shadow-xs-light
+//   - title (18 SemiBold)
+//   - ContentArea wrap=true (gray50 bg, 8px padding, 20 radius) 내부:
+//     - 상단 요약 카드 row (label 16/Medium + value 20/SemiBold)
+//     - Key Findings (checkCircle + title + bullet list)
+// ═══════════════════════════════════════════════════════════════════════════
+export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems = [], findings, style }) {
+  return (
+    <div style={{
+      background: T.white,
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 16,
+      padding: 40,
+      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
+      fontFamily: F,
+      display: "flex",
+      flexDirection: "column",
+      gap: 24,
+      ...style,
+    }}>
+      {/* Title */}
+      <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>
+
+      {/* Wrapped content area */}
+      <div style={{
+        background: T.gray50, borderRadius: 20, padding: 8,
+        display: "flex", flexDirection: "column", gap: 8,
+      }}>
+        {/* Summary row */}
+        {summaryItems.length > 0 && (
+          <div style={{ display: "flex", gap: 8 }}>
+            {summaryItems.map((item, i) => (
+              <div key={i} style={{
+                flex: "1 1 0%", minWidth: 0,
+                background: T.white, borderRadius: 16, padding: 20,
+                display: "flex", flexDirection: "column", gap: 12,
+              }}>
+                <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{item.label}</div>
+                <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Key Findings */}
+        {findings && (
+          <div style={{
+            background: T.white, borderRadius: 16, padding: 24,
+            display: "flex", flexDirection: "column", gap: 8,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <CheckCircleIcon size={20} color={T.gray990} />
+              <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: T.gray990 }}>{findings.title || "Key Findings"}</span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 24, display: "flex", flexDirection: "column", gap: 4 }}>
+              {(findings.items || []).map((item, i) => (
+                <li key={i} style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // EXECUTION ROADMAP  (Figma 17236-55398)
 // ═══════════════════════════════════════════════════════════════════════════
 export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
@@ -1301,6 +1386,95 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WEEKLY PLAN TABLE  (Figma 17737-89373)
+// ═══════════════════════════════════════════════════════════════════════════
+export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Output"], style }) {
+  const WEEK_W = 232;
+  const border = `1px solid ${T.gray200}`;
+  const cellPad = "16px";
+  const headText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, fontFamily: F, textAlign: "center" };
+  const bodyText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, fontFamily: F, textAlign: "center" };
+
+  const priorityBadge = (p) => {
+    const map = {
+      High:   { border: T.blue500, color: T.blue500 },
+      Medium: { border: T.green500 || "#00C950", color: T.green500 || "#00C950" },
+      Low:    { border: T.gray200, color: T.gray800 },
+    };
+    const s = map[p] || map.Low;
+    return (
+      <span style={{
+        display: "inline-flex", alignItems: "center",
+        height: 24, padding: "4px 8px", borderRadius: 8,
+        border: `1px solid ${s.border}`, color: s.color,
+        fontSize: 14, fontWeight: 500, lineHeight: "20px", fontFamily: F,
+      }}>{p}</span>
+    );
+  };
+
+  return (
+    <div style={{ borderRadius: 16, overflow: "hidden", background: T.white, fontFamily: F, ...style }}>
+      {/* 헤더 */}
+      <div style={{ display: "flex", background: T.gray25, borderBottom: border }}>
+        <div style={{ width: WEEK_W, flexShrink: 0, borderRight: border, padding: cellPad }} />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad, borderRight: border }}>
+          <span style={headText}>Task</span>
+        </div>
+        {columns.map((col, ci) => (
+          <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad, borderRight: ci < columns.length - 1 ? border : "none" }}>
+            <span style={headText}>{col}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 주차별 본문 */}
+      {weeks.map((week, wi) => {
+        const rows = week.items || [];
+        const isLastWeek = wi === weeks.length - 1;
+        return (
+          <div key={wi} style={{ display: "flex", borderBottom: isLastWeek ? "none" : border }}>
+            {/* 주차 라벨 (세로 머지) */}
+            <div style={{
+              width: WEEK_W, flexShrink: 0, borderRight: border,
+              display: "flex", flexDirection: "column", justifyContent: "center",
+              padding: "18px 16px", gap: 4,
+            }}>
+              <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: "#0F0F10", fontFamily: F }}>{week.weekLabel || `Week ${wi + 1}`}</div>
+              {week.subtitle && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, fontFamily: F }}>{week.subtitle}</div>}
+            </div>
+
+            {/* 행들 */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              {rows.map((row, ri) => {
+                const isLastRow = ri === rows.length - 1;
+                return (
+                  <div key={ri} style={{ display: "flex", borderBottom: isLastRow ? "none" : border }}>
+                    {/* Task + Priority */}
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: cellPad, borderRight: border }}>
+                      {row.priority && priorityBadge(row.priority)}
+                      <span style={{ ...bodyText, fontWeight: 500, color: "#0F0F10" }}>{row.task}</span>
+                    </div>
+                    {/* data columns */}
+                    {columns.map((col, ci) => {
+                      const key = col.toLowerCase();
+                      return (
+                        <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad, borderRight: ci < columns.length - 1 ? border : "none" }}>
+                          <span style={bodyText}>{row[key] || ""}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

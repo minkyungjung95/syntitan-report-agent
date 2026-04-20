@@ -4,6 +4,7 @@ import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusI
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
+const CustomerSupportReport = lazy(() => import("./CustomerSupportReport"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -105,8 +106,8 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report" };
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report","customer-support"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report", "customer-support":"고객 문의 리포트" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -124,7 +125,7 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding:"28px 24px", maxWidth:960, margin:"0 auto" }}>
+      <div style={{ padding:"28px 24px", maxWidth: (page === "report" || page === "customer-support") ? "none" : 960, margin:"0 auto" }}>
 
         {/* ══ COLOR ══ */}
         {page==="color" && <>
@@ -1056,6 +1057,8 @@ export default function App() {
         {page==="icons" && <IconsTab />}
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
+
+        {page==="customer-support" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><CustomerSupportReport /></Suspense>}
       </div>
     </div>
   );

@@ -16,6 +16,8 @@ import {
   StrategyRoadmapTable,
   ExpectedResultsGrid,
   ExecutionRoadmap,
+  ExecutiveSummaryCard,
+  WeeklyPlanTable,
 } from "./report-components";
 
 const F = "Pretendard, sans-serif";
@@ -373,6 +375,7 @@ export default function ReportDemo() {
               { value: "qa", label: "QATable (2-col)" },
               { value: "def", label: "DefinitionTable" },
               { value: "roadmap", label: "StrategyRoadmapTable" },
+              { value: "weekly", label: "WeeklyPlanTable" },
             ]}
             value={tableType}
             onChange={setTableType}
@@ -441,6 +444,46 @@ export default function ReportDemo() {
                   },
                 ]} />
               )}
+              {tableType === "weekly" && (
+                <WeeklyPlanTable weeks={[
+                  {
+                    weekLabel: "Week 1",
+                    subtitle: "Foundation Setup & Design",
+                    items: [
+                      { priority: "High", task: "Premium Membership Design Completed", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                      { priority: "Medium", task: "PB Product Initial Lineup Finalized", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                      { priority: "Low", task: "IT System Development Scope Definition", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                    ],
+                  },
+                  {
+                    weekLabel: "Week 2",
+                    subtitle: "Foundation Setup & Design",
+                    items: [
+                      { priority: "High", task: "Membership API Development", owner: "Engineering Team", define: "Backend API endpoints and DB schema", output: "Working API endpoints" },
+                      { priority: "Medium", task: "PB Product Sourcing Confirmed", owner: "Merchandising Team", define: "Vendor contracts and pricing finalized", output: "Signed vendor agreements" },
+                      { priority: "Low", task: "QA Test Plan Created", owner: "QA Team", define: "Test scenarios for membership flow", output: "Test plan document" },
+                    ],
+                  },
+                  {
+                    weekLabel: "Week 3",
+                    subtitle: "Foundation Setup & Design",
+                    items: [
+                      { priority: "High", task: "Pilot Group Rollout", owner: "Operations Team", define: "1,000 pilot users selected and onboarded", output: "Pilot user cohort" },
+                      { priority: "Medium", task: "Marketing Campaign Drafted", owner: "Marketing Team", define: "Channel strategy and creative assets", output: "Campaign brief" },
+                      { priority: "Low", task: "CS Training Completed", owner: "CS Team", define: "FAQ and escalation procedures", output: "Training materials" },
+                    ],
+                  },
+                  {
+                    weekLabel: "Week 4",
+                    subtitle: "Foundation Setup & Design",
+                    items: [
+                      { priority: "High", task: "Public Launch", owner: "Marketing Team", define: "Full-scale rollout with PR announcement", output: "Live product" },
+                      { priority: "Medium", task: "Performance Dashboard Live", owner: "Data Team", define: "KPI tracking and alerts configured", output: "Dashboard URL" },
+                      { priority: "Low", task: "Post-Launch Review Scheduled", owner: "All Teams", define: "Retrospective meeting and report", output: "Review document" },
+                    ],
+                  },
+                ]} />
+              )}
             </>
           );
           if (!tableWrapped) return tableContent;
@@ -455,7 +498,27 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>7. ExecutionRoadmap</Label>
+        <Label>7. ExecutiveSummaryCard</Label>
+        <ExecutiveSummaryCard
+          title="Executive Summary"
+          summaryItems={[
+            { label: "Survey Topic", value: "New premium membership launch response survey" },
+            { label: "Number of respondents", value: "5,000" },
+          ]}
+          findings={{
+            title: "Key Findings",
+            items: [
+              "Subscription intent : High or higher (68%)",
+              "Most desired benefit : Ad-free viewing (72%)",
+              "Main concern : Price burden (45%)",
+              "Reasonable price : $10-15 (52%)",
+            ],
+          }}
+        />
+      </Section>
+
+      <Section>
+        <Label>8. ExecutionRoadmap</Label>
         <ExecutionRoadmap
           title="30-Day Execution Roadmap"
           subtitle="(Baseline Scenario)"

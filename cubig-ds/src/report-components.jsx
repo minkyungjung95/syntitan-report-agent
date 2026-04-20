@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
+import React, { useState } from "react";
+import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
 import { Badge, Btn, Chip, ChipTabs, Callout } from "./ui-components.jsx";
 import { CHART_COLORS } from "./charts";
 
@@ -147,8 +147,10 @@ export function InsightContent({
     );
     return (
       <div style={{
-        background: T.white, borderRadius: 16, padding: 24,
-        border: wrap ? "none" : `1px solid ${T.gray200}`,
+        background: wrap ? T.white : "transparent",
+        borderRadius: wrap ? 16 : 0,
+        padding: wrap ? 24 : 0,
+        border: "none",
         width: "100%", boxSizing: "border-box",
         display: "flex", flexDirection: "column",
         ...style,
@@ -161,14 +163,12 @@ export function InsightContent({
     <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", fontFamily: F }}>
       {/* Header */}
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div style={{ background: T.gray50, padding: 4, borderRadius: 10, display: "flex", alignItems: "center", flexShrink: 0 }}>
-          <div style={{
-            background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 8,
-            padding: 6, display: "flex", alignItems: "center", justifyContent: "center",
-            width: 32, height: 32, boxSizing: "border-box",
-          }}>
-            {icon}
-          </div>
+        <div style={{
+          background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 8,
+          padding: 6, display: "flex", alignItems: "center", justifyContent: "center",
+          width: 32, height: 32, boxSizing: "border-box", flexShrink: 0,
+        }}>
+          {icon}
         </div>
         <div style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: T.gray990 }}>{header}</div>
       </div>
@@ -183,8 +183,10 @@ export function InsightContent({
   );
   return (
     <div style={{
-      background: T.white, borderRadius: 16, padding: 24,
-      border: wrap ? "none" : `1px solid ${T.gray200}`,
+      background: wrap ? T.white : "transparent",
+      borderRadius: wrap ? 16 : 0,
+      padding: wrap ? 24 : 0,
+      border: "none",
       width: "100%", boxSizing: "border-box",
       display: "flex", flexDirection: "column",
       ...style,
@@ -269,16 +271,16 @@ export function QuestionTitle({ number, text, style }) {
 export function InfoCard({ label, value, suffix, description, variant = "solid", size = "lg", icon, style }) {
   const isSolid = variant === "solid";
   const isLg = size === "lg";
-  const valueSize = isLg ? 20 : 16;
-  const valueWeight = isLg ? 700 : 600;
-  const valueLh = isLg ? "28px" : "24px";
+  const valueSize = isLg ? (isSolid ? 20 : 18) : 16;
+  const valueWeight = isLg ? (isSolid ? 700 : 600) : 600;
+  const valueLh = isLg ? (isSolid ? "28px" : "26px") : "24px";
   const suffixSize = isLg ? 16 : 14;
   return (
     <div style={{
       flex: "1 1 0%", minWidth: 160,
       padding: "16px 20px",
       background: isSolid ? T.gray50 : T.white,
-      border: isSolid ? "none" : `1px solid ${T.gray200}`,
+      border: "none",
       borderRadius: 16,
       fontFamily: F,
       boxSizing: "border-box",
@@ -343,11 +345,11 @@ export function PersonaCard({ name, subtitle, metrics = [], icon, style }) {
       {/* Header: icon + name + badge */}
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {icon || <IdentityPlatformIcon size={24} color={T.gray800} />}
+          {icon || <IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
-          {subtitle && <Badge type="Outline" variant="Secondary" size="Small" text={subtitle} />}
+          {subtitle && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{subtitle}</div>}
         </div>
       </div>
       {/* Divider */}
@@ -379,6 +381,7 @@ export function UserCard({
   badge,
   description,
   details = [],
+  stats = [],
   buttonLabel = "View Detail",
   onButtonClick,
   style,
@@ -405,9 +408,9 @@ export function UserCard({
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {IconContainer}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
             <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
-            {badge && <Badge type="Outline" variant="Secondary" size="Large" text={badge} />}
+            {badge && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{badge}</div>}
           </div>
         </div>
         {Divider}
@@ -423,13 +426,50 @@ export function UserCard({
     );
   }
 
+  if (type === "compact") {
+    return (
+      <div style={{
+        width: "100%", background: T.white,
+        border: `1px solid ${T.gray200}`, borderRadius: 16,
+        padding: 24, fontFamily: F, boxSizing: "border-box",
+        display: "flex", flexDirection: "column", gap: 24,
+        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
+        ...style,
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {IconContainer}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+            {stats.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {stats.map((s, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <div style={{ width: 1, height: 12, background: T.gray200 }} />}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                      <span style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{s.value}</span>
+                      <span style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{s.label}</span>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <Btn variant="solid-secondary" size="lg" radius="sm" style={{ width: "100%" }} onClick={onButtonClick}>
+          {buttonLabel}
+        </Btn>
+      </div>
+    );
+  }
+
   if (type === "detail") {
     return (
       <div style={{
         width: "100%", background: T.white,
-        border: `1px solid ${T.gray200}`, borderRadius: 20,
+        border: `1px solid ${T.gray200}`, borderRadius: 16,
         padding: 24, fontFamily: F, boxSizing: "border-box",
         display: "flex", flexDirection: "column", gap: 20,
+        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
         ...style,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -440,7 +480,7 @@ export function UserCard({
           </div>
         </div>
         {Divider}
-        {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
+        {description && <div style={{ flex: 1, fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
         <Btn variant="solid-secondary" size="lg" radius="sm" style={{ width: "100%" }} onClick={onButtonClick}>
           {buttonLabel}
         </Btn>
@@ -1018,22 +1058,20 @@ export function RespondentCard({ name, profile, response, onViewDetail, style })
       display: "flex", flexDirection: "column", gap: 20,
       ...style,
     }}>
-      {/* Header + Divider + Response */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <IdentityPlatformIcon size={24} color={T.gray800} />
-          </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
-            {profile && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{profile}</div>}
-          </div>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <IdentityPlatformOutlineIcon size={24} color={T.gray800} />
         </div>
-        {/* Divider */}
-        <div style={{ height: 1, background: T.gray200 }} />
-        {/* Response */}
-        <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{response}</div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{name}</div>
+          {profile && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800 }}>{profile}</div>}
+        </div>
       </div>
+      {/* Divider */}
+      <div style={{ height: 1, background: T.gray200 }} />
+      {/* Response (flex-grow 1 so short cards push the button to the bottom) */}
+      <div style={{ flex: 1, fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{response}</div>
       {/* View Detail Button */}
       <button
         onClick={onViewDetail}

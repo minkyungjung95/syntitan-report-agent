@@ -16,29 +16,42 @@ const SCHEMA_HINT = `{
     {
       "id": "summary",
       "componentType": "ExecutiveSummary",
-      "label": "Executive Summary",
+      "label": "Executive Summary",             // SectionHeading title (border 밖)
       "data": {
-        "description": "섹션 설명",
+        "description": "섹션 한 줄 설명",       // SectionHeading description (border 밖) — 필수
         "topMetrics": [
           { "label": "총 건수", "value": "1,234" },
           { "label": "평균", "value": "89%" }
         ],
-        "keyFindings": [
-          "Finding 1",
-          "Finding 2"
-        ]
+        "keyFindings": ["Finding 1", "Finding 2"]
       }
     }
   ]
 }
 
+섹션 구조 (모든 section에 공통):
+  SectionHeading(label + data.description, border 밖)
+    → ReportSection (border)
+      → SectionCard (gray50)
+        → ContentCard (white) → 실제 콘텐츠
+
+필수 필드:
+- section.label           → 섹션 대제목 (border 밖)
+- section.data.description → 섹션 한 줄 설명 (border 밖, 대제목 아래)
+
 지원 componentType:
 - ExecutiveSummary, ExecutiveSummaryCard
 - MetricHighlight, InfoCardRow, TextBlock
 - DataTable, FunnelChart, StackedBarChart
-- DonutChart, PieChart, LineChart, BarChart, HBarChart, RadarChart, SankeyChart
-- InsightCard, StrategyTable
-- ExecutionRoadmap, WeeklyPlanTable`;
+- DonutChart, PieChart, LineChart, BarChart, HBarChart, RadarChart, ComboChart
+- InsightCard, StrategyTable, UserCardRow
+- ExecutionRoadmap, WeeklyPlanTable, Composite
+
+데이터 검증 규칙:
+- 빈 셀(—, N/A)이 과반인 테이블은 만들지 않음 → TextBlock으로 대체
+- data가 비었거나 value가 모두 0인 차트는 만들지 않음 → 섹션 생략 또는 TextBlock
+- VBarChart: keys 의 모든 필드가 data[0]에 존재해야 함 (아니면 막대 안 그려짐)
+- LineChart: 각 series에 최소 2개 이상의 {x,y} 포인트 필요`;
 
 const STORAGE_KEY = "cubig-report-builder-json";
 

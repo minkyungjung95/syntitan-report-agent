@@ -11,10 +11,34 @@
 2. **폰트**: `Pretendard, sans-serif` (모든 컴포넌트에 내장)
 3. **색상**: 데이터 시리즈는 CHART_COLORS 팔레트 순서대로 적용
 4. **레이아웃 구조**: 항상 `PageWrapper` > `ReportPage` > 섹션 반복
-5. **섹션 구조**: `SectionHeading` → `ReportSection` → `SectionCard` → `ContentCard`
+5. **섹션 구조 (필수)**: 모든 섹션은 아래 구조를 따릅니다 — 하나도 생략하지 않습니다.
+   - `SectionHeading` (title + description, **border 밖**) → `ReportSection` (border 안) → `SectionCard` → `ContentCard`
+   - **`SectionHeading.description` 은 필수** — 섹션이 왜 있는지, 뭘 보여주는지 1~2문장으로 설명. 없으면 안 됩니다.
+   - JSON 필드로는 `section.label`(=title), `section.data.description`(=description) 로 전달
 6. **반응형**: 차트는 부모 width 100% 기준 자동 조절
 7. **텍스트**: 원본 데이터의 언어 그대로 사용 (번역 금지)
 8. **새 컴포넌트 생성 금지**: 반드시 아래 목록의 컴포넌트만 조합하여 사용
+
+---
+
+## 데이터 검증 규칙 (필수)
+
+LLM은 데이터를 "없으면 빈 셀/대시로 채워서라도 렌더링" 하려는 경향이 있습니다. 이는 **금지**입니다.
+
+### 테이블 (DataTable, QATable 등)
+- 한 셀이라도 값이 없거나 "—", "N/A", "-" 인 행은 **생성하지 않습니다**.
+- 전체 행의 **과반이 비어있는 테이블은 섹션 자체를 생략**합니다. (대신 TextBlock으로 "데이터 연동 시 표시" 설명만 남기기)
+- 컬럼 수 대비 실제 채워진 값이 **50% 미만**이면 테이블이 아니라 InfoCardRow 또는 TextBlock으로 표현합니다.
+
+### 차트 (DonutChart, VBarChart, LineChart 등)
+- `data` 배열이 비었거나 모든 `value`가 0/null이면 **차트를 생성하지 않습니다**. 섹션을 생략하거나 TextBlock으로 대체합니다.
+- VBarChart: `keys` 에 지정한 필드가 `data[0]` 에 **모두 존재**해야 합니다. 없으면 빈 막대만 나옵니다.
+- LineChart: 각 series의 `data`에 최소 2개 이상의 `{x, y}` 포인트가 있어야 합니다. 1개면 선이 안 그려집니다.
+- 시계열이 세그먼트별로 쪼개진 경우 (예: 카테고리별 NPS 분포) → `VBarChart(stacked={true})` 로, 각 카테고리가 `data` 한 행이 되고 keys는 세그먼트 이름이 되도록 구성합니다.
+
+### 데이터 연동 placeholder 처리
+- "데이터 연동 시 자동 생성" 같은 플레이스홀더 섹션은 **차트/테이블을 만들지 말고**, `TextBlock` 으로 설명만 남깁니다.
+  - 예: `{ componentType: "TextBlock", label: "채널별 응답시간", data: { description: "채널 데이터 연동 시 자동 생성", body: "이메일·채팅·전화·소셜 채널의 SLA 초과율을 비교합니다." } }`
 
 ---
 
@@ -86,9 +110,22 @@ border 안쪽 상단 제목. SectionCard 위에 위치.
 ```
 
 #### `ContentCard`
-흰 배경 카드. borderRadius 12.
+흰 배경 카드. borderRadius 16. **padding 기본 0**.
+
+**padding 결정 규칙 (중요 — 이중 패딩 방지)**:
+- 자식이 **자체 패딩을 가진 컴포넌트** (TextBlock/KeyFindings/Interpretation/SignalCard/StrategyCard 등 `bordered={false}` 인 경우에도 내부 padding 24 있음) → `<ContentCard>` (padding 생략, 기본 0)
+- 자식이 **차트** (DonutChart/PieChart/LineChart/VBarChart 등) → `<ContentCard padding={32}>`
+- 자식이 **테이블** (DataTable/QATable) → `<ContentCard padding={0}>` (테이블이 자체 border 처리)
+- 자식이 **raw 레이아웃** (div + InfoCardRow 등 패딩 없는 원시 요소) → `<ContentCard padding={24}>`
+
 ```jsx
-<ContentCard padding={24}>{children}</ContentCard>
+<ContentCard>
+  <TextBlock title="Key Findings" bordered={false} items={[...]} />
+</ContentCard>
+
+<ContentCard padding={32}>
+  <LineChart data={[...]} />
+</ContentCard>
 ```
 
 #### `Divider`

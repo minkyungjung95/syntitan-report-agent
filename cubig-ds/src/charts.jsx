@@ -3,7 +3,6 @@ import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveRadar } from "@nivo/radar";
-import { ResponsiveSankey } from "@nivo/sankey";
 import { useTooltip } from "@nivo/tooltip";
 import { T } from "./tokens.jsx";
 
@@ -82,14 +81,15 @@ function LegendDot({ color }) {
 //    - padAngle 0 (간격 없음), 호버 시 해당 슬라이스만 cornerRadius + 흰 stroke
 //    - 나머지 슬라이스 opacity 0.2
 // ═══════════════════════════════════════════════════════════════════════
-export function DonutChart({ data, title, size = 180 }) {
+export function DonutChart({ data, title, size = 180, legendPosition = "right", hideValues = false }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
+  const isBottom = legendPosition === "bottom";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: isBottom ? "center" : "stretch" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", gap: isBottom ? 24 : 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
@@ -98,7 +98,10 @@ export function DonutChart({ data, title, size = 180 }) {
             padAngle={0}
             cornerRadius={hoverActive ? 6 : 0}
             borderWidth={0}
-            enableArcLabels={false}
+            enableArcLabels={true}
+            arcLabel={d => `${((d.value / total) * 100).toFixed(0)}%`}
+            arcLabelsTextColor={WHITE}
+            arcLabelsSkipAngle={20}
             enableArcLinkLabels={false}
             activeOuterRadiusOffset={0}
             activeInnerRadiusOffset={0}
@@ -132,23 +135,26 @@ export function DonutChart({ data, title, size = 180 }) {
             }}
             animate
             motionConfig="gentle"
-            theme={baseTheme}
+            theme={{ ...baseTheme, labels: { text: { fontSize: 14, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
             tooltip={({ datum }) => (
               <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(0)}% (${datum.value.toLocaleString()})`} />
             )}
           />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
-          {data.map((d, i) => {
-            const pct = ((d.value / total) * 100).toFixed(0);
-            return (
-              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
-                <LegendDot color={CHART_COLORS[i % CHART_COLORS.length]} />
-                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginLeft: 8 }}>{pct}%</span>
-              </div>
-            );
-          })}
+        <div style={{
+          display: "flex",
+          flexDirection: isBottom ? "row" : "column",
+          flexWrap: isBottom ? "wrap" : "nowrap",
+          justifyContent: isBottom ? "center" : "flex-start",
+          gap: isBottom ? "8px 20px" : 10,
+          minWidth: 0,
+        }}>
+          {data.map((d, i) => (
+            <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
+              <LegendDot color={CHART_COLORS[i % CHART_COLORS.length]} />
+              <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -534,7 +540,7 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
         </div>
         {/* Counter */}
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
-          <span style={{ fontSize: 20, fontWeight: 500, lineHeight: "28px", color: GRAY990 }}>{value}%</span>
+          <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{value}%</span>
           {count != null && <span style={{ fontSize: 18, fontWeight: 400, lineHeight: "26px", color: GRAY800 }}>({count.toLocaleString()})</span>}
         </div>
         {/* Tooltip: 바 중앙 위 2px */}
@@ -1862,15 +1868,17 @@ const BLUE_SCALE = [
 export function FunnelChart({
   title,
   steps = [],
-  height: chartHeight = 460,
-  showDropoff = true,
+  height: chartHeight = 440,
+  groupLabel = "모든 사용자",
   style,
 }) {
   const FF = "Pretendard, sans-serif";
   const containerRef = useRef(null);
   const [containerW, setContainerW] = useState(800);
   const [hoveredStep, setHoveredStep] = useState(null);
+  const [hoveredHatch, setHoveredHatch] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const hatchId = "funnel-dropoff-hatch";
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -1888,199 +1896,144 @@ export function FunnelChart({
     const convRate = prev > 0 ? (s.value / prev * 100) : 100;
     const dropoff = prev > 0 ? ((prev - s.value) / prev * 100) : 0;
     const dropoffCount = i > 0 ? prev - s.value : 0;
-    return { ...s, pct, convRate, dropoff, dropoffCount, index: i };
+    const totalDropPct = 100 - pct;
+    const totalDropCount = maxVal - s.value;
+    return { ...s, pct, convRate, dropoff, dropoffCount, totalDropPct, totalDropCount, index: i };
   }), [steps, maxVal]);
 
-  // 레이아웃 계산
-  const margin = { top: 50, right: 40, bottom: 80, left: 40 };
+  // 레이아웃 (Amplitude Closed Funnel 스타일)
+  const margin = { top: 40, right: 32, bottom: 80, left: 56 };
   const plotW = containerW - margin.left - margin.right;
   const plotH = chartHeight - margin.top - margin.bottom;
   const stepCount = stepsData.length;
-  // 전체 barW * stepCount + barGap * (stepCount-1) = plotW 이내에 맞추기
-  const idealBarW = plotW / stepCount * 0.6;
-  const barW = Math.max(28, Math.min(idealBarW, 80));
-  const barGap = stepCount > 1 ? (plotW - barW * stepCount) / (stepCount - 1) : 0;
-  const stepW = barW + barGap;
-  // 실제 전체 너비 → 가운데 정렬용 오프셋
-  const totalBarsW = barW * stepCount + barGap * (stepCount - 1);
-  const offsetX = margin.left + (plotW - totalBarsW) / 2;
+  // 바 너비: 슬롯의 65%, 나머지는 간격
+  const stepW = stepCount > 0 ? plotW / stepCount : 0;
+  const barW = stepW * 0.65;
+  const barPad = (stepW - barW) / 2;
 
-  // 바 높이 (최대 바가 plotH의 90% 차지)
-  const maxBarH = plotH * 0.9;
-  const getBarH = (val) => maxVal > 0 ? (val / maxVal) * maxBarH : 0;
+  // 0~100% 스케일 기준 높이
+  const getBarH = (pct) => (pct / 100) * plotH;
 
-  // 색상: 단계가 6개 이하면 BLUE_SCALE, 넘으면 보간
-  const getColor = (i) => {
-    if (stepCount <= BLUE_SCALE.length) return BLUE_SCALE[Math.min(i, BLUE_SCALE.length - 1)];
-    const t = i / (stepCount - 1);
-    const idx = t * (BLUE_SCALE.length - 1);
-    return BLUE_SCALE[Math.min(Math.round(idx), BLUE_SCALE.length - 1)];
-  };
+  const blueColor = T.blue500 || "#2B7FFF";
+  const blueLight = T.blue50 || "#EFF6FF";
+  const gridLines = [0, 25, 50, 75, 100];
 
   return (
     <div ref={containerRef} style={{ fontFamily: FF, width: "100%", ...style }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, marginBottom: 16 }}>{title}</div>}
 
       <div style={{ position: "relative" }}>
         <svg viewBox={`0 0 ${containerW} ${chartHeight}`} width="100%" style={{ display: "block", overflow: "visible" }}>
-          {/* 흐름 영역 (단계 간 연결) */}
-          {stepsData.map((s, i) => {
-            if (i === 0) return null;
-            const prev = stepsData[i - 1];
-            const x1 = offsetX + (i - 1) * stepW + barW;
-            const x2 = offsetX + i * stepW;
-            const prevH = getBarH(prev.value);
-            const curH = getBarH(s.value);
-            const y1Top = margin.top + (maxBarH - prevH);
-            const y1Bot = margin.top + maxBarH;
-            const y2Top = margin.top + (maxBarH - curH);
-            const y2Bot = margin.top + maxBarH;
-            const isH = hoveredStep === i || hoveredStep === i - 1;
+          <defs><HatchPattern id={hatchId} /></defs>
 
-            // 곡선 연결 path
-            const midX = (x1 + x2) / 2;
-            const pathD = [
-              `M ${x1} ${y1Top}`,
-              `C ${midX} ${y1Top}, ${midX} ${y2Top}, ${x2} ${y2Top}`,
-              `L ${x2} ${y2Bot}`,
-              `C ${midX} ${y2Bot}, ${midX} ${y1Bot}, ${x1} ${y1Bot}`,
-              `Z`,
-            ].join(" ");
-
+          {/* Y축: 그리드 라인 + % 라벨 (0, 25, 50, 75, 100) */}
+          {gridLines.map(p => {
+            const y = margin.top + plotH - getBarH(p);
             return (
-              <path key={`flow-${i}`} d={pathD}
-                fill={getColor(i)}
-                opacity={isH ? 0.25 : 0.1}
-                style={{ transition: "opacity 0.2s" }}
-              />
-            );
-          })}
-
-          {/* 이탈 표시 영역 (드롭오프) */}
-          {showDropoff && stepsData.map((s, i) => {
-            if (i === 0 || s.dropoffCount <= 0) return null;
-            const prev = stepsData[i - 1];
-            const x1 = offsetX + (i - 1) * stepW + barW;
-            const x2 = offsetX + i * stepW;
-            const prevH = getBarH(prev.value);
-            const curH = getBarH(s.value);
-            const y1Top = margin.top + (maxBarH - prevH);
-            const y2Top = margin.top + (maxBarH - curH);
-
-            // 이탈 영역: 이전 바 상단 → 현재 바 상단 위쪽 (이탈분)
-            const dropH = prevH - curH;
-            if (dropH <= 2) return null;
-
-            const midX = (x1 + x2) / 2;
-            const isH = hoveredStep === i;
-            // 이탈 path: 이전 상단 → 현재 상단 수평선 → 아래로 0 (사라짐)
-            const dPath = [
-              `M ${x1} ${y1Top}`,
-              `C ${midX} ${y1Top}, ${midX} ${y2Top - dropH * 0.3}, ${x2 - barGap * 0.15} ${y2Top - dropH * 0.15}`,
-              `L ${x2 - barGap * 0.15} ${y2Top}`,
-              `C ${midX} ${y2Top}, ${midX} ${y1Top + (prevH - curH) * 0.5}, ${x1} ${y1Top + 0}`,
-              `Z`,
-            ].join(" ");
-
-            return (
-              <g key={`drop-${i}`}>
-                <path d={dPath}
-                  fill={RED500}
-                  opacity={isH ? 0.15 : 0.06}
-                  style={{ transition: "opacity 0.2s" }}
+              <g key={`grid-${p}`}>
+                <line x1={margin.left} y1={y} x2={margin.left + plotW} y2={y}
+                  stroke={GRAY200}
+                  strokeWidth={1}
                 />
-                {/* 이탈율 라벨 */}
-                {isH && (
-                  <text
-                    x={(x1 + x2) / 2}
-                    y={Math.min(y1Top, y2Top) - 4}
-                    textAnchor="middle"
-                    style={{ fontSize: 12, fontWeight: 600, fill: RED500, fontFamily: FF }}
-                  >
-                    -{s.dropoff.toFixed(1)}%
-                  </text>
-                )}
+                <text x={margin.left - 12} y={y + 4} textAnchor="end"
+                  style={{ fontSize: 12, fontWeight: 400, fill: GRAY800, fontFamily: FF }}>
+                  {p}%
+                </text>
               </g>
             );
           })}
 
-          {/* 바 + 라벨 */}
+          {/* 바 (빗금 이탈 + 솔리드 실값) + 상단 % pill 배지 */}
           {stepsData.map((s, i) => {
-            const x = offsetX + i * stepW;
-            const barH = getBarH(s.value);
-            const y = margin.top + (maxBarH - barH);
+            const x = margin.left + i * stepW + barPad;
+            const cx = x + barW / 2;
+            const barH = getBarH(s.pct);
+            const y = margin.top + plotH - barH;
+            const hatchH = plotH - barH;
+            const hatchY = margin.top;
             const isH = hoveredStep === i;
-            const color = getColor(i);
+            const isHatchHovered = hoveredHatch === i;
+            const updateTooltipPos = (e) => {
+              const rect = containerRef.current?.getBoundingClientRect();
+              if (rect) setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+            };
+
+            // pill 배지 위치: 블루 바 상단에 반쯤 걸치게 (Amplitude 스타일)
+            const pillW = 62, pillH = 24;
+            const pillY = y - pillH / 2; // 바 상단 y를 중심으로 배지가 반쯤 위에, 반쯤 아래에 겹침
+            const pillX = cx - pillW / 2;
 
             return (
-              <g key={`bar-${i}`}
-                onMouseEnter={(e) => {
-                  setHoveredStep(i);
-                  const rect = containerRef.current?.getBoundingClientRect();
-                  if (rect) setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-                }}
-                onMouseMove={(e) => {
-                  const rect = containerRef.current?.getBoundingClientRect();
-                  if (rect) setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-                }}
-                onMouseLeave={() => setHoveredStep(null)}
-                style={{ cursor: "default" }}
-              >
-                {/* 바 */}
+              <g key={`bar-${i}`}>
+                {/* 빗금 이탈 영역 */}
+                {hatchH > 2 && (
+                  <>
+                    <rect x={x} y={hatchY} width={barW} height={hatchH}
+                      fill={`url(#${hatchId})`}
+                      onMouseEnter={(e) => { setHoveredHatch(i); setHoveredStep(null); updateTooltipPos(e); }}
+                      onMouseMove={updateTooltipPos}
+                      onMouseLeave={() => setHoveredHatch(null)}
+                      style={{ cursor: "pointer", transition: "opacity 0.2s", opacity: isHatchHovered ? 0.75 : 1 }}
+                    />
+                    {isHatchHovered && (
+                      <rect x={x} y={hatchY} width={barW} height={hatchH}
+                        fill="none" stroke={RED500} strokeWidth={1.5} strokeDasharray="4 3"
+                        style={{ pointerEvents: "none" }}
+                      />
+                    )}
+                  </>
+                )}
+                {/* 솔리드 바 (실값) */}
                 <rect x={x} y={y} width={barW} height={barH}
-                  rx={4} fill={color}
-                  style={{ transition: "height 0.4s ease, y 0.4s ease" }}
+                  fill={blueColor}
+                  onMouseEnter={(e) => { setHoveredStep(i); setHoveredHatch(null); updateTooltipPos(e); }}
+                  onMouseMove={updateTooltipPos}
+                  onMouseLeave={() => setHoveredStep(null)}
+                  style={{ transition: "height 0.4s ease, y 0.4s ease", cursor: "default" }}
                 />
-                {/* 호버: 바 위에 블랙 오버레이 */}
                 {isH && (
                   <rect x={x} y={y} width={barW} height={barH}
-                    rx={4} fill="rgba(0,0,0,0.10)"
-                    style={{ pointerEvents: "none" }}
+                    fill="rgba(0,0,0,0.08)" style={{ pointerEvents: "none" }}
                   />
                 )}
-                {/* 퍼센트 라벨 (바 위) */}
-                <text x={x + barW / 2} y={y - 10}
-                  textAnchor="middle"
-                  style={{
-                    fontSize: isH ? 15 : 13,
-                    fontWeight: 700,
-                    fill: isH ? GRAY990 : GRAY800,
-                    fontFamily: FF,
-                    transition: "font-size 0.15s",
-                  }}>
-                  {s.pct.toFixed(1)}%
-                </text>
-                {/* 전환율 (첫 단계 제외, 바 위 퍼센트 위) */}
-                {i > 0 && (
-                  <text x={x + barW / 2} y={y - 28}
-                    textAnchor="middle"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      fill: s.convRate >= 80 ? (T.green600 || "#00A63E") : s.convRate >= 50 ? GRAY800 : RED500,
-                      fontFamily: FF,
-                    }}>
-                    conv. {s.convRate.toFixed(1)}%
+
+                {/* % pill 배지 */}
+                <g style={{ pointerEvents: "none" }}>
+                  <rect x={pillX} y={pillY} width={pillW} height={pillH}
+                    rx={4} fill={blueLight} stroke={blueColor} strokeOpacity={0.2}
+                  />
+                  <text x={cx} y={pillY + pillH / 2 + 4} textAnchor="middle"
+                    style={{ fontSize: 12, fontWeight: 700, fill: blueColor, fontFamily: FF }}>
+                    {s.pct.toFixed(2)}%
                   </text>
-                )}
-                {/* 단계 라벨 (하단) */}
-                <text x={x + barW / 2} y={margin.top + maxBarH + 24}
-                  textAnchor="middle"
-                  style={{ fontSize: 13, fontWeight: isH ? 600 : 500, fill: isH ? GRAY990 : GRAY800, fontFamily: FF }}>
-                  {s.label}
-                </text>
-                {/* 유저 수 (하단 2행) */}
-                <text x={x + barW / 2} y={margin.top + maxBarH + 44}
-                  textAnchor="middle"
-                  style={{ fontSize: 11, fontWeight: 400, fill: GRAY800, fontFamily: FF }}>
-                  {s.value.toLocaleString()}
-                </text>
+                </g>
+
+                {/* 하단: 번호 원 + 단계명 */}
+                <g>
+                  <circle cx={cx - Math.min(60, barW / 2 - 4)} cy={margin.top + plotH + 22} r={10}
+                    fill={GRAY990}
+                  />
+                  <text x={cx - Math.min(60, barW / 2 - 4)} y={margin.top + plotH + 26} textAnchor="middle"
+                    style={{ fontSize: 11, fontWeight: 600, fill: "#FFFFFF", fontFamily: FF }}>
+                    {i + 1}
+                  </text>
+                  <text x={cx - Math.min(60, barW / 2 - 4) + 16} y={margin.top + plotH + 26} textAnchor="start"
+                    style={{ fontSize: 13, fontWeight: isH ? 600 : 500, fill: isH ? GRAY990 : GRAY800, fontFamily: FF }}>
+                    {s.label}
+                  </text>
+                </g>
               </g>
             );
           })}
         </svg>
 
-        {/* 호버 툴팁 */}
+        {/* 범례 */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 8, fontFamily: FF }}>
+          <span style={{ width: 10, height: 10, borderRadius: "50%", background: blueColor, display: "inline-block" }} />
+          <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>{groupLabel}</span>
+        </div>
+
+        {/* 호버 툴팁 (바) */}
         {hoveredStep !== null && (() => {
           const s = stepsData[hoveredStep];
           return (
@@ -2123,86 +2076,266 @@ export function FunnelChart({
             </div>
           );
         })()}
+
+        {/* 호버 툴팁 (빗금 이탈 영역) */}
+        {hoveredHatch !== null && (() => {
+          const s = stepsData[hoveredHatch];
+          return (
+            <div style={{
+              position: "absolute",
+              left: Math.min(tooltipPos.x + 16, containerW - 220),
+              top: tooltipPos.y - 80,
+              ...tooltipBox,
+              padding: "10px 16px",
+              zIndex: 10,
+              pointerEvents: "none",
+              minWidth: 180,
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: RED500, marginBottom: 6 }}>
+                이탈 — {s.label}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 13, color: GRAY800 }}>첫 단계 대비</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.totalDropPct.toFixed(1)}%</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 13, color: GRAY800 }}>이탈 수</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.totalDropCount.toLocaleString()}</span>
+                </div>
+                {s.index > 0 && (
+                  <>
+                    <div style={{ height: 1, background: GRAY200, margin: "2px 0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                      <span style={{ fontSize: 13, color: GRAY800 }}>직전 단계 대비</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.dropoff.toFixed(1)}% ({s.dropoffCount.toLocaleString()})</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// SANKEY CHART (Nivo Sankey – 사용자 흐름 분석)
-//   Amplitude Pathfinder 스타일 흐름 시각화
+// COMBO CHART (Bar + Line, Dual Y-Axis)
+//   좌측 Y축: 바 (주 지표), 우측 Y축: 선 (비교 지표)
+//   Usage:
+//     <ComboChart
+//       data={[{ label: "2016", bar: 955, line: 125 }, ...]}
+//       barKey="bar" lineKey="line"
+//       barLabel="매출액(억원)" lineLabel="직원수(명)"
+//       barAxisLabel="매출액" lineAxisLabel="직원수"
+//     />
 // ═══════════════════════════════════════════════════════════════════════
-
-const SANKEY_BLUE = {
-  node: T.blue500 || "#2B7FFF",
-  link: T.blue200 || "#BEDBFF",
-  hover: T.blue400 || "#51A2FF",
-  drop: GRAY200,
-};
-
-export function SankeyChart({
+export function ComboChart({
   title,
-  data,          // { nodes: [{ id }], links: [{ source, target, value }] }
-  height = 480,
+  data = [],
+  barKey = "bar",
+  lineKey = "line",
+  barLabel = "bar",
+  lineLabel = "line",
+  barAxisLabel,
+  lineAxisLabel,
+  barColor,
+  lineColor,
+  height: chartHeight = 420,
   style,
 }) {
   const FF = "Pretendard, sans-serif";
-  const [hovered, setHovered] = useState(null);
+  const containerRef = useRef(null);
+  const [containerW, setContainerW] = useState(800);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
-  // 노드 색상: "drop"/"other" 계열은 회색, 나머지 블루 그라데이션
-  const getNodeColor = (node) => {
-    const id = (node.id || "").toLowerCase();
-    if (id.includes("drop") || id.includes("other") || id.includes("이탈")) return GRAY200;
-    return SANKEY_BLUE.node;
-  };
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(([entry]) => setContainerW(entry.contentRect.width));
+    ro.observe(containerRef.current);
+    setContainerW(containerRef.current.offsetWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  const BAR = barColor || T.blue500 || "#2B7FFF";
+  const LINE = lineColor || "#FB2C36";
+
+  // 축 범위: 깔끔한 눈금으로 올림 처리
+  const barValues = data.map(d => +d[barKey]).filter(v => Number.isFinite(v));
+  const lineValues = data.map(d => +d[lineKey]).filter(v => Number.isFinite(v));
+  const barMin = Math.min(...barValues, 0);
+  const barMax = Math.max(...barValues, 1);
+  const lineMin = Math.min(...lineValues, 0);
+  const lineMax = Math.max(...lineValues, 1);
+
+  function niceScale(min, max, ticks = 5) {
+    const range = max - min || 1;
+    const roughStep = range / ticks;
+    const pow = Math.pow(10, Math.floor(Math.log10(roughStep)));
+    const norm = roughStep / pow;
+    const step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * pow;
+    const niceMin = Math.floor(min / step) * step;
+    const niceMax = Math.ceil(max / step) * step;
+    const tickList = [];
+    for (let v = niceMin; v <= niceMax + step * 0.001; v += step) tickList.push(+v.toFixed(6));
+    return { min: niceMin, max: niceMax, ticks: tickList };
+  }
+
+  const barScale = niceScale(barMin, barMax);
+  const lineScale = niceScale(lineMin, lineMax);
+
+  // 레이아웃
+  const margin = { top: 32, right: 68, bottom: 70, left: 68 };
+  const plotW = Math.max(200, containerW - margin.left - margin.right);
+  const plotH = chartHeight - margin.top - margin.bottom;
+  const n = data.length;
+  const slotW = n > 0 ? plotW / n : 0;
+  const barW = slotW * 0.5;
+
+  const yBar = (v) => margin.top + plotH - ((v - barScale.min) / (barScale.max - barScale.min || 1)) * plotH;
+  const yLine = (v) => margin.top + plotH - ((v - lineScale.min) / (lineScale.max - lineScale.min || 1)) * plotH;
+  const xCat = (i) => margin.left + i * slotW + slotW / 2;
+
+  const barBaseline = margin.top + plotH - Math.max(0, -barScale.min / (barScale.max - barScale.min || 1) * plotH);
 
   return (
-    <div style={{ fontFamily: FF, width: "100%", ...style }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>{title}</div>}
-      <div style={{ width: "100%", height }}>
-        <ResponsiveSankey
-          data={data}
-          margin={{ top: 20, right: 160, bottom: 20, left: 80 }}
-          align="justify"
-          colors={getNodeColor}
-          nodeOpacity={1}
-          nodeHoverOthersOpacity={0.25}
-          nodeThickness={24}
-          nodeSpacing={16}
-          nodeBorderWidth={0}
-          nodeBorderRadius={4}
-          linkOpacity={0.2}
-          linkHoverOthersOpacity={0.05}
-          linkContract={1}
-          linkBlendMode="normal"
-          enableLinkGradient
-          labelPosition="outside"
-          labelOrientation="horizontal"
-          labelPadding={12}
-          labelTextColor={{ from: "color", modifiers: [["darker", 1.4]] }}
-          animate
-          motionConfig="gentle"
-          theme={{
-            ...baseTheme,
-            labels: { text: { fontSize: 13, fontWeight: 500, fontFamily: FF, fill: GRAY990 } },
-          }}
-          nodeTooltip={({ node }) => (
-            <div style={{ ...tooltipBox, padding: "8px 14px" }}>
-              <span style={{ fontSize: 14, fontWeight: 600, lineHeight: "20px", color: GRAY990 }}>{node.label}</span>
-              <span style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: node.color }}>{node.value.toLocaleString()}</span>
-            </div>
+    <div ref={containerRef} style={{ fontFamily: FF, width: "100%", ...style }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
+
+      <div style={{ position: "relative" }}>
+        <svg viewBox={`0 0 ${containerW} ${chartHeight}`} width="100%" style={{ display: "block", overflow: "visible" }}>
+          {/* 좌측 Y축 (바) 그리드 + 라벨 */}
+          {barScale.ticks.map((t, i) => {
+            const y = yBar(t);
+            return (
+              <g key={`by-${i}`}>
+                <line x1={margin.left} y1={y} x2={margin.left + plotW} y2={y} stroke={GRAY200} strokeWidth={1} />
+                <text x={margin.left - 10} y={y + 4} textAnchor="end" style={{ fontSize: 11, fill: GRAY800, fontFamily: FF }}>{t}</text>
+              </g>
+            );
+          })}
+          {/* 우측 Y축 (선) 라벨 */}
+          {lineScale.ticks.map((t, i) => {
+            const y = yLine(t);
+            return (
+              <text key={`ly-${i}`} x={margin.left + plotW + 10} y={y + 4} textAnchor="start"
+                style={{ fontSize: 11, fill: LINE, fontFamily: FF }}>{t}</text>
+            );
+          })}
+
+          {/* 축 라벨 */}
+          {barAxisLabel && (
+            <text x={margin.left - 48} y={margin.top - 10} textAnchor="start"
+              style={{ fontSize: 11, fontWeight: 500, fill: GRAY800, fontFamily: FF }}>{barAxisLabel}</text>
           )}
-          linkTooltip={({ link }) => (
-            <div style={{ ...tooltipBox, padding: "8px 14px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{link.source.label}</span>
-                <span style={{ fontSize: 12, color: GRAY800 }}>→</span>
-                <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{link.target.label}</span>
+          {lineAxisLabel && (
+            <text x={margin.left + plotW + 10} y={margin.top - 10} textAnchor="start"
+              style={{ fontSize: 11, fontWeight: 500, fill: LINE, fontFamily: FF }}>{lineAxisLabel}</text>
+          )}
+
+          {/* 바 */}
+          {data.map((d, i) => {
+            const v = +d[barKey];
+            if (!Number.isFinite(v)) return null;
+            const y = yBar(v);
+            const h = Math.abs(barBaseline - y);
+            const x = xCat(i) - barW / 2;
+            const isH = hoveredIdx === i;
+            return (
+              <g key={`bar-${i}`}>
+                <rect x={x} y={Math.min(y, barBaseline)} width={barW} height={h}
+                  fill={BAR} opacity={isH ? 0.85 : 1}
+                  onMouseEnter={(e) => {
+                    setHoveredIdx(i);
+                    const r = containerRef.current?.getBoundingClientRect();
+                    if (r) setTooltipPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+                  }}
+                  onMouseMove={(e) => {
+                    const r = containerRef.current?.getBoundingClientRect();
+                    if (r) setTooltipPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+                  }}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  style={{ cursor: "default" }}
+                />
+              </g>
+            );
+          })}
+
+          {/* 선 */}
+          {(() => {
+            const pts = data
+              .map((d, i) => ({ i, v: +d[lineKey] }))
+              .filter(p => Number.isFinite(p.v));
+            if (pts.length < 2) return null;
+            const path = pts.map((p, idx) => `${idx === 0 ? "M" : "L"} ${xCat(p.i)} ${yLine(p.v)}`).join(" ");
+            return (
+              <g style={{ pointerEvents: "none" }}>
+                <path d={path} fill="none" stroke={LINE} strokeWidth={2} />
+                {pts.map(p => (
+                  <circle key={`lp-${p.i}`} cx={xCat(p.i)} cy={yLine(p.v)} r={4}
+                    fill="#FFC107" stroke={LINE} strokeWidth={2} />
+                ))}
+              </g>
+            );
+          })()}
+
+          {/* X축 카테고리 라벨 */}
+          {data.map((d, i) => (
+            <text key={`x-${i}`} x={xCat(i)} y={margin.top + plotH + 18} textAnchor="middle"
+              style={{ fontSize: 12, fill: GRAY800, fontFamily: FF }}>
+              {d.label}
+            </text>
+          ))}
+        </svg>
+
+        {/* 범례 */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, marginTop: 4, fontFamily: FF }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 10, background: BAR, display: "inline-block", borderRadius: 2 }} />
+            <span style={{ fontSize: 12, color: GRAY800 }}>{barLabel}</span>
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 2, background: LINE, display: "inline-block", position: "relative" }}>
+              <span style={{ position: "absolute", left: 4, top: -3, width: 6, height: 6, borderRadius: "50%", background: "#FFC107", border: `2px solid ${LINE}`, boxSizing: "border-box" }} />
+            </span>
+            <span style={{ fontSize: 12, color: GRAY800 }}>{lineLabel}</span>
+          </span>
+        </div>
+
+        {/* 툴팁 */}
+        {hoveredIdx !== null && (() => {
+          const d = data[hoveredIdx];
+          return (
+            <div style={{
+              position: "absolute",
+              left: Math.min(tooltipPos.x + 16, containerW - 220),
+              top: tooltipPos.y - 60,
+              background: WHITE,
+              border: `1px solid ${GRAY200}`,
+              borderRadius: 8,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              padding: "10px 14px",
+              zIndex: 10,
+              pointerEvents: "none",
+              minWidth: 160,
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>{d.label}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 12, color: BAR }}>● {barLabel}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: GRAY990 }}>{d[barKey]}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                  <span style={{ fontSize: 12, color: LINE }}>● {lineLabel}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: GRAY990 }}>{d[lineKey]}</span>
+                </div>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: GRAY990 }}>{link.value.toLocaleString()}</span>
             </div>
-          )}
-        />
+          );
+        })()}
       </div>
     </div>
   );

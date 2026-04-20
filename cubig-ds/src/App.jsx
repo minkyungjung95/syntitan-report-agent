@@ -1,10 +1,9 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, GroupedBarChart, RadarChart, PSMChart, FunnelChart, SankeyChart, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
-const CustomerSupportReport = lazy(() => import("./CustomerSupportReport"));
 const ReportBuilder = lazy(() => import("./ReportBuilder"));
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -108,8 +107,8 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report","customer-support"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Demo", "customer-support":"고객 문의 샘플" };
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Demo" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -153,7 +152,7 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding:"28px 24px", maxWidth: (page === "report" || page === "customer-support") ? "none" : 960, margin:"0 auto" }}>
+      <div style={{ padding:"28px 24px", maxWidth: page === "report" ? "none" : 960, margin:"0 auto" }}>
 
         {/* ══ COLOR ══ */}
         {page==="color" && <>
@@ -1048,38 +1047,26 @@ export default function App() {
             />
           </Card>
 
-          {/* Sankey Chart - 사용자 흐름 */}
-          <Card title="Sankey Chart (User Flow)" subtitle="Nivo Sankey – 사용자 경로 흐름 분석">
-            <SankeyChart
-              title="사용자 경로 흐름"
-              data={{
-                nodes: [
-                  { id: "앱 실행" },
-                  { id: "홈 탐색" },
-                  { id: "검색" },
-                  { id: "카테고리" },
-                  { id: "상품 상세" },
-                  { id: "장바구니" },
-                  { id: "결제 완료" },
-                  { id: "이탈 (홈)" },
-                  { id: "이탈 (검색)" },
-                  { id: "이탈 (상세)" },
-                ],
-                links: [
-                  { source: "앱 실행", target: "홈 탐색", value: 180000 },
-                  { source: "앱 실행", target: "검색", value: 95000 },
-                  { source: "앱 실행", target: "카테고리", value: 47000 },
-                  { source: "홈 탐색", target: "상품 상세", value: 120000 },
-                  { source: "홈 탐색", target: "이탈 (홈)", value: 60000 },
-                  { source: "검색", target: "상품 상세", value: 72000 },
-                  { source: "검색", target: "이탈 (검색)", value: 23000 },
-                  { source: "카테고리", target: "상품 상세", value: 38000 },
-                  { source: "상품 상세", target: "장바구니", value: 86000 },
-                  { source: "상품 상세", target: "이탈 (상세)", value: 144000 },
-                  { source: "장바구니", target: "결제 완료", value: 38420 },
-                ],
-              }}
-              height={520}
+          {/* Combo Chart - 바 + 선 (이중 Y축) */}
+          <Card title="Combo Chart (Bar + Line)" subtitle="이중 Y축: 주 지표(바) + 비교 지표(선)">
+            <ComboChart
+              title="연도별 매출액/종업원수 현황"
+              data={[
+                { label: "2016", bar: 955, line: 125 },
+                { label: "2017", bar: 951, line: 105 },
+                { label: "2018", bar: 951, line: 103 },
+                { label: "2019", bar: 958, line: 95 },
+                { label: "2020", bar: 956, line: 128 },
+                { label: "2021", bar: 954, line: 102 },
+                { label: "2022", bar: 955, line: 104 },
+                { label: "2023", bar: 956, line: 95 },
+              ]}
+              barKey="bar"
+              lineKey="line"
+              barLabel="매출액(억원)"
+              lineLabel="직원수(명)"
+              barAxisLabel="매출액"
+              lineAxisLabel="직원수"
             />
           </Card>
 
@@ -1088,8 +1075,6 @@ export default function App() {
         {page==="icons" && <IconsTab />}
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
-
-        {page==="customer-support" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><CustomerSupportReport /></Suspense>}
       </div>
 
       </>}

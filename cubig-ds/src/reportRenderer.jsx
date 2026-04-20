@@ -4,15 +4,59 @@ import {
   SectionCard, ContentCard, ContentArea, ContentHeader,
   MiniStatGrid, DataTable, QATable, InsightContent, InfoCard, InfoCardRow,
   TextBlock, KeyFindings, SignalCard, ExecutiveSummaryCard, ExecutionRoadmap, WeeklyPlanTable,
+  StrategyRoadmapTable, UserCard,
 } from "./report-components.jsx";
 import {
   DonutChart, PieChart, LineChart, VBarChart, HBarChart,
-  StackedHBar, FunnelChart, SankeyChart, RadarChart,
+  StackedHBar, FunnelChart, RadarChart, ComboChart,
 } from "./charts.jsx";
 import { Badge } from "./ui-components.jsx";
 import { T } from "./tokens.jsx";
 
 const F = "Pretendard, sans-serif";
+
+// ── 데이터 검증 헬퍼 ──
+function isEmptyValue(v) {
+  return v == null || v === "" || v === "—" || v === "-" || v === "N/A" || v === "n/a";
+}
+
+function isEmptyTable(rows, columns) {
+  if (!Array.isArray(rows) || rows.length === 0) return true;
+  const keys = columns?.map(c => c.key || c.label) || Object.keys(rows[0] || {});
+  if (keys.length === 0) return true;
+  const totalCells = rows.length * keys.length;
+  const emptyCells = rows.reduce((sum, r) => sum + keys.filter(k => isEmptyValue(r[k])).length, 0);
+  return emptyCells / totalCells > 0.5;
+}
+
+function isEmptyChart(data) {
+  if (!Array.isArray(data) || data.length === 0) return true;
+  // 숫자 value가 하나라도 있는지 확인
+  const hasValue = data.some(d => {
+    if (typeof d.value === "number" && d.value !== 0) return true;
+    if (Array.isArray(d.data) && d.data.some(p => typeof p.y === "number" && p.y !== 0)) return true;
+    return Object.values(d).some(v => typeof v === "number" && v !== 0);
+  });
+  return !hasValue;
+}
+
+function EmptyStatePlaceholder({ label, reason }) {
+  return (
+    <div style={{
+      padding: 32,
+      background: T.gray50,
+      border: `1px dashed ${T.gray300}`,
+      borderRadius: 12,
+      fontFamily: F,
+      color: T.gray800,
+      fontSize: 14,
+      textAlign: "center",
+    }}>
+      <div style={{ fontWeight: 600, marginBottom: 4, color: T.gray990 }}>⚠ 데이터 없음 — {label || "섹션"}</div>
+      <div>{reason || "데이터 연동 시 자동으로 표시됩니다."}</div>
+    </div>
+  );
+}
 
 /**
  * JSON → DS 컴포넌트 매핑 렌더러
@@ -31,7 +75,7 @@ const F = "Pretendard, sans-serif";
  *  - BarChart               세로 바 (단일/그룹/스택)
  *  - HBarChart              수평 바
  *  - RadarChart             레이더
- *  - SankeyChart            산키
+ *  - ComboChart             바 + 선 (이중 Y축)
  *  - InsightCard            카드 리스트 (Badge + value + desc + 해석)
  *  - StrategyTable          Immediate/Short/Mid 전략 카드
  *  - ExecutionRoadmap       주차별 탭 로드맵
@@ -45,16 +89,20 @@ export function renderSection(section) {
       return (
         <ReportSection>
           <SectionHeading title={section.label} description={section.data.description} />
-          {topMetrics.length > 0 && (
-            <InfoCardRow>
-              {topMetrics.map((m, i) => (
-                <InfoCard key={i} label={m.label} value={m.value} variant="solid" />
-              ))}
-            </InfoCardRow>
-          )}
-          {section.data.keyFindings && (
-            <KeyFindings title="Key Findings" items={section.data.keyFindings} />
-          )}
+          <SectionCard>
+            {topMetrics.length > 0 && (
+              <InfoCardRow>
+                {topMetrics.map((m, i) => (
+                  <InfoCard key={i} label={m.label} value={m.value} variant="outline" />
+                ))}
+              </InfoCardRow>
+            )}
+            {section.data.keyFindings && (
+              <ContentCard>
+                <KeyFindings title="Key Findings" items={section.data.keyFindings} bordered={false} />
+              </ContentCard>
+            )}
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -71,21 +119,24 @@ export function renderSection(section) {
 
     case "MetricHighlight":
     case "InfoCardRow": {
+      const defaultVariant = section.componentType === "MetricHighlight" ? "outline" : "solid";
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <InfoCardRow>
-            {(section.data.items || []).map((it, i) => (
-              <InfoCard
-                key={i}
-                label={it.label}
-                value={it.value}
-                suffix={it.suffix}
-                description={it.description || (it.sub ? `${it.sub}${it.description ? ` — ${it.description}` : ""}` : undefined)}
-                variant={it.variant || section.data.variant || "solid"}
-              />
-            ))}
-          </InfoCardRow>
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <InfoCardRow>
+              {(section.data.items || []).map((it, i) => (
+                <InfoCard
+                  key={i}
+                  label={it.label}
+                  value={it.value}
+                  suffix={it.suffix}
+                  description={it.description || it.sub}
+                  variant={it.variant || section.data.variant || defaultVariant}
+                />
+              ))}
+            </InfoCardRow>
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -93,7 +144,7 @@ export function renderSection(section) {
     case "TextBlock": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <TextBlock title={section.data.title} items={section.data.items} bordered={true}>
             {section.data.body}
           </TextBlock>
@@ -121,10 +172,19 @@ export function renderSection(section) {
         columns = cols;
         data = section.data.data || [];
       }
+      const tableIsEmpty = isEmptyTable(data, columns);
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <DataTable columns={columns} data={data} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          {tableIsEmpty ? (
+            <EmptyStatePlaceholder label={section.label || "테이블"} reason={section.data.emptyReason || "데이터 연동 시 자동으로 표시됩니다."} />
+          ) : (
+            <SectionCard>
+              <ContentCard padding={0}>
+                <DataTable columns={columns} data={data} />
+              </ContentCard>
+            </SectionCard>
+          )}
         </ReportSection>
       );
     }
@@ -135,8 +195,12 @@ export function renderSection(section) {
       }));
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <FunnelChart title={section.data.title} steps={steps} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={32}>
+              <FunnelChart title={section.data.title} steps={steps} />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -152,57 +216,100 @@ export function renderSection(section) {
       });
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <StackedHBar title={section.data.title || section.label} data={data} keys={keys} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={32}>
+              <StackedHBar title={section.data.title || section.label} data={data} keys={keys} />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
 
     case "DonutChart": {
+      const d = section.data.data || [];
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <DonutChart title={section.data.title} data={section.data.data || []} size={section.data.size || 240} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          {isEmptyChart(d) ? (
+            <EmptyStatePlaceholder label={section.label || "차트"} reason={section.data.emptyReason} />
+          ) : (
+            <SectionCard>
+              <ContentCard padding={32}>
+                <DonutChart title={section.data.title} data={d} size={section.data.size || 240} />
+              </ContentCard>
+            </SectionCard>
+          )}
         </ReportSection>
       );
     }
 
     case "PieChart": {
+      const d = section.data.data || [];
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <PieChart title={section.data.title} data={section.data.data || []} size={section.data.size || 240} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          {isEmptyChart(d) ? (
+            <EmptyStatePlaceholder label={section.label || "차트"} reason={section.data.emptyReason} />
+          ) : (
+            <SectionCard>
+              <ContentCard padding={32}>
+                <PieChart title={section.data.title} data={d} size={section.data.size || 240} />
+              </ContentCard>
+            </SectionCard>
+          )}
         </ReportSection>
       );
     }
 
     case "LineChart": {
+      const d = section.data.data || [];
+      const hasPoints = d.some(s => Array.isArray(s.data) && s.data.length >= 2);
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <LineChart
-            title={section.data.title}
-            variant={section.data.variant}
-            enableArea={section.data.enableArea}
-            data={section.data.data || []}
-          />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          {!hasPoints ? (
+            <EmptyStatePlaceholder label={section.label || "라인 차트"} reason={section.data.emptyReason || "각 series에 최소 2개 이상의 데이터 포인트가 필요합니다."} />
+          ) : (
+            <SectionCard>
+              <ContentCard padding={32}>
+                <LineChart
+                  title={section.data.title}
+                  variant={section.data.variant}
+                  enableArea={section.data.enableArea}
+                  data={d}
+                />
+              </ContentCard>
+            </SectionCard>
+          )}
         </ReportSection>
       );
     }
 
     case "BarChart":
     case "VBarChart": {
+      const d = section.data.data || [];
+      const keys = section.data.keys || [];
+      const keysMatch = keys.length === 0 || (d[0] && keys.every(k => k in d[0]));
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <VBarChart
-            title={section.data.title}
-            data={section.data.data || []}
-            keys={section.data.keys}
-            indexBy={section.data.indexBy || "label"}
-            groupMode={section.data.groupMode || "grouped"}
-            stacked={section.data.stacked}
-          />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          {isEmptyChart(d) || !keysMatch ? (
+            <EmptyStatePlaceholder label={section.label || "막대 차트"} reason={section.data.emptyReason || (!keysMatch ? `keys(${keys.join(", ")}) 중 일부가 data에 없습니다.` : undefined)} />
+          ) : (
+            <SectionCard>
+              <ContentCard padding={32}>
+                <VBarChart
+                  title={section.data.title}
+                  data={d}
+                  keys={keys}
+                  indexBy={section.data.indexBy || "label"}
+                  groupMode={section.data.groupMode || "grouped"}
+                  stacked={section.data.stacked}
+                />
+              </ContentCard>
+            </SectionCard>
+          )}
         </ReportSection>
       );
     }
@@ -210,12 +317,16 @@ export function renderSection(section) {
     case "HBarChart": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <HBarChart
-            title={section.data.title}
-            data={section.data.data || []}
-            maxValue={section.data.maxValue}
-          />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={32}>
+              <HBarChart
+                title={section.data.title}
+                data={section.data.data || []}
+                maxValue={section.data.maxValue}
+              />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -223,22 +334,39 @@ export function renderSection(section) {
     case "RadarChart": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <RadarChart
-            title={section.data.title}
-            data={section.data.data || []}
-            keys={section.data.keys}
-            indexBy={section.data.indexBy || "label"}
-          />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={32}>
+              <RadarChart
+                title={section.data.title}
+                data={section.data.data || []}
+                keys={section.data.keys}
+                indexBy={section.data.indexBy || "label"}
+              />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
 
-    case "SankeyChart": {
+    case "ComboChart": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <SankeyChart title={section.data.title} data={section.data.data} />
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={32}>
+              <ComboChart
+                title={section.data.title}
+                data={section.data.data || []}
+                barKey={section.data.barKey || "bar"}
+                lineKey={section.data.lineKey || "line"}
+                barLabel={section.data.barLabel}
+                lineLabel={section.data.lineLabel}
+                barAxisLabel={section.data.barAxisLabel}
+                lineAxisLabel={section.data.lineAxisLabel}
+              />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -246,78 +374,78 @@ export function renderSection(section) {
     case "InsightCard": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          <ContentArea wrap={true} gap={8}>
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
             {(section.data.items || []).map((it, i) => (
-              <ContentCard key={i} padding={24} style={{ border: `1px solid ${T.gray200}`, borderRadius: 16, flex: "1 1 300px" }}>
-                {it.badge && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                    <Badge type="Outline" variant={it.badgeVariant || "Info"} size="Medium" text={it.badge} />
-                  </div>
-                )}
-                {it.value && (
-                  <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990, marginBottom: 12, fontFamily: F }}>
-                    {it.value}
-                  </div>
-                )}
-                {it.description && (
-                  <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, marginBottom: 12, fontFamily: F }}>
-                    {it.description}
-                  </div>
-                )}
-                {it.interpretation && (
-                  <div style={{ padding: "12px 16px", background: T.gray50, borderRadius: 12 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: T.gray800, lineHeight: "22px", fontFamily: F }}>
-                      <span style={{ fontWeight: 600, color: T.gray990 }}>해석:</span> {it.interpretation}
-                    </div>
-                  </div>
-                )}
-              </ContentCard>
+              <InsightContent
+                key={i}
+                layout="vertical"
+                wrap={true}
+                header={it.badge || it.header}
+                title={it.value || it.title}
+                description={[it.description, it.interpretation && `해석: ${it.interpretation}`].filter(Boolean).join("\n\n")}
+              />
             ))}
-          </ContentArea>
+          </SectionCard>
         </ReportSection>
       );
     }
 
-    case "StrategyTable": {
-      const terms = [
-        { key: "immediate", label: "Immediate Actions (즉시)", variant: "Negative" },
-        { key: "short", label: "Short-term (단기)", variant: "Cautionary" },
-        { key: "mid", label: "Mid-term (중기)", variant: "Info" },
-      ];
+    case "UserCardRow":
+    case "UserCard": {
+      const items = section.data.items || (section.data.type ? [section.data] : []);
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
-          {terms.map(({ key: term, label: termLabel, variant }) => {
-            if (!section.data[term]) return null;
-            return (
-              <div key={term} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <ContentHeader title={termLabel} />
-                <ContentArea wrap={true} gap={8}>
-                  {section.data[term].map((plan, i) => (
-                    <ContentCard key={i} padding={24} style={{ border: `1px solid ${T.gray200}`, borderRadius: 16, flex: "1 1 400px" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 16 }}>
-                        <Badge type="Solid" variant={variant} size="Medium" text={plan.strategy} />
-                      </div>
-                      <div style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: T.gray990, marginBottom: 12, fontFamily: F }}>
-                        {plan.objective}
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ display: "flex", gap: 8, fontFamily: F }}>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: T.gray990, flexShrink: 0, width: 52 }}>Action</span>
-                          <span style={{ fontSize: 14, fontWeight: 400, color: T.gray800, lineHeight: "22px" }}>{plan.actionPlan}</span>
-                        </div>
-                        <div style={{ display: "flex", gap: 8, fontFamily: F }}>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: T.gray990, flexShrink: 0, width: 52 }}>Impact</span>
-                          <span style={{ fontSize: 14, fontWeight: 400, color: T.gray800, lineHeight: "22px" }}>{plan.expectedImpact}</span>
-                        </div>
-                      </div>
-                    </ContentCard>
-                  ))}
-                </ContentArea>
-              </div>
-            );
-          })}
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            {items.map((it, i) => (
+              <UserCard
+                key={i}
+                type={it.type || "simple"}
+                name={it.name}
+                subtitle={it.subtitle}
+                badge={it.badge}
+                description={it.description}
+                details={it.details}
+                stats={it.stats}
+                buttonLabel={it.buttonLabel}
+              />
+            ))}
+          </div>
+        </ReportSection>
+      );
+    }
+
+    case "StrategyTable":
+    case "StrategyRoadmapTable": {
+      // 두 포맷 지원:
+      // 1) { immediate: [...], short: [...], mid: [...] }  ← 기존 StrategyTable
+      // 2) { periods: [{ badge, period, rows: [...] }] }   ← StrategyRoadmapTable 네이티브
+      let periods;
+      if (section.data.periods) {
+        periods = section.data.periods;
+      } else {
+        const terms = [
+          { key: "immediate", badge: "Immediate", period: "즉시" },
+          { key: "short", badge: "Short-term", period: "단기" },
+          { key: "mid", badge: "Mid-term", period: "중기" },
+        ];
+        periods = terms
+          .filter(t => Array.isArray(section.data[t.key]) && section.data[t.key].length > 0)
+          .map(t => ({
+            badge: t.badge,
+            period: t.period,
+            rows: section.data[t.key],
+          }));
+      }
+      return (
+        <ReportSection>
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
+          <SectionCard>
+            <ContentCard padding={0}>
+              <StrategyRoadmapTable periods={periods} />
+            </ContentCard>
+          </SectionCard>
         </ReportSection>
       );
     }
@@ -335,7 +463,7 @@ export function renderSection(section) {
     case "WeeklyPlanTable": {
       return (
         <ReportSection>
-          {section.label && <SectionHeading title={section.label} />}
+          {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <WeeklyPlanTable weeks={section.data.weeks || []} columns={section.data.columns} />
         </ReportSection>
       );
@@ -456,8 +584,27 @@ function renderSectionInner(section) {
     }
     case "RadarChart":
       return <RadarChart title={section.data.title} data={section.data.data || []} keys={section.data.keys} indexBy={section.data.indexBy || "label"} />;
-    case "SankeyChart":
-      return <SankeyChart title={section.data.title} data={section.data.data} />;
+    case "UserCardRow":
+    case "UserCard": {
+      const items = section.data.items || (section.data.type ? [section.data] : []);
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+          {items.map((it, i) => (
+            <UserCard
+              key={i}
+              type={it.type || "simple"}
+              name={it.name}
+              subtitle={it.subtitle}
+              badge={it.badge}
+              description={it.description}
+              details={it.details}
+              stats={it.stats}
+              buttonLabel={it.buttonLabel}
+            />
+          ))}
+        </div>
+      );
+    }
     case "SignalCardRow": {
       // signals: [{number, title, items, alert, alertVariant}]
       return (

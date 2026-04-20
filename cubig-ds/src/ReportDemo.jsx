@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, InfoFillIcon, MoneyIcon, FlagIcon, PrivacyIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
+import { T, InfoFillIcon, CheckCircleIcon, CheckCircleOutlineIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
 import { CHART_COLORS, DonutChart, LineChart, VBarChart, FunnelChart } from "./charts";
 import {
   PageWrapper, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
@@ -63,7 +63,6 @@ export default function ReportDemo() {
   const [insightLayout, setInsightLayout] = useState("vertical");
   const [userCardType, setUserCardType] = useState("simple");
   const [textBlockStyle, setTextBlockStyle] = useState("bullets");
-  const [compTab, setCompTab] = useState("wrapped");
   return (
     <PageWrapper>
       <div style={{ marginBottom: 48 }}>
@@ -149,29 +148,6 @@ export default function ReportDemo() {
         </SectionCard>
       </Section>
 
-      {/* ═══════════════════════════════════════════════════ */}
-      {/* COMPONENT TYPE TAB                                  */}
-      {/* ═══════════════════════════════════════════════════ */}
-      <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${T.gray200}`, marginBottom: 40 }}>
-        {[
-          { value: "wrapped", label: "Content Area 내부 요소" },
-          { value: "standalone", label: "단일 컴포넌트" },
-        ].map(tab => (
-          <button key={tab.value} onClick={() => setCompTab(tab.value)} style={{
-            padding: "12px 24px", border: "none", cursor: "pointer",
-            fontSize: 14, fontWeight: compTab === tab.value ? 600 : 400, fontFamily: F,
-            color: compTab === tab.value ? T.gray990 : T.gray800,
-            background: "transparent",
-            borderBottom: compTab === tab.value ? `2px solid ${T.gray990}` : "2px solid transparent",
-            marginBottom: -1,
-          }}>{tab.label}</button>
-        ))}
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* ▸ Content Area 내부 요소                                   */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      {compTab === "wrapped" && <>
 
       <Section>
         <Label>1. TextBlock</Label>
@@ -282,9 +258,9 @@ export default function ReportDemo() {
         <Label>2-2. InsightContent (Content Area)</Label>
         {(() => {
           const vItems = [
-            { icon: <MoneyIcon size={20} color={T.gray800} />, header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
-            { icon: <FlagIcon size={20} color={T.gray800} />, header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
-            { icon: <PrivacyIcon size={20} color={T.gray800} />, header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
+            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
+            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
+            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
           ];
           const hItems = [
             { label: "고유 고객 수", value: "24명", items: [
@@ -594,19 +570,17 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>① SignalCard + 그래프</div>
           <SectionCard>
-            <ContentCard padding={0}>
-              <div style={{ display: "flex", gap: 8, padding: 8 }}>
-                <SignalCard number={1} title="days_inactive 증가" items={["days_inactive 평균 약 190.47일", "7일 기준 CHURN에 앞서 30일·60일 구간에서 단계별 개입 전략이 필요합니다."]} alert="원인: 장기간 재접속 유인이 부족, 가치 체험 실패 누적" alertVariant="Cautionary" bordered={false} />
-                <SignalCard number={2} title="total_sessions (세션 수) 저하" items={["total_sessions 평균 6.25회 (user_stats 전체 평균), 군집 평균 5.84회", "세션 증대를 위한 주기적 리마인더와 가치형 알림 필요"]} alert="원인: 재참여 유인 부족(콘텐츠·알림 미흡)" alertVariant="Cautionary" bordered={false} />
-                <SignalCard number={3} title="asset_link (자산 연결) 사용 저조" items={["asset_link 이벤트 28건(6.22%)", "첫 세션 내 asset_link 필수화 또는 인센티브 제공 필요"]} alert="원인: 전환 유도 UI/CTA 부재 또는 가치 제시 미약" alertVariant="Cautionary" bordered={false} />
-              </div>
-            </ContentCard>
-            <ContentCard padding={24}>
+            <div style={{ display: "flex", gap: 8 }}>
+              <SignalCard number={1} title="days_inactive 증가" items={["days_inactive 평균 약 190.47일", "7일 기준 CHURN에 앞서 30일·60일 구간에서 단계별 개입 전략이 필요합니다."]} alert="원인: 장기간 재접속 유인이 부족, 가치 체험 실패 누적" alertVariant="Cautionary" bordered={false} />
+              <SignalCard number={2} title="total_sessions (세션 수) 저하" items={["total_sessions 평균 6.25회 (user_stats 전체 평균), 군집 평균 5.84회", "세션 증대를 위한 주기적 리마인더와 가치형 알림 필요"]} alert="원인: 재참여 유인 부족(콘텐츠·알림 미흡)" alertVariant="Cautionary" bordered={false} />
+              <SignalCard number={3} title="asset_link (자산 연결) 사용 저조" items={["asset_link 이벤트 28건(6.22%)", "첫 세션 내 asset_link 필수화 또는 인센티브 제공 필요"]} alert="원인: 전환 유도 UI/CTA 부재 또는 가치 제시 미약" alertVariant="Cautionary" bordered={false} />
+            </div>
+            <ContentCard padding={32}>
               <LineChart title="Projected Churn Rate" variant="red" enableArea data={[{ id: "Churn Rate", data: [
                 { x: "2024-05", y: 75 }, { x: "2024-06", y: 82 }, { x: "2024-07", y: 93 }, { x: "2024-08", y: 97 }, { x: "2024-09", y: 100 },
               ]}]} />
             </ContentCard>
-            <ContentCard padding={24}>
+            <ContentCard>
               <TextBlock title="Projected Churn Rate" bordered={false}>
                 동일 추세 지속시 3개월 후 이탈률 100% 예상, 6개월 후 이탈률 100% 예상됩니다.
               </TextBlock>
@@ -618,27 +592,23 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>② InsightContent + 그래프</div>
           <SectionCard>
-            <ContentCard padding={24}>
+            <ContentCard padding={32}>
               <LineChart title="Subscription Intent Trend" variant="red" enableArea data={[{ id: "Intent", data: [
                 { x: "2024-05", y: 70 }, { x: "2024-06", y: 80 }, { x: "2024-07", y: 92 }, { x: "2024-08", y: 96 }, { x: "2024-09", y: 100 },
               ]}]} />
             </ContentCard>
-            <ContentCard padding={24}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <InsightContent layout="vertical" wrap={false}
-                  icon={<MoneyIcon size={20} color={T.gray800} />} header="Current Price Position"
-                  title="가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요"
-                  description="만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면..." />
-                <InsightContent layout="vertical" wrap={false}
-                  icon={<FlagIcon size={20} color={T.gray800} />} header="Strategic Direction"
-                  title="메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션"
-                  description="PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점..." />
-                <InsightContent layout="vertical" wrap={false}
-                  icon={<PrivacyIcon size={20} color={T.gray800} />} header="Price Resistance Zone"
-                  title="$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전"
-                  description="실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고..." />
-              </div>
-            </ContentCard>
+            <InsightContent layout="vertical" wrap={true}
+              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Current Price Position"
+              title="가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요"
+              description="만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면..." />
+            <InsightContent layout="vertical" wrap={true}
+              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Strategic Direction"
+              title="메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션"
+              description="PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점..." />
+            <InsightContent layout="vertical" wrap={true}
+              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Price Resistance Zone"
+              title="$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전"
+              description="실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고..." />
           </SectionCard>
         </div>
 
@@ -646,8 +616,8 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>③ 그래프 + TextBlock</div>
           <SectionCard>
-            <ContentCard padding={24}>
-              <div style={{ display: "flex", gap: 24, justifyContent: "space-around" }}>
+            <ContentCard padding={32}>
+              <div style={{ display: "flex", gap: 32, justifyContent: "space-around" }}>
                 <DonutChart title="Response Rate by Age Group" size={200} data={[
                   { id: "Age 15-19", value: 25 }, { id: "Age 20-24", value: 10 }, { id: "Age 30-39", value: 15 },
                   { id: "Age 40-49", value: 45 }, { id: "Age 50-59", value: 5 },
@@ -657,7 +627,7 @@ export default function ReportDemo() {
                 ]} />
               </div>
             </ContentCard>
-            <ContentCard padding={24}>
+            <ContentCard>
               <TextBlock title="Interpretation" bordered={false}>
                 A total of 3,400 users (72%) expressed interest in subscribing. This suggests low resistance to the membership itself and indicates strong potential for actual conversion depending on the benefits offered.
               </TextBlock>
@@ -669,18 +639,22 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>④ 그래프 + Tables</div>
           <SectionCard>
-            <ContentCard padding={24}>
-              <div style={{ display: "flex", gap: 24, justifyContent: "space-around" }}>
-                <DonutChart title="Cluster Distribution" size={180} data={[
-                  { id: "이탈 위험 집중 군집 (30대)", value: 45 },
-                  { id: "이탈 고위험 소수 군집 (40대 남성)", value: 35 },
-                  { id: "활동성 유지 대다수 군집 (40대 중심)", value: 20 },
-                ]} />
-                <VBarChart title="Period Avg Churn Rate" height={240} data={[
-                  { label: "이탈 위험 집중 군집", churn: 90 },
-                  { label: "이탈 고위험 소수", churn: 100 },
-                  { label: "활동성 유지 대다수", churn: 80 },
-                ]} keys={["churn"]} />
+            <ContentCard padding={32}>
+              <div style={{ display: "flex", gap: 32, justifyContent: "space-around", alignItems: "flex-start" }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <DonutChart title="Cluster Distribution" size={180} legendPosition="bottom" data={[
+                    { id: "이탈 위험 집중 군집 (30대)", value: 45 },
+                    { id: "이탈 고위험 소수 군집 (40대 남성)", value: 35 },
+                    { id: "활동성 유지 대다수 군집 (40대 중심)", value: 20 },
+                  ]} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <VBarChart title="Period Avg Churn Rate" height={240} data={[
+                    { label: "이탈 위험 집중 군집", churn: 90 },
+                    { label: "이탈 고위험 소수", churn: 100 },
+                    { label: "활동성 유지 대다수", churn: 80 },
+                  ]} keys={["churn"]} />
+                </div>
               </div>
             </ContentCard>
             <ContentCard padding={0}>
@@ -703,13 +677,11 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑤ InfoCard + Tables</div>
           <SectionCard>
-            <ContentCard padding={16}>
-              <InfoCardRow>
-                <InfoCard variant="solid" label="New product category" value="Electronics / Computers" />
-                <InfoCard variant="solid" label="Product type" value="OLED 65-inch 4K Smart TV" />
-                <InfoCard variant="solid" label="Expected price range (USD)" value="$1200 ~ $1800" />
-              </InfoCardRow>
-            </ContentCard>
+            <InfoCardRow>
+              <InfoCard variant="outline" label="New product category" value="Electronics / Computers" />
+              <InfoCard variant="outline" label="Product type" value="OLED 65-inch 4K Smart TV" />
+              <InfoCard variant="outline" label="Expected price range (USD)" value="$1200 ~ $1800" />
+            </InfoCardRow>
             <ContentCard padding={0}>
               <QATable bordered={false} columns={["Question", "Answer"]} rows={[
                 { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
@@ -724,7 +696,7 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑥ TextBlock only</div>
           <SectionCard>
-            <ContentCard padding={24}>
+            <ContentCard>
               <TextBlock title="Key Findings" bordered={false} items={["Content", "Content", "Content", "Content"]} />
             </ContentCard>
           </SectionCard>
@@ -734,32 +706,24 @@ export default function ReportDemo() {
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑦ TextBlock + InfoCard</div>
           <SectionCard>
-            <ContentCard padding={16}>
-              <InfoCardRow>
-                <InfoCard variant="solid" label="New product category" value="Electronics / Computers" />
-                <InfoCard variant="solid" label="Product type" value="OLED 65-inch 4K Smart TV" />
-                <InfoCard variant="solid" label="Expected price range (USD)" value="$1200 ~ $1800" />
-              </InfoCardRow>
-            </ContentCard>
-            <ContentCard padding={24}>
+            <InfoCardRow>
+              <InfoCard variant="outline" label="New product category" value="Electronics / Computers" />
+              <InfoCard variant="outline" label="Product type" value="OLED 65-inch 4K Smart TV" />
+              <InfoCard variant="outline" label="Expected price range (USD)" value="$1200 ~ $1800" />
+            </InfoCardRow>
+            <ContentCard>
               <TextBlock title="Key Findings" bordered={false} items={["Content", "Content", "Content", "Content"]} />
             </ContentCard>
           </SectionCard>
         </div>
       </Section>
 
-      </>}
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* ▸ 단일 컴포넌트                                           */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      {compTab === "standalone" && <>
-
       <Section>
-        <Label>UserCard (3 Types)</Label>
+        <Label>UserCard (4 Types)</Label>
         <PillFilter
           options={[
             { value: "simple", label: "Simple" },
+            { value: "compact", label: "Compact + CTA" },
             { value: "stats", label: "Stats" },
             { value: "detail", label: "Detail + CTA" },
           ]}
@@ -777,6 +741,22 @@ export default function ReportDemo() {
             <UserCard type="simple" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="김서연" subtitle="여성, 26세, 디자이너"
               description='"보통"으로 응답. 가격 민감도가 높지만 UI/UX 품질을 중요하게 여기며 트라이얼 체험을 선호합니다.' />
+          </div>
+        )}
+        {userCardType === "compact" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Premium Enthusiasts"
+              stats={[{ value: "54.2K", label: "users" }, { value: "45.2%", label: "of total" }]}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Premium Enthusiasts")} />
+            <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Value Optimizers"
+              stats={[{ value: "32.1K", label: "users" }, { value: "26.8%", label: "of total" }]}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Value Optimizers")} />
+            <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+              name="Occasional Buyers"
+              stats={[{ value: "31.1K", label: "users" }, { value: "25.9%", label: "of total" }]}
+              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Occasional Buyers")} />
           </div>
         )}
         {userCardType === "stats" && (
@@ -826,56 +806,15 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>1. InfoCard — Solid</Label>
-        <InfoCardRow>
-          <InfoCard label="Label" value="Value" />
-          <InfoCard label="Label + Description" value="Value" description="Description text" />
-          <InfoCard label="Label + Suffix" value="2.9" suffix="/ 5.0" />
-        </InfoCardRow>
-        <div style={{ height: 16 }} />
-        <InfoCardRow>
-          <InfoCard label="Score A" value="7" suffix="/10" />
-          <InfoCard label="Score B" value="8" suffix="/10" />
-          <InfoCard label="Score C" value="5" suffix="/10" />
-          <InfoCard label="Score D" value="2" suffix="/10" />
-        </InfoCardRow>
-
-        <div style={{ height: 24 }} />
-        <Label>1-1. InfoCard — Outline</Label>
-        <InfoCardRow>
-          <InfoCard variant="outline" label="Label" value="Value" />
-          <InfoCard variant="outline" label="Label + Description" value="+24%" description="Previous: 18%" />
-          <InfoCard variant="outline" label="Label Only" value="$1,200" />
-        </InfoCardRow>
+        <Label>1. InfoCard — Outline</Label>
+        <SectionCard>
+          <InfoCardRow>
+            <InfoCard variant="outline" label="Label" value="Value" />
+            <InfoCard variant="outline" label="Label + Description" value="+24%" description="Previous: 18%" />
+            <InfoCard variant="outline" label="Label Only" value="$1,200" />
+          </InfoCardRow>
+        </SectionCard>
       </Section>
-
-      <Section>
-        <Label>2. PersonaCard — With Metrics</Label>
-        <Row>
-          <PersonaCard name="Premium Enthusiasts" subtitle="54,200 people (45.2%)" metrics={[
-            { key: "Average Purchase Amount", value: "₩421,000" },
-            { key: "Purchase Frequency", value: "2.3 times per month" },
-            { key: "LTV (12 months)", value: "₩8,450,000" },
-            { key: "Churn Risk", value: "Score 12 (Low)" },
-          ]} />
-          <PersonaCard name="Value Optimizers" subtitle="32,100 people (26.8%)" metrics={[
-            { key: "Average Purchase Amount", value: "₩185,000" },
-            { key: "Purchase Frequency", value: "1.1 times per month" },
-            { key: "LTV (12 months)", value: "₩2,420,000" },
-            { key: "Churn Risk", value: "Score 67 (High)" },
-          ]} />
-        </Row>
-      </Section>
-
-      <Section>
-        <Label>3. RespondentCard</Label>
-        <Row>
-          <RespondentCard name="Kim Seoyeon" profile="Female, Age 28, Marketing Manager" response={`Responded "Very High". Currently comparing competitor premium memberships, highly sensitive to ad removal and content quality. High conversion potential due to 40+ hours monthly streaming usage and ad fatigue.`} />
-          <RespondentCard name="Park Jimin" profile="Male, Age 35, Software Engineer" response={`Responded "High". Primarily interested in exclusive content and early access features. Moderate price sensitivity but values ad-free experience and offline downloads.`} />
-        </Row>
-      </Section>
-
-      </>}
 
     </PageWrapper>
   );

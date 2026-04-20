@@ -45,7 +45,7 @@ export default function ChatGPTVocAnalysisReport() {
                   <InfoCard label="부정 비율 (1-2점)" value="23.0%" />
                 </InfoCardRow>
               </ContentCard>
-              <ContentCard padding={24}>
+              <ContentCard>
                 <KeyFindings
                   title="핵심 발견"
                   items={[

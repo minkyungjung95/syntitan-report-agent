@@ -4,6 +4,7 @@ import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveRadar } from "@nivo/radar";
 import { ResponsiveSankey } from "@nivo/sankey";
+import { useTooltip } from "@nivo/tooltip";
 import { T } from "./tokens.jsx";
 
 // ─── Chart Color Palette ──────────────────────────────────────────────
@@ -595,10 +596,24 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
   const colorMap = {};
   actualKeys.forEach((k, i) => { colorMap[k] = CHART_COLORS[i % CHART_COLORS.length]; });
 
+  // 차트 너비 추적 (X축 라벨 ellipsis용)
+  const containerRef = useRef(null);
+  const [chartWidth, setChartWidth] = useState(0);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) setChartWidth(e.contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+  const MARGIN_L = 60, MARGIN_R = 20;
+  const bandW = chartWidth > 0 ? (chartWidth - MARGIN_L - MARGIN_R) / data.length : 0;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ width: "100%", height }}>
+      <div ref={containerRef} style={{ width: "100%", height }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
@@ -659,37 +674,81 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
 // ═══════════════════════════════════════════════════════════════════════
 // 5. STACKED HORIZONTAL BAR (100%) - 라운드 없음
 // ═══════════════════════════════════════════════════════════════════════
+// 커스텀 바 컴포넌트 — useTooltip 훅은 Nivo 컨텍스트 내부에서만 동작하므로 별도 컴포넌트로 분리
+function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
+  const { showTooltipFromEvent, hideTooltip } = useTooltip();
+  const myId = `${bar.data.indexValue}__${bar.data.id}`;
+  const isThisHovered = myId === hoveredId;
+  const showTooltip = (e) => {
+    showTooltipFromEvent(
+      <Tooltip label={`${bar.data.indexValue} — ${bar.data.id}`} value={`${bar.data.value}%`} />,
+      e
+    );
+  };
+  return (
+    <g
+      transform={`translate(${bar.x},${bar.y})`}
+      onMouseEnter={(e) => { setHoveredId(myId); showTooltip(e); }}
+      onMouseMove={showTooltip}
+      onMouseLeave={() => { setHoveredId(null); hideTooltip(); }}
+      style={{ cursor: "pointer" }}
+    >
+      <rect
+        width={bar.width} height={bar.height}
+        fill={bar.color}
+        style={{
+          filter: isThisHovered ? "brightness(0.85)" : "none",
+          transition: "filter 0.15s ease",
+        }}
+      />
+      {bar.data.value > 5 && (
+        <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
+          fill={WHITE} fontSize={12} fontFamily="Pretendard, sans-serif" fontWeight={500} style={{ pointerEvents: "none" }}>
+          {bar.data.value}%
+        </text>
+      )}
+    </g>
+  );
+}
+
 export function StackedHBar({ data, keys, indexBy = "label", title }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
-  const [hoveredKey, setHoveredKey] = useState(null);
+  // 호버된 바의 고유 ID — "행라벨__시리즈키" 조합 (같은 색 다른 행은 영향 없게)
+  const [hoveredId, setHoveredId] = useState(null);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      {/* 3:7 레이아웃 - 라벨 : 그래프 */}
-      <div style={{ display: "flex", width: "100%", gap: 0 }}>
-        {/* 왼쪽 라벨 (30%) - Nivo horizontal bar는 아래→위 순서로 렌더링 */}
+      {title && (
+        // 전체 폭(라벨 + 차트) 기준으로 제목 중앙 정렬
+        <div style={{ width: "100%", fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>
+          {title}
+        </div>
+      )}
+      {/* 라벨(가변) + 차트(flex:1) 레이아웃 — 라벨 길이에 따라 자동 조정 */}
+      <div style={{ display: "flex", width: "100%", gap: 0, alignItems: "stretch" }}>
+        {/* 왼쪽 라벨 — 컨텐츠 크기만큼 (고정 아님) */}
         {(() => {
-          const totalH = Math.max(80 * data.length + 80, 180);
-          const mTop = 10, mBot = 40;
-          const plotH = totalH - mTop - mBot;
+          const mTop = 4, mBot = 4;
           return (
-            <div style={{ width: "30%", flexShrink: 0, display: "flex", flexDirection: "column-reverse", paddingRight: 16, paddingTop: mTop, paddingBottom: mBot }}>
+            <div style={{ flex: "0 0 auto", maxWidth: 240, display: "flex", flexDirection: "column-reverse", paddingRight: 12, paddingTop: mTop, paddingBottom: mBot }}>
               {data.map((d, i) => (
                 <div key={i} style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-end",
+                  minWidth: 0,
                 }}>
-                  <span style={{
+                  <span title={d[indexBy]} style={{
                     fontSize: 14, fontWeight: 500, color: GRAY990, fontFamily: "Pretendard, sans-serif",
-                    textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%",
+                    textAlign: "right", whiteSpace: "nowrap",
+                    overflow: "hidden", textOverflow: "ellipsis",
+                    maxWidth: "100%",
                   }}>{d[indexBy]}</span>
                 </div>
               ))}
             </div>
           );
         })()}
-        {/* 오른쪽 그래프 (70%) */}
-        <div style={{ width: "70%", height: Math.max(80 * data.length + 80, 180) }}>
+        {/* 오른쪽 그래프 — 남은 공간 전부 사용 */}
+        <div style={{ flex: 1, minWidth: 0, height: Math.max(60 * data.length + 20, 140) }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
@@ -698,8 +757,8 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           groupMode="stacked"
           layout="horizontal"
           maxValue={100}
-          margin={{ top: 10, right: 20, bottom: 40, left: 0 }}
-          padding={0.35}
+          margin={{ top: 4, right: 20, bottom: 4, left: 0 }}
+          padding={0.25}
           borderRadius={0}
           enableLabel
           label={d => d.value > 5 ? `${d.value}%` : ""}
@@ -717,41 +776,21 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           axisLeft={null}
           enableGridX={false}
           enableGridY={false}
-          onMouseEnter={(_datum, event) => {
-            setHoveredKey(_datum.key);
-            const el = event.currentTarget;
-            el.style.filter = "brightness(0.85)";
-            el.style.transition = "filter 0.15s ease";
-          }}
-          onMouseLeave={(_datum, event) => {
-            setHoveredKey(null);
-            const el = event.currentTarget;
-            el.style.filter = "none";
-          }}
-          barComponent={({ bar, style }) => {
-            const isHovered = hoveredKey !== null;
-            const isThisHovered = bar.key === hoveredKey;
-            return (
-              <g transform={`translate(${bar.x},${bar.y})`}>
-                <rect
-                  width={bar.width} height={bar.height}
-                  fill={bar.color}
-                  style={{ opacity: isHovered && !isThisHovered ? 0.5 : 1, transition: "opacity 0.15s ease, filter 0.15s ease" }}
-                />
-                {bar.data.value > 5 && (
-                  <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
-                    fill={WHITE} fontSize={12} fontFamily="Pretendard, sans-serif" fontWeight={500}>
-                    {bar.data.value}%
-                  </text>
-                )}
-              </g>
-            );
-          }}
-          tooltip={({ id, value, indexValue }) => (
-            <Tooltip label={`${indexValue} — ${id}`} value={`${value}%`} />
+          barComponent={(props) => (
+            <StackedHBarItem bar={props.bar} hoveredId={hoveredId} setHoveredId={setHoveredId} />
           )}
         />
         </div>
+      </div>
+
+      {/* 하단 범례 — VBarChart와 동일한 간격 (outer gap:60 + marginTop:-30 = 순 30px) */}
+      <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
+        {actualKeys.map((k, i) => (
+          <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <span style={{ fontSize: 12, color: GRAY990 }}>{k}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1327,8 +1366,6 @@ export function QuadrantChart({
               }}>
                 {quadrants.map((q, i) => {
                   const isHovered = hovered === i;
-                  const isOtherHovered = hovered !== null && hovered !== i;
-                  const isSmall = (i >= 2 && rB <= 0.35) || (i < 2 && rT <= 0.35);
                   return (
                     <div
                       key={i}
@@ -1338,39 +1375,42 @@ export function QuadrantChart({
                         background: q.color || T.gray100,
                         borderRadius: i === 1 ? "0 4px 0 0" : 0,
                         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                        padding: 16, cursor: "default", overflow: "hidden",
-                        transition: "opacity 0.2s, transform 0.2s",
-                        opacity: isOtherHovered ? 0.4 : 1,
+                        padding: 16, cursor: "default", overflow: "visible",
+                        transition: "transform 0.2s",
                         transform: isHovered ? "scale(1.01)" : "scale(1)",
-                        position: "relative", zIndex: isHovered ? 2 : 1,
+                        position: "relative", zIndex: isHovered ? 100 : 1,
                       }}
                     >
-                      {/* tag: 큰 영역은 칩, 작은 영역은 호버 시 툴팁 */}
-                      {q.tag && !isSmall && (
-                        <div style={{
-                          background: "rgba(255,255,255,0.85)", borderRadius: 9999, padding: "4px 12px", marginBottom: 10,
-                          fontSize: 12, fontWeight: 500, color: T.gray800, lineHeight: "16px", textAlign: "center",
-                          whiteSpace: "nowrap",
-                        }}>
-                          {q.tag}
-                        </div>
-                      )}
-                      {q.tag && isSmall && isHovered && (
-                        <div style={{
-                          position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", zIndex: 10,
-                          pointerEvents: "none",
-                        }}>
-                          <div style={{ ...tooltipBox, padding: "4px 10px" }}>
-                            <span style={{ fontSize: 12, fontWeight: 500, color: GRAY800 }}>{q.tag}</span>
-                          </div>
-                        </div>
-                      )}
                       <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: q.labelColor || T.gray990, textAlign: "center" }}>
                         {q.label}
                       </div>
                       <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: q.labelColor || T.gray990, textAlign: "center" }}>
                         {q.value}<span style={{ fontSize: 18, fontWeight: 400 }}>%</span>
                       </div>
+                      {/* 호버 시 사분면 상단(네모 위에 붙음)에 툴팁 표시 — 중앙 글자 안 가림 */}
+                      {isHovered && (
+                        <div style={{
+                          position: "absolute",
+                          // 상단 행(i<2)은 아래로, 하단 행(i>=2)은 위로 붙임
+                          ...(i < 2
+                            ? { top: "100%", marginTop: 8 }
+                            : { bottom: "100%", marginBottom: 8 }),
+                          left: "50%", transform: "translateX(-50%)",
+                          zIndex: 9999, pointerEvents: "none",
+                        }}>
+                          <div style={{ ...tooltipBox, padding: "8px 14px", alignItems: "flex-start", gap: 4, whiteSpace: "nowrap" }}>
+                            {q.tag && (
+                              <span style={{ fontSize: 12, fontWeight: 500, color: GRAY800 }}>{q.tag}</span>
+                            )}
+                            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                              <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990 }}>{q.label}</span>
+                              <span style={{ fontSize: 16, fontWeight: 700, color: GRAY990 }}>
+                                {q.value}<span style={{ fontSize: 12, fontWeight: 400 }}>%</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1516,7 +1556,7 @@ export function ClusterProfileTable({ title, data }) {
           return cat.ranks.map((rank, ri) => {
             const isFirstInCat = ri === 0;
             const isLastInCat = ri === rowCount - 1;
-            const borderBot = (isLastInCat && !isLast) ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
+            const borderBot = isLastInCat ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
 
             return (
               <div key={`${catIdx}-${ri}`} style={{ display: "contents" }}>
@@ -1528,7 +1568,7 @@ export function ClusterProfileTable({ title, data }) {
                     display: "flex",
                     alignItems: "center",
                     gridRow: `span ${rowCount}`,
-                    borderBottom: (isLast ? "none" : `2px solid ${T.gray200}`),
+                    borderBottom: `2px solid ${T.gray200}`,
                     borderRight: `1px solid ${T.gray200}`,
                   }}>
                     {cat.label}
@@ -1572,6 +1612,7 @@ export function ClusterProfileTable({ title, data }) {
 // ═══════════════════════════════════════════════════════════════════════
 export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked = false, layout = "vertical" }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
+  const isStacked = stacked;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
@@ -1582,12 +1623,12 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
           keys={actualKeys}
           indexBy={indexBy}
           colors={CHART_COLORS}
-          groupMode={stacked ? "stacked" : "grouped"}
+          groupMode={isStacked ? "stacked" : "grouped"}
           layout={layout}
           margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
           padding={0.25}
-          innerPadding={stacked ? 0 : 4}
-          borderRadius={stacked ? 0 : 4}
+          innerPadding={isStacked ? 0 : 4}
+          borderRadius={0}
           enableLabel={false}
           animate
           motionConfig="gentle"
@@ -1598,14 +1639,16 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
           enableGridY
           gridYValues={5}
           onMouseEnter={(_datum, event) => {
-            event.currentTarget.style.filter = "brightness(0.85)";
-            event.currentTarget.style.transition = "filter 0.15s ease";
+            const el = event.currentTarget;
+            el.style.filter = "brightness(0.85)";
+            el.style.transition = "filter 0.15s ease";
           }}
           onMouseLeave={(_datum, event) => {
-            event.currentTarget.style.filter = "none";
+            const el = event.currentTarget;
+            el.style.filter = "none";
           }}
-          tooltip={({ id, value, indexValue, color }) => (
-            <Tooltip label={`${indexValue} · ${id}`} value={value} />
+          tooltip={({ id, value, indexValue }) => (
+            <Tooltip label={`${indexValue} — ${id}`} value={value} />
           )}
         />
       </div>

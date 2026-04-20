@@ -388,6 +388,76 @@ npm run build        # dist/ 생성
 
 ---
 
+## 8-1. 권장 래핑 조합 (Composite Patterns)
+
+여러 컴포넌트를 `SectionCard`(gray50)로 묶을 때 권장되는 7가지 조합입니다. 각 하위 요소는 `ContentCard`(white)에 배치합니다.
+
+| # | 조합 | 용도 |
+|---|---|---|
+| ① | **SignalCard + 그래프 (+ TextBlock)** | 주요 신호 3개 + 추세 그래프 + 해석 |
+| ② | **InsightContent + 그래프** | 차트 위에 배치, 인사이트 카드 3개가 아래에서 해설 |
+| ③ | **그래프 + TextBlock** | 차트 2개 나란히 + Interpretation 텍스트 |
+| ④ | **그래프 + Tables** | 시각화(Donut + VBar) + 상세 테이블 |
+| ⑤ | **InfoCard + Tables** | 메타 정보(InfoCard row) + QATable |
+| ⑥ | **TextBlock only** | 단일 TextBlock도 래핑 가능 (강조하고 싶을 때) |
+| ⑦ | **TextBlock + InfoCard** | 메타 정보 + Key Findings 텍스트 |
+
+### 기본 구조
+
+```jsx
+<SectionCard>                    {/* gray50 bg, radius 20, padding 8, gap 8 */}
+  <ContentCard padding={24}>     {/* white bg, radius 16 */}
+    <Component1 />
+  </ContentCard>
+  <ContentCard padding={24}>
+    <Component2 />
+  </ContentCard>
+  <ContentCard padding={24}>
+    <Component3 />
+  </ContentCard>
+</SectionCard>
+```
+
+### JSON 사용법 (Composite 타입)
+
+```json
+{
+  "componentType": "Composite",
+  "label": "Projected Churn Analysis",
+  "data": {
+    "items": [
+      {
+        "componentType": "SignalCardRow",
+        "data": {
+          "signals": [
+            { "number": 1, "title": "days_inactive 증가", "items": ["..."], "alert": "..." }
+          ]
+        }
+      },
+      {
+        "componentType": "LineChart",
+        "data": { "title": "Projected Churn Rate", "variant": "red", "enableArea": true, "data": [...] }
+      },
+      {
+        "componentType": "TextBlock",
+        "data": { "title": "Interpretation", "body": "..." }
+      }
+    ]
+  }
+}
+```
+
+### Composite 내부 지원 컴포넌트
+
+- `InfoCardRow` / `MetricHighlight`
+- `TextBlock` / `KeyFindings`
+- `DataTable` / `QATable`
+- `DonutChart` / `PieChart` / `LineChart` / `BarChart` / `HBarChart` / `StackedBarChart` / `FunnelChart` / `RadarChart` / `SankeyChart`
+- `SignalCardRow` (여러 SignalCard를 한 줄에)
+- `InsightRow` (여러 InsightContent를 세로/가로로)
+
+---
+
 ## 8. 래핑 규칙 (Wrapping Rules)
 
 | 상황 | 래핑 | 예시 |

@@ -5,6 +5,7 @@ import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, 
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
 const CustomerSupportReport = lazy(() => import("./CustomerSupportReport"));
+const ReportBuilder = lazy(() => import("./ReportBuilder"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -64,6 +65,7 @@ const th = { padding:"8px 14px", textAlign:"left", fontSize:12, fontWeight:600, 
 const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlign:"middle" };
 
 export default function App() {
+  const [topTab, setTopTab] = useState("ds"); // "ds" | "builder"
   const [page, setPage] = useState("charts");
 
   // button
@@ -107,7 +109,7 @@ export default function App() {
   const [chipTrailing, setChipTrailing] = useState(false);
 
   const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report","customer-support"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report", "customer-support":"고객 문의 리포트" };
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Demo", "customer-support":"고객 문의 샘플" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -115,11 +117,37 @@ export default function App() {
   return (
     <div style={{ minHeight:"100vh", background:T.gray50, fontFamily:"Pretendard, sans-serif", boxSizing:"border-box" }}>
 
-      {/* Top Nav */}
-      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:0, zIndex:10 }}>
-        <span style={{ fontSize:13, fontWeight:700, color:T.gray990, marginRight:24, padding:"12px 0", flexShrink:0 }}>CUBIG DS</span>
+      {/* Level 1: Top Tabs (DS / Report Builder) */}
+      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:0, zIndex:11 }}>
+        <span style={{ fontSize:14, fontWeight:700, color:T.gray990, marginRight:32, padding:"14px 0", flexShrink:0 }}>CUBIG</span>
+        {[
+          { key: "ds", label: "디자인 시스템" },
+          { key: "builder", label: "리포트 빌더" },
+        ].map(t => (
+          <button key={t.key} onClick={()=>setTopTab(t.key)} style={{
+            height: 52, padding: "0 20px", border: "none", background: "none", cursor: "pointer",
+            fontFamily: "Pretendard, sans-serif", fontWeight: 600, fontSize: 15,
+            color: topTab === t.key ? T.gray990 : T.gray800,
+            borderBottom: topTab === t.key ? `2px solid ${T.gray990}` : "2px solid transparent",
+            transition: "all .15s",
+          }}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* ═══ Report Builder (Level 1 Tab 2) ═══ */}
+      {topTab === "builder" && (
+        <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}>
+          <ReportBuilder />
+        </Suspense>
+      )}
+
+      {/* ═══ Design System (Level 1 Tab 1) ═══ */}
+      {topTab === "ds" && <>
+
+      {/* Level 2: DS Sub Nav */}
+      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:52, zIndex:10, overflowX:"auto" }}>
         {PAGES.map(p => (
-          <button key={p} onClick={()=>setPage(p)} style={{ height:44, padding:"0 16px", border:"none", background:"none", cursor:"pointer", fontFamily:"Pretendard, sans-serif", fontWeight:500, fontSize:14, color:page===p?T.gray990:T.gray800, borderBottom:page===p?`2px solid ${T.gray990}`:"2px solid transparent", transition:"all .15s" }}>
+          <button key={p} onClick={()=>setPage(p)} style={{ height:44, padding:"0 16px", border:"none", background:"none", cursor:"pointer", fontFamily:"Pretendard, sans-serif", fontWeight:500, fontSize:14, color:page===p?T.gray990:T.gray800, borderBottom:page===p?`2px solid ${T.gray990}`:"2px solid transparent", transition:"all .15s", whiteSpace:"nowrap", flexShrink:0 }}>
             {PAGE_LABELS[p]}
           </button>
         ))}
@@ -764,12 +792,15 @@ export default function App() {
           </Card>
 
           {/* Stacked Horizontal Bar */}
-          <Card title="Stacked Horizontal Bar" subtitle="100% 누적 막대 - 구성비 비교">
+          <Card title="Stacked Horizontal Bar" subtitle="100% 누적 막대 - 구성비 비교 (값 개수에 따라 2~8개 자동 대응)">
             <StackedHBar
               title="Feature Importance by Segment"
               data={[
-                { label:"Concerns about company size", seg1:30, seg2:45, seg3:15, seg4:10 },
-                { label:"Interest in premium features", seg1:20, seg2:35, seg3:25, seg4:20 },
+                { label:"Customer Satisfaction", seg1:35, seg2:30, seg3:20, seg4:15 },
+                { label:"Response Time",          seg1:25, seg2:40, seg3:20, seg4:15 },
+                { label:"Price Sensitivity",      seg1:20, seg2:35, seg3:25, seg4:20 },
+                { label:"Feature Completeness",   seg1:30, seg2:45, seg3:15, seg4:10 },
+                { label:"Brand Trust",            seg1:40, seg2:25, seg3:20, seg4:15 },
               ]}
               keys={["seg1","seg2","seg3","seg4"]}
             />
@@ -1060,6 +1091,8 @@ export default function App() {
 
         {page==="customer-support" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><CustomerSupportReport /></Suspense>}
       </div>
+
+      </>}
     </div>
   );
 }

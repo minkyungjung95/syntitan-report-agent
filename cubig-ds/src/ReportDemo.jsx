@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { T, InfoFillIcon, MoneyIcon, FlagIcon, PrivacyIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
-import { CHART_COLORS } from "./charts";
+import { CHART_COLORS, DonutChart, LineChart, VBarChart, FunnelChart } from "./charts";
 import {
   PageWrapper, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
   InfoCard, InfoCardRow,
@@ -57,16 +57,12 @@ const Toggle = ({ value, onChange, label }) => (
 export default function ReportDemo() {
   const [contentCount, setContentCount] = useState(1);
   const [tableType, setTableType] = useState("data");
-  const [tableWrapped, setTableWrapped] = useState(false);
   const [signalStyle, setSignalStyle] = useState("callout");
   const [signalCount, setSignalCount] = useState("3");
   const [signalCallout, setSignalCallout] = useState("Cautionary");
-  const [signalWrapped, setSignalWrapped] = useState(false);
-  const [contentAreaWrapped, setContentAreaWrapped] = useState(true);
   const [insightLayout, setInsightLayout] = useState("vertical");
   const [userCardType, setUserCardType] = useState("simple");
   const [textBlockStyle, setTextBlockStyle] = useState("bullets");
-  const [textBlockWrapped, setTextBlockWrapped] = useState(false);
   const [compTab, setCompTab] = useState("wrapped");
   return (
     <PageWrapper>
@@ -179,37 +175,29 @@ export default function ReportDemo() {
 
       <Section>
         <Label>1. TextBlock</Label>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-          <PillFilter
-            options={[
-              { value: "bullets", label: "With Bullets" },
-              { value: "paragraph", label: "Without Bullets" },
-            ]}
-            value={textBlockStyle}
-            onChange={setTextBlockStyle}
-            style={{ marginBottom: 0 }}
-          />
-          <Toggle value={textBlockWrapped} onChange={setTextBlockWrapped} label="Content Area 래핑" />
-        </div>
-        {(() => {
-          const content = textBlockStyle === "bullets" ? (
-            <TextBlock title="Key Findings" bordered={!textBlockWrapped} items={[
-              "핵심 발견 사항 1: 고객 세션 간격이 평균 4.2일에서 8.7일로 증가했습니다.",
-              "핵심 발견 사항 2: 자산 연결 기능 사용률이 3.2%로 크게 하락했습니다.",
-              "핵심 발견 사항 3: 최근 2주간 고객 지원 티켓이 4건 발생하며 불만이 증가하고 있습니다.",
-            ]} />
-          ) : (
-            <TextBlock title="Interpretation" bordered={!textBlockWrapped}>
-              분석 결과, 해당 고객군은 초기 온보딩 이후 핵심 기능에 대한 재참여율이 현저히 낮은 것으로 나타났습니다. 특히 자산 연결 기능의 미활용이 이탈 신호의 주요 원인으로 작용하고 있으며, 세션 간격 증가와 지원 요청 빈도 상승이 이를 뒷받침합니다. 단계별 개입 전략을 통해 복귀율 개선이 가능할 것으로 판단됩니다.
-            </TextBlock>
-          );
-          if (!textBlockWrapped) return content;
-          return (
-            <SectionCard>
-              <ContentCard>{content}</ContentCard>
-            </SectionCard>
-          );
-        })()}
+        <PillFilter
+          options={[
+            { value: "bullets", label: "With Bullets" },
+            { value: "paragraph", label: "Without Bullets" },
+          ]}
+          value={textBlockStyle}
+          onChange={setTextBlockStyle}
+        />
+        <SectionCard>
+          <ContentCard>
+            {textBlockStyle === "bullets" ? (
+              <TextBlock title="Key Findings" bordered={false} items={[
+                "핵심 발견 사항 1: 고객 세션 간격이 평균 4.2일에서 8.7일로 증가했습니다.",
+                "핵심 발견 사항 2: 자산 연결 기능 사용률이 3.2%로 크게 하락했습니다.",
+                "핵심 발견 사항 3: 최근 2주간 고객 지원 티켓이 4건 발생하며 불만이 증가하고 있습니다.",
+              ]} />
+            ) : (
+              <TextBlock title="Interpretation" bordered={false}>
+                분석 결과, 해당 고객군은 초기 온보딩 이후 핵심 기능에 대한 재참여율이 현저히 낮은 것으로 나타났습니다. 특히 자산 연결 기능의 미활용이 이탈 신호의 주요 원인으로 작용하고 있으며, 세션 간격 증가와 지원 요청 빈도 상승이 이를 뒷받침합니다. 단계별 개입 전략을 통해 복귀율 개선이 가능할 것으로 판단됩니다.
+              </TextBlock>
+            )}
+          </ContentCard>
+        </SectionCard>
       </Section>
 
       <Section>
@@ -234,8 +222,8 @@ export default function ReportDemo() {
             style={{ marginBottom: 0 }}
           />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-          {signalStyle === "callout" && (
+        {signalStyle === "callout" && (
+          <div style={{ marginBottom: 20 }}>
             <PillFilter
               options={[
                 { value: "Primary", label: "Primary" },
@@ -249,9 +237,8 @@ export default function ReportDemo() {
               onChange={setSignalCallout}
               style={{ marginBottom: 0 }}
             />
-          )}
-          <Toggle value={signalWrapped} onChange={setSignalWrapped} label="Content Area 래핑" />
-        </div>
+          </div>
+        )}
         {(() => {
           if (signalStyle === "callout") {
             const signalData = [
@@ -260,15 +247,15 @@ export default function ReportDemo() {
               { number: 3, title: "고객 지원 요청 증가", items: ["최근 2주간 지원 티켓 4건 발생", "평균 응답 대기 시간 48시간 초과", "부정적 피드백 비율 67%"], alert: "고객 만족도 하락 감지" },
             ];
             const cards = signalCount === "2" ? signalData.slice(0, 2) : signalData;
-            const cardContent = (
-              <div style={{ display: "flex", gap: 8 }}>
-                {cards.map((s, i) => (
-                  <SignalCard key={i} number={s.number} title={s.title} items={s.items} alert={s.alert} alertVariant={signalCallout} bordered={!signalWrapped} />
-                ))}
-              </div>
+            return (
+              <SectionCard>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {cards.map((s, i) => (
+                    <SignalCard key={i} number={s.number} title={s.title} items={s.items} alert={s.alert} alertVariant={signalCallout} bordered={false} />
+                  ))}
+                </div>
+              </SectionCard>
             );
-            if (!signalWrapped) return cardContent;
-            return <SectionCard>{cardContent}</SectionCard>;
           }
           /* Without Callout — StrategyCard 스타일 */
           const strategyData = [
@@ -277,17 +264,17 @@ export default function ReportDemo() {
             { badge: { text: "Premium Strategy", type: "Solid", size: "Medium", variant: "Secondary" }, price: "$1,408.00", priceLabel: "PME-Based Price", desc: "프리미엄 포지셔닝을 통한 고수익 전략입니다. 브랜드 가치와 차별화된 서비스를 기반으로 높은 마진율을 확보합니다." },
           ];
           const cards = signalCount === "2" ? strategyData.slice(0, 2) : strategyData;
-          const cardContent = (
-            <div style={{ display: "flex", gap: 8 }}>
-              {cards.map((s, i) => (
-                <StrategyCard key={i} badge={s.badge} price={s.price} priceLabel={s.priceLabel} bordered={!signalWrapped} style={{ background: T.white }}>
-                  {s.desc}
-                </StrategyCard>
-              ))}
-            </div>
+          return (
+            <SectionCard>
+              <div style={{ display: "flex", gap: 8 }}>
+                {cards.map((s, i) => (
+                  <StrategyCard key={i} badge={s.badge} price={s.price} priceLabel={s.priceLabel} bordered={false} style={{ background: T.white }}>
+                    {s.desc}
+                  </StrategyCard>
+                ))}
+              </div>
+            </SectionCard>
           );
-          if (!signalWrapped) return cardContent;
-          return <SectionCard>{cardContent}</SectionCard>;
         })()}
       </Section>
 
@@ -318,22 +305,18 @@ export default function ReportDemo() {
           ];
           return (
             <>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
-                <PillFilter
-                  options={[{ value: "vertical", label: "Vertical" }, { value: "horizontal", label: "Horizontal" }]}
-                  value={insightLayout}
-                  onChange={setInsightLayout}
-                  style={{ marginBottom: 0 }}
-                />
-                <Toggle value={contentAreaWrapped} onChange={setContentAreaWrapped} label="Content Area Wrap" />
-              </div>
-              <ContentArea wrap={contentAreaWrapped}>
+              <PillFilter
+                options={[{ value: "vertical", label: "Vertical" }, { value: "horizontal", label: "Horizontal" }]}
+                value={insightLayout}
+                onChange={setInsightLayout}
+              />
+              <ContentArea wrap={true}>
                 {insightLayout === "vertical"
                   ? vItems.map((it, i) => (
                     <InsightContent
                       key={i}
                       layout="vertical"
-                      wrap={contentAreaWrapped}
+                      wrap={true}
                       icon={it.icon}
                       header={it.header}
                       title={it.title}
@@ -344,7 +327,7 @@ export default function ReportDemo() {
                     <InsightContent
                       key={i}
                       layout="horizontal"
-                      wrap={contentAreaWrapped}
+                      wrap={true}
                       label={it.label}
                       value={it.value}
                       items={it.items}
@@ -368,21 +351,17 @@ export default function ReportDemo() {
 
       <Section>
         <Label>6. Tables</Label>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-          <PillFilter
-            options={[
-              { value: "data", label: "DataTable" },
-              { value: "qa", label: "QATable (2-col)" },
-              { value: "def", label: "DefinitionTable" },
-              { value: "roadmap", label: "StrategyRoadmapTable" },
-              { value: "weekly", label: "WeeklyPlanTable" },
-            ]}
-            value={tableType}
-            onChange={setTableType}
-            style={{ marginBottom: 0 }}
-          />
-          <Toggle value={tableWrapped} onChange={setTableWrapped} label="Content Area 래핑" />
-        </div>
+        <PillFilter
+          options={[
+            { value: "data", label: "DataTable" },
+            { value: "qa", label: "QATable (2-col)" },
+            { value: "def", label: "DefinitionTable" },
+            { value: "roadmap", label: "StrategyRoadmapTable" },
+            { value: "weekly", label: "WeeklyPlanTable" },
+          ]}
+          value={tableType}
+          onChange={setTableType}
+        />
         {(() => {
           const tableContent = (
             <>
@@ -403,7 +382,7 @@ export default function ReportDemo() {
               )}
               {tableType === "qa" && (
                 <QATable
-                  bordered={!tableWrapped}
+                  bordered={false}
                   columns={["Question", "Answer"]}
                   rows={[
                     { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
@@ -486,7 +465,6 @@ export default function ReportDemo() {
               )}
             </>
           );
-          if (!tableWrapped) return tableContent;
           return (
             <SectionCard>
               <ContentCard padding={0}>
@@ -601,6 +579,173 @@ export default function ReportDemo() {
             },
           ]}
         />
+      </Section>
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* 9. COMPOSITE PATTERNS — 7 권장 조합                        */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      <Section>
+        <Label>9. 래핑 조합 예시 (Composite Patterns)</Label>
+        <div style={{ fontSize: 13, color: T.gray800, marginBottom: 16 }}>
+          여러 컴포넌트를 SectionCard로 묶는 권장 조합 7가지
+        </div>
+
+        {/* 9-1. SignalCard + 그래프 */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>① SignalCard + 그래프</div>
+          <SectionCard>
+            <ContentCard padding={0}>
+              <div style={{ display: "flex", gap: 8, padding: 8 }}>
+                <SignalCard number={1} title="days_inactive 증가" items={["days_inactive 평균 약 190.47일", "7일 기준 CHURN에 앞서 30일·60일 구간에서 단계별 개입 전략이 필요합니다."]} alert="원인: 장기간 재접속 유인이 부족, 가치 체험 실패 누적" alertVariant="Cautionary" bordered={false} />
+                <SignalCard number={2} title="total_sessions (세션 수) 저하" items={["total_sessions 평균 6.25회 (user_stats 전체 평균), 군집 평균 5.84회", "세션 증대를 위한 주기적 리마인더와 가치형 알림 필요"]} alert="원인: 재참여 유인 부족(콘텐츠·알림 미흡)" alertVariant="Cautionary" bordered={false} />
+                <SignalCard number={3} title="asset_link (자산 연결) 사용 저조" items={["asset_link 이벤트 28건(6.22%)", "첫 세션 내 asset_link 필수화 또는 인센티브 제공 필요"]} alert="원인: 전환 유도 UI/CTA 부재 또는 가치 제시 미약" alertVariant="Cautionary" bordered={false} />
+              </div>
+            </ContentCard>
+            <ContentCard padding={24}>
+              <LineChart title="Projected Churn Rate" variant="red" enableArea data={[{ id: "Churn Rate", data: [
+                { x: "2024-05", y: 75 }, { x: "2024-06", y: 82 }, { x: "2024-07", y: 93 }, { x: "2024-08", y: 97 }, { x: "2024-09", y: 100 },
+              ]}]} />
+            </ContentCard>
+            <ContentCard padding={24}>
+              <TextBlock title="Projected Churn Rate" bordered={false}>
+                동일 추세 지속시 3개월 후 이탈률 100% 예상, 6개월 후 이탈률 100% 예상됩니다.
+              </TextBlock>
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-2. InsightContent + 그래프 */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>② InsightContent + 그래프</div>
+          <SectionCard>
+            <ContentCard padding={24}>
+              <LineChart title="Subscription Intent Trend" variant="red" enableArea data={[{ id: "Intent", data: [
+                { x: "2024-05", y: 70 }, { x: "2024-06", y: 80 }, { x: "2024-07", y: 92 }, { x: "2024-08", y: 96 }, { x: "2024-09", y: 100 },
+              ]}]} />
+            </ContentCard>
+            <ContentCard padding={24}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <InsightContent layout="vertical" wrap={false}
+                  icon={<MoneyIcon size={20} color={T.gray800} />} header="Current Price Position"
+                  title="가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요"
+                  description="만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면..." />
+                <InsightContent layout="vertical" wrap={false}
+                  icon={<FlagIcon size={20} color={T.gray800} />} header="Strategic Direction"
+                  title="메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션"
+                  description="PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점..." />
+                <InsightContent layout="vertical" wrap={false}
+                  icon={<PrivacyIcon size={20} color={T.gray800} />} header="Price Resistance Zone"
+                  title="$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전"
+                  description="실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고..." />
+              </div>
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-3. 그래프 + TextBlock */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>③ 그래프 + TextBlock</div>
+          <SectionCard>
+            <ContentCard padding={24}>
+              <div style={{ display: "flex", gap: 24, justifyContent: "space-around" }}>
+                <DonutChart title="Response Rate by Age Group" size={200} data={[
+                  { id: "Age 15-19", value: 25 }, { id: "Age 20-24", value: 10 }, { id: "Age 30-39", value: 15 },
+                  { id: "Age 40-49", value: 45 }, { id: "Age 50-59", value: 5 },
+                ]} />
+                <DonutChart title="Response Distribution by Gender" size={200} data={[
+                  { id: "Male", value: 56 }, { id: "Female", value: 44 },
+                ]} />
+              </div>
+            </ContentCard>
+            <ContentCard padding={24}>
+              <TextBlock title="Interpretation" bordered={false}>
+                A total of 3,400 users (72%) expressed interest in subscribing. This suggests low resistance to the membership itself and indicates strong potential for actual conversion depending on the benefits offered.
+              </TextBlock>
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-4. 그래프 + Tables */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>④ 그래프 + Tables</div>
+          <SectionCard>
+            <ContentCard padding={24}>
+              <div style={{ display: "flex", gap: 24, justifyContent: "space-around" }}>
+                <DonutChart title="Cluster Distribution" size={180} data={[
+                  { id: "이탈 위험 집중 군집 (30대)", value: 45 },
+                  { id: "이탈 고위험 소수 군집 (40대 남성)", value: 35 },
+                  { id: "활동성 유지 대다수 군집 (40대 중심)", value: 20 },
+                ]} />
+                <VBarChart title="Period Avg Churn Rate" height={240} data={[
+                  { label: "이탈 위험 집중 군집", churn: 90 },
+                  { label: "이탈 고위험 소수", churn: 100 },
+                  { label: "활동성 유지 대다수", churn: 80 },
+                ]} keys={["churn"]} />
+              </div>
+            </ContentCard>
+            <ContentCard padding={0}>
+              <DataTable columns={[
+                { key: "metric", label: "" },
+                { key: "g1", label: "이탈 위험 집중 군집 (30대)", align: "center" },
+                { key: "g2", label: "이탈 고위험 소수 군집 (40대 남성)", align: "center" },
+                { key: "g3", label: "활동성 유지 대다수 군집 (40대 중심)", align: "center" },
+              ]} data={[
+                { metric: "Cluster distribution", g1: "56.3% (45)", g2: "56.3% (45)", g3: "56.3% (45)" },
+                { metric: "Churn rate", g1: "90%", g2: "90%", g3: "90%" },
+                { metric: "Monthly average churn rate", g1: "86.8%", g2: "91.9%", g3: "85.15%" },
+                { metric: "Cluster summary", g1: "20.2건", g2: "22.2건", g3: "18.1건" },
+              ]} />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-5. InfoCard + Tables */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑤ InfoCard + Tables</div>
+          <SectionCard>
+            <ContentCard padding={16}>
+              <InfoCardRow>
+                <InfoCard variant="solid" label="New product category" value="Electronics / Computers" />
+                <InfoCard variant="solid" label="Product type" value="OLED 65-inch 4K Smart TV" />
+                <InfoCard variant="solid" label="Expected price range (USD)" value="$1200 ~ $1800" />
+              </InfoCardRow>
+            </ContentCard>
+            <ContentCard padding={0}>
+              <QATable bordered={false} columns={["Question", "Answer"]} rows={[
+                { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
+                { question: "Q. Who is the target customer, and what challenges are they facing?", answer: "Home entertainment enthusiasts frustrated by LCD blooming, motion blur, and limited smart TV ecosystems" },
+                { question: "Q. How does the product solve the customer's problem?", answer: "Perfect blacks via OLED, smooth 120Hz gaming, webOS 24 with built-in AI recommendations" },
+              ]} />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-6. TextBlock only */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑥ TextBlock only</div>
+          <SectionCard>
+            <ContentCard padding={24}>
+              <TextBlock title="Key Findings" bordered={false} items={["Content", "Content", "Content", "Content"]} />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 9-7. TextBlock + InfoCard */}
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>⑦ TextBlock + InfoCard</div>
+          <SectionCard>
+            <ContentCard padding={16}>
+              <InfoCardRow>
+                <InfoCard variant="solid" label="New product category" value="Electronics / Computers" />
+                <InfoCard variant="solid" label="Product type" value="OLED 65-inch 4K Smart TV" />
+                <InfoCard variant="solid" label="Expected price range (USD)" value="$1200 ~ $1800" />
+              </InfoCardRow>
+            </ContentCard>
+            <ContentCard padding={24}>
+              <TextBlock title="Key Findings" bordered={false} items={["Content", "Content", "Content", "Content"]} />
+            </ContentCard>
+          </SectionCard>
+        </div>
       </Section>
 
       </>}

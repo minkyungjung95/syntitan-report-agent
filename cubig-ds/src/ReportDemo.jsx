@@ -22,7 +22,7 @@ import {
 
 const F = "Pretendard, sans-serif";
 const Section = ({ children }) => <div style={{ marginBottom: 60 }}>{children}</div>;
-const Label = ({ children }) => <div style={{ fontSize: 11, fontWeight: 600, color: T.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, fontFamily: F }}>{children}</div>;
+const Label = ({ children, style }) => <div style={{ fontSize: 11, fontWeight: 600, color: T.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, fontFamily: F, ...style }}>{children}</div>;
 const Row = ({ children, gap = 16 }) => <div style={{ display: "flex", gap, flexWrap: "wrap", marginBottom: 16 }}>{children}</div>;
 const PillFilter = ({ options, value, onChange, style }) => (
   <div style={{ display: "flex", gap: 6, marginBottom: 20, ...style }}>
@@ -56,7 +56,6 @@ const Toggle = ({ value, onChange, label }) => (
 
 export default function ReportDemo() {
   const [contentCount, setContentCount] = useState(1);
-  const [userCardType, setUserCardType] = useState("simple");
   return (
     <PageWrapper>
       <div style={{ marginBottom: 48 }}>
@@ -68,52 +67,15 @@ export default function ReportDemo() {
       {/* 1. LAYOUT — Section Title                          */}
       {/* ═══════════════════════════════════════════════════ */}
       <Section>
-        <Label>1. Layout — Section Title</Label>
-
-        {/* Case 1: Section Title + Description + Content Title + Description */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Section Title + Description + Content Title + Description</div>
-          <SectionHeading title="Section Title" description="Section description text goes here. This appears outside the border." />
-          <ReportSection>
-            <ContentHeader title="Content Title" description="Content description appears inside the border, above the gray area." />
-            <SectionCard>
-              <ContentCard>
-                <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
-                  Content Area
-                </div>
-              </ContentCard>
-            </SectionCard>
-          </ReportSection>
-        </div>
-
-        {/* Case 2: Section Title + Description only */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Section Title + Description</div>
-          <SectionHeading title="Section Title" description="Section description text goes here. This appears outside the border." />
-          <ReportSection>
-            <SectionCard>
-              <ContentCard>
-                <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
-                  Content Area
-                </div>
-              </ContentCard>
-            </SectionCard>
-          </ReportSection>
-        </div>
-
-        {/* Case 3: No Section Title — border only */}
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>without Section Title</div>
-          <ReportSection>
-            <SectionCard>
-              <ContentCard>
-                <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
-                  Content Area
-                </div>
-              </ContentCard>
-            </SectionCard>
-          </ReportSection>
-        </div>
+        <Label style={{ marginBottom: 40 }}>1. Layout — Section Title</Label>
+        <ContentHeader title="Content Title" description="Content description appears inside the border, above the gray area." />
+        <SectionCard>
+          <ContentCard>
+            <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
+              Content Area
+            </div>
+          </ContentCard>
+        </SectionCard>
       </Section>
 
       {/* ═══════════════════════════════════════════════════ */}
@@ -354,8 +316,8 @@ export default function ReportDemo() {
                 subtitle: "Foundation Setup & Design",
                 items: [
                   { priority: "High", task: "Premium Membership Design Completed", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
-                  { priority: "Medium", task: "PB Product Initial Lineup Finalized", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
-                  { priority: "Low", task: "IT System Development Scope Definition", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                  { task: "PB Product Initial Lineup Finalized", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                  { task: "IT System Development Scope Definition", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
                 ],
               },
               {
@@ -363,8 +325,8 @@ export default function ReportDemo() {
                 subtitle: "Foundation Setup & Design",
                 items: [
                   { priority: "High", task: "Membership API Development", owner: "Engineering Team", define: "Backend API endpoints and DB schema", output: "Working API endpoints" },
-                  { priority: "Medium", task: "PB Product Sourcing Confirmed", owner: "Merchandising Team", define: "Vendor contracts and pricing finalized", output: "Signed vendor agreements" },
-                  { priority: "Low", task: "QA Test Plan Created", owner: "QA Team", define: "Test scenarios for membership flow", output: "Test plan document" },
+                  { task: "PB Product Sourcing Confirmed", owner: "Merchandising Team", define: "Vendor contracts and pricing finalized", output: "Signed vendor agreements" },
+                  { task: "QA Test Plan Created", owner: "QA Team", define: "Test scenarios for membership flow", output: "Test plan document" },
                 ],
               },
               {
@@ -372,8 +334,8 @@ export default function ReportDemo() {
                 subtitle: "Foundation Setup & Design",
                 items: [
                   { priority: "High", task: "Pilot Group Rollout", owner: "Operations Team", define: "1,000 pilot users selected and onboarded", output: "Pilot user cohort" },
-                  { priority: "Medium", task: "Marketing Campaign Drafted", owner: "Marketing Team", define: "Channel strategy and creative assets", output: "Campaign brief" },
-                  { priority: "Low", task: "CS Training Completed", owner: "CS Team", define: "FAQ and escalation procedures", output: "Training materials" },
+                  { task: "Marketing Campaign Drafted", owner: "Marketing Team", define: "Channel strategy and creative assets", output: "Campaign brief" },
+                  { task: "CS Training Completed", owner: "CS Team", define: "FAQ and escalation procedures", output: "Training materials" },
                 ],
               },
               {
@@ -381,8 +343,8 @@ export default function ReportDemo() {
                 subtitle: "Foundation Setup & Design",
                 items: [
                   { priority: "High", task: "Public Launch", owner: "Marketing Team", define: "Full-scale rollout with PR announcement", output: "Live product" },
-                  { priority: "Medium", task: "Performance Dashboard Live", owner: "Data Team", define: "KPI tracking and alerts configured", output: "Dashboard URL" },
-                  { priority: "Low", task: "Post-Launch Review Scheduled", owner: "All Teams", define: "Retrospective meeting and report", output: "Review document" },
+                  { task: "Performance Dashboard Live", owner: "Data Team", define: "KPI tracking and alerts configured", output: "Dashboard URL" },
+                  { task: "Post-Launch Review Scheduled", owner: "All Teams", define: "Retrospective meeting and report", output: "Review document" },
                 ],
               },
             ]} />
@@ -659,17 +621,9 @@ export default function ReportDemo() {
 
       <Section>
         <Label>UserCard (4 Types)</Label>
-        <PillFilter
-          options={[
-            { value: "simple", label: "Simple" },
-            { value: "compact", label: "Compact + CTA" },
-            { value: "stats", label: "Stats" },
-            { value: "detail", label: "Detail + CTA" },
-          ]}
-          value={userCardType}
-          onChange={setUserCardType}
-        />
-        {userCardType === "simple" && (
+
+        <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Simple</div>
+        <SectionCard style={{ marginBottom: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
             <UserCard type="simple" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="최은영" subtitle="여성, 29세, 마케터"
@@ -681,8 +635,10 @@ export default function ReportDemo() {
               name="김서연" subtitle="여성, 26세, 디자이너"
               description='"보통"으로 응답. 가격 민감도가 높지만 UI/UX 품질을 중요하게 여기며 트라이얼 체험을 선호합니다.' />
           </div>
-        )}
-        {userCardType === "compact" && (
+        </SectionCard>
+
+        <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Compact + CTA</div>
+        <SectionCard style={{ marginBottom: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
             <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Premium Enthusiasts"
@@ -697,8 +653,10 @@ export default function ReportDemo() {
               stats={[{ value: "31.1K", label: "users" }, { value: "25.9%", label: "of total" }]}
               buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Occasional Buyers")} />
           </div>
-        )}
-        {userCardType === "stats" && (
+        </SectionCard>
+
+        <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Stats</div>
+        <SectionCard style={{ marginBottom: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
             <UserCard type="stats" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Premium Enthusiasts" badge="54,200 people (45.2%)"
@@ -725,8 +683,10 @@ export default function ReportDemo() {
                 { key: "Churn Risk", value: "Score 78 (High)" },
               ]} />
           </div>
-        )}
-        {userCardType === "detail" && (
+        </SectionCard>
+
+        <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Detail + CTA</div>
+        <SectionCard>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
             <UserCard type="detail" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Kang Taehoon" subtitle="Male, Age 27, Game Developer"
@@ -741,7 +701,7 @@ export default function ReportDemo() {
               description={'"학생 할인", "모바일 플랜" 관심. 광고 시청 대신 저가 플랜 제공 시 전환 가능성 높음.'}
               buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Park Jisoo")} />
           </div>
-        )}
+        </SectionCard>
       </Section>
 
       <Section>

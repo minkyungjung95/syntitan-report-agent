@@ -106,7 +106,7 @@ export default function App() {
   const [chipTrailing, setChipTrailing] = useState(false);
 
   const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Demo" };
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Components" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];

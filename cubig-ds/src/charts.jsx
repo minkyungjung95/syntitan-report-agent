@@ -566,31 +566,18 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
 }
 
 export function HBarChart({ data, title, maxValue = 100 }) {
-  const [itemCount, setItemCount] = useState(data.length);
-  const visibleData = data.slice(0, itemCount);
   const max = maxValue;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      {/* 항목 수 필터 */}
-      <div style={{ display: "flex", gap: 6 }}>
-        {[2,3,4,5,6].filter(n => n <= data.length).map(n => (
-          <button key={n} onClick={() => setItemCount(n)} style={{
-            padding: "4px 12px", borderRadius: 9999, border: "none", cursor: "pointer",
-            fontSize: 12, fontWeight: 500, fontFamily: "Pretendard, sans-serif",
-            background: itemCount === n ? GRAY990 : GRAY100,
-            color: itemCount === n ? WHITE : GRAY990,
-          }}>{n}개</button>
-        ))}
-      </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        {visibleData.map((d, i) => {
+        {data.map((d, i) => {
           let barColor;
           if (d.color) barColor = d.color;
-          else if (i === 0) barColor = CHART_COLORS[1]; // Lime
-          else if (i === 1) barColor = CHART_COLORS[0]; // Blue
-          else barColor = GRAY200;
+          else if (i === 0) barColor = CHART_COLORS[0]; // Blue 500 — 1번 항목
+          else if (i === 1) barColor = CHART_COLORS[1]; // Lime 500 — 2번 항목
+          else barColor = GRAY200;                      // 3번 이후 회색
           return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} />;
         })}
       </div>

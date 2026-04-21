@@ -15,7 +15,12 @@
    - `SectionHeading` (title + description, **border 밖**) → `ReportSection` (border 안) → `SectionCard` → `ContentCard`
    - **`SectionHeading.description` 은 필수** — 섹션이 왜 있는지, 뭘 보여주는지 1~2문장으로 설명. 없으면 안 됩니다.
    - JSON 필드로는 `section.label`(=title), `section.data.description`(=description) 로 전달
-6. **반응형**: 차트는 부모 width 100% 기준 자동 조절
+6. **반응형 / 리포트 폭 (필수)**:
+   - 리포트 컨테이너 가로 사이즈는 **최대 1864px, 최소 838px** 범위 안에서 반응형으로 동작해야 합니다.
+   - `PageWrapper` 에 `maxWidth: 1864`, `minWidth: 838`, `width: "100%"` 를 항상 지정합니다. (기본 padding 32 유지)
+   - 내부 섹션·카드·차트는 부모 width 100% 기준으로 자동 축소/확장되도록 구성합니다 (고정 px width 지정 금지 — 필요한 경우 `flex`, `minWidth`, `flexWrap` 사용).
+   - 2열/3열 가로 배치 (`display: flex`) 는 838px 근처에서도 깨지지 않도록 `flexWrap: "wrap"` 또는 각 자식에 `minWidth` 를 지정합니다.
+   - 차트는 부모 width 100% 기준 자동 조절됩니다.
 7. **텍스트**: 원본 데이터의 언어 그대로 사용 (번역 금지)
 8. **새 컴포넌트 생성 금지**: 반드시 아래 목록의 컴포넌트만 조합하여 사용
 
@@ -69,6 +74,9 @@ blue50:  #EFF6FF
 - 중립: `#E6E7E9` (Gray)
 - 부정: `#F87171` (Red)
 
+> ⚠ **주의 — stacked `VBarChart`/`StackedHBar` 에는 적용 불가**
+> 이 두 컴포넌트는 현재 `colors` prop 을 지원하지 않으며, `keys` 순서대로 `CHART_COLORS` 팔레트에서 자동 매핑됩니다. 따라서 keys 순서를 `["긍정", "중립", "부정"]` 으로 두면 긍정=Blue500, 중립=Lime500, 부정=DeepPurple400 이 적용됩니다. 감성 색상 관례 적용이 필요하면 `HBarChart`(항목별 `color` 지원) 또는 `DonutChart/PieChart`(item `color` 지원) 로 대체합니다.
+
 ---
 
 ## 컴포넌트 레퍼런스
@@ -76,9 +84,9 @@ blue50:  #EFF6FF
 ### 1. 레이아웃
 
 #### `PageWrapper`
-리포트 전체를 감싸는 최상위 컨테이너. padding 32, maxWidth 1544.
+리포트 전체를 감싸는 최상위 컨테이너. padding 32. **maxWidth 1864, minWidth 838, width 100%** — 이 범위 안에서 반응형으로 동작해야 합니다.
 ```jsx
-<PageWrapper>{children}</PageWrapper>
+<PageWrapper style={{ maxWidth: 1864, minWidth: 838, width: "100%" }}>{children}</PageWrapper>
 ```
 
 #### `ReportPage`
@@ -282,11 +290,25 @@ InfoCard를 가로로 배열. gap 8.
 ### 6. 시그널 / 전략 카드
 
 #### `SignalCard`
-시그널 카드. 번호 + 제목 + 설명 + 경고.
+시그널 카드. 번호 + 제목 + 설명 + 콜아웃(선택).
 ```jsx
-<SignalCard number={1} title="시그널 제목" items={["상세1", "상세2"]} alert="경고 메시지" alertVariant="Negative" />
+<SignalCard number={1} title="시그널 제목" items={["상세1", "상세2"]} alert="콜아웃 메시지" alertVariant="Negative" />
 ```
-- alertVariant: "Negative", "Cautionary"
+
+**콜아웃(`alert` + `alertVariant`) 사용 규칙 (필수)**
+
+`alert` 를 넣는 경우, 해당 문구의 성격에 맞춰 **`alertVariant` 를 정보/경고 중 골라서 사용**해야 합니다. 무조건 같은 variant 로 고정하지 않습니다.
+
+| 상황 / 문구 성격 | 권장 `alertVariant` | 톤 |
+|---|---|---|
+| 지표 개선·긍정 기회·인사이트 공유 ("재활성화 가능성 높음", "기회 포착") | `Info` | 정보(파랑) |
+| 안정·정상 범위 강조 ("정상 수준 유지", "목표 달성") | `Positive` | 긍정(초록) |
+| 주의 필요·임계치 접근·잠재 리스크 ("세션 간격 증가 감지", "경고 신호") | `Cautionary` | 경고(주황) |
+| 명확한 문제·부정 현상·즉시 조치 필요 ("이탈 위험 급증", "품질 결함 확인") | `Negative` | 부정(빨강) |
+| 브랜드/액션 유도 강조 | `Brand` / `Primary` | 강조 |
+
+- `alert` 가 단순 중립 설명(원인·배경)일 땐 콜아웃을 넣지 않습니다 — bullet `items` 로 충분.
+- 같은 섹션에서 3개의 SignalCard 를 병렬 배치할 때, 내용이 서로 다른 성격이면 각 카드의 `alertVariant` 도 서로 다르게 선택합니다 (모두 `Negative` 로 통일 X).
 
 #### `ScenarioComparisonCard`
 시나리오 비교 카드. recommended 표시 가능.
@@ -318,6 +340,9 @@ InfoCard를 가로로 배열. gap 8.
 
 #### `ActionList`
 액션 아이템 목록. priority + 다중 컬럼.
+- `priority` 허용 값: `"High"` / `"Medium"` / `"Low"`
+- 뱃지 색상 자동 매핑: `High` → Negative(빨강), 그 외(`Medium`/`Low`) → Cautionary(주황)
+
 ```jsx
 <ActionList items={[
   { title: "액션1", priority: "High", columns: [
@@ -325,6 +350,7 @@ InfoCard를 가로로 배열. gap 8.
     { label: "실행계획", content: "내용" },
     { label: "기대효과", content: "내용" },
   ]},
+  { title: "액션2", priority: "Medium", columns: [...] },
 ]} />
 ```
 
@@ -386,10 +412,37 @@ InfoCard를 가로로 배열. gap 8.
 ```
 
 #### `HBarChart`
-수평 바 차트.
+수평 바 차트. 각 항목(`data` 원소)는 다음 필드를 가질 수 있습니다.
+- `label` (필수): 라벨 텍스트
+- `value` (필수): 0~`maxValue` 사이 수치
+- `count` (선택): 괄호로 함께 표시되는 실제 개수 (예: `"60%" (600)`)
+- `color` (선택): 항목별 바 색상 override
+
+**기본 색상 규칙 (필수) — `color` 미지정 시 다음 규칙 적용**
+| 인덱스 | 색상 |
+|---|---|
+| 0 (1번째 항목) | `CHART_COLORS[0]` = `#2B7FFF` (Blue 500) |
+| 1 (2번째 항목) | `CHART_COLORS[1]` = `#7CCF00` (Lime 500) |
+| 2 이후 (3번째~) | `#E0E0E2` (Gray 200) |
+
+→ **상위 2개만 팔레트 컬러로 강조하고, 나머지는 모두 회색으로 낮춘다.** 별점·등급처럼 항목별 의미색이 필요한 경우에만 각 항목에 `color` 를 직접 지정해 override 합니다.
+
 ```jsx
-<HBarChart title="제목" maxValue={100} data={[
-  { label: "항목A", value: 75 },
+// 기본 규칙 (1,2등만 강조)
+<HBarChart title="점유율" data={[
+  { label: "A", value: 42, count: 420 },  // Blue 500
+  { label: "B", value: 28, count: 280 },  // Lime 500
+  { label: "C", value: 18, count: 180 },  // Gray 200
+  { label: "D", value: 12, count: 120 },  // Gray 200
+]} />
+
+// 의미색 override (긍정→부정 그라디언트 등)
+<HBarChart title="별점 분포" data={[
+  { label: "5점", value: 77.5, count: 775, color: "#7CCF00" },
+  { label: "4점", value: 8.9, count: 89, color: "#BBF451" },
+  { label: "3점", value: 5.7, count: 57, color: "#C5C6CA" },
+  { label: "2점", value: 1.9, count: 19, color: "#FFB86A" },
+  { label: "1점", value: 6.0, count: 60, color: "#FF6467" },
 ]} />
 ```
 
@@ -698,9 +751,11 @@ interface ReportProps {
 // ── Styled Components ──
 const PageWrapper = styled.div`
   padding: 32px;
-  max-width: 1544px;
+  max-width: 1864px;
+  min-width: 838px;
   width: 100%;
   box-sizing: border-box;
+  margin: 0 auto;
   font-family: 'Pretendard', sans-serif;
 `;
 
@@ -740,7 +795,7 @@ const SectionHeading = styled.h2`
   font-weight: 600;
   line-height: 28px;
   color: ${colors.gray990};
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 `;
 
 // ── Components ──
@@ -831,6 +886,25 @@ export const DonutChart = ({ data, title, size = 180 }: DonutChartProps) => (
 
 ## 주의사항
 
+- **리포트 폭 (필수)**: 가로 사이즈는 **최대 1864px, 최소 838px** 범위에서 반응형으로 동작. `PageWrapper` 에 `maxWidth: 1864, minWidth: 838, width: "100%"` 를 반드시 지정. 내부 요소는 고정 px width 금지, `flex` + `minWidth` + `flexWrap: "wrap"` 로 구성.
+- **외곽 컨테이너 주의 (필수)**: 리포트를 임베드하는 상위 페이지(App/라우트 컨테이너 등)가 `maxWidth: 960` 같은 제한을 걸고 있으면 `PageWrapper` 의 1864 가 펴지지 않습니다. 리포트가 들어가는 외곽 컨테이너는 **폭 제한 없음(`maxWidth: "none"`) + 가로 스크롤 허용** 상태여야 합니다.
+- **ReportSection 안 3열 sub-섹션 패턴 (로드맵 등)**: 섹션 하나에 "즉시/단기/중기" 같은 3개의 동등한 블록이 들어가는 경우, 기본 섹션 구조 대신 아래 변형을 사용합니다 — 각 열에 `ContentHeader` + `SectionCard` 를 독립적으로 둡니다.
+  ```jsx
+  <SectionHeading title="..." description="..." />
+  <ReportSection>
+    <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      {["즉시 실행", "단기", "중기"].map((label) => (
+        <div style={{ flex: "1 1 280px", minWidth: 280, display: "flex", flexDirection: "column", gap: 8 }}>
+          <ContentHeader title={label} description="..." />
+          <SectionCard style={{ flex: 1 }}>
+            <ContentCard padding={24}><ActionList items={[...]} /></ContentCard>
+          </SectionCard>
+        </div>
+      ))}
+    </div>
+  </ReportSection>
+  ```
+  `flex: "1 1 280px"` + `minWidth: 280` + `flexWrap: "wrap"` 조합으로 838px 에서도 2열/1열로 안전하게 접힙니다.
 - VBarChart의 stacked 모드 데이터 변환: `{ label, values: [31, 6, 63] }` → `{ label, 긍정: 31, 중립: 6, 부정: 63 }`
 - 차트 높이는 기본값 사용, 필요 시 height prop으로 조절
 - SectionCard 안에 ContentCard를 중첩하는 것이 기본 패턴

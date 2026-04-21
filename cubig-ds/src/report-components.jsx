@@ -7,7 +7,7 @@ const F = "Pretendard, sans-serif";
 
 // ─── Responsive Layout Constants ──────────────────────────────────────────
 export const LAYOUT = {
-  maxWidth: 1544,     // 리포트 최대 폭
+  maxWidth: 1864,     // 리포트 최대 폭
   minWidth: 838,      // 리포트 최소 폭
 };
 
@@ -21,8 +21,8 @@ export function PageWrapper({ children, style }) {
       padding: "32px clamp(16px, 4vw, 32px)",
       background: T.white,
       fontFamily: F,
-      maxWidth: 1544,
-      minWidth: 838,
+      maxWidth: LAYOUT.maxWidth,
+      minWidth: LAYOUT.minWidth,
       width: "100%",
       boxSizing: "border-box",
       margin: "0 auto",
@@ -45,7 +45,7 @@ export function ReportPage({ children, style }) {
 // ── SectionHeading: 대 타이틀 (border 밖, 완전 바깥) ──
 export function SectionHeading({ title, description, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 16, fontFamily: F, ...style }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
         <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
@@ -76,7 +76,7 @@ export function ReportSection({ children, gap = 24, style }) {
 // ── ContentHeader: 세미 타이틀 (border 안, gray50 밖) ──
 export function ContentHeader({ title, description, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2, fontFamily: F, ...style }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
         <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
@@ -400,10 +400,9 @@ export function UserCard({
     return (
       <div style={{
         width: "100%", background: T.white,
-        border: `1px solid ${T.gray200}`, borderRadius: 16,
+        borderRadius: 16,
         padding: 24, fontFamily: F, boxSizing: "border-box",
         display: "flex", flexDirection: "column", gap: 16,
-        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
         ...style,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -430,10 +429,9 @@ export function UserCard({
     return (
       <div style={{
         width: "100%", background: T.white,
-        border: `1px solid ${T.gray200}`, borderRadius: 16,
+        borderRadius: 16,
         padding: 24, fontFamily: F, boxSizing: "border-box",
         display: "flex", flexDirection: "column", gap: 24,
-        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
         ...style,
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -466,10 +464,9 @@ export function UserCard({
     return (
       <div style={{
         width: "100%", background: T.white,
-        border: `1px solid ${T.gray200}`, borderRadius: 16,
+        borderRadius: 16,
         padding: 24, fontFamily: F, boxSizing: "border-box",
         display: "flex", flexDirection: "column", gap: 20,
-        boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
         ...style,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -491,8 +488,8 @@ export function UserCard({
   // simple
   return (
     <div style={{
-      width: "100%", background: T.gray25,
-      border: `1px solid ${T.gray200}`, borderRadius: 16,
+      width: "100%", background: T.white,
+      borderRadius: 16,
       padding: 24, fontFamily: F, boxSizing: "border-box",
       display: "flex", flexDirection: "column", gap: 20,
       ...style,
@@ -1106,11 +1103,11 @@ export function StrategyRoadmapTable({ periods = [], style }) {
 
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
-      {/* 헤더 */}
+      {/* 헤더 — 세로 선 없음 */}
       <div style={{ display: "flex", height: 56, background: T.gray25, borderBottom: border }}>
         <div style={{ width: PERIOD_W, flexShrink: 0 }} />
-        {COLS.map((col, i) => (
-          <div key={col} style={{ ...colStyle, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", borderRight: i < COLS.length - 1 ? border : "none" }}>
+        {COLS.map((col) => (
+          <div key={col} style={{ ...colStyle, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
             <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, fontFamily: F }}>{col}</span>
           </div>
         ))}
@@ -1268,15 +1265,10 @@ export function ExpectedResultsGrid({ items = [], columns = 2, style }) {
 export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems = [], findings, style }) {
   return (
     <div style={{
-      background: T.white,
-      border: `1px solid ${T.gray200}`,
-      borderRadius: 16,
-      padding: 40,
-      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
       fontFamily: F,
       display: "flex",
       flexDirection: "column",
-      gap: 24,
+      gap: 16,
       ...style,
     }}>
       {/* Title */}
@@ -1340,10 +1332,7 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
   return (
     <div style={{
       background: "#fff",
-      border: `1px solid ${T.gray200}`,
       borderRadius: 16,
-      padding: 40,
-      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
       fontFamily: F,
       display: "flex",
       flexDirection: "column",
@@ -1384,43 +1373,44 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
         </div>
       </div>
 
-      {/* Week Content */}
+      {/* Week Content — SectionCard 패턴: 회색 배경 + padding 8 + 내부 흰 카드 */}
       {current.weekLabel && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ fontSize: 18, fontWeight: 600, color: "#171719", lineHeight: "26px" }}>
-            {current.weekLabel}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {(current.items || []).map((it, idx) => {
-              const isLast = idx === (current.items.length - 1);
-              return (
-                <div
-                  key={idx}
-                  style={{
-                    padding: "16px 0",
-                    borderTop: `1px solid ${T.gray200}`,
-                    borderBottom: isLast ? `1px solid ${T.gray200}` : "none",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 16, fontWeight: 500, color: "#0f0f10", lineHeight: "24px" }}>{it.title}</span>
-                    {it.priority && (
-                      <Badge type="Outline" size="Large" variant={priorityVariant(it.priority)} text={it.priority} />
+        <div style={{ background: T.gray50, borderRadius: 20, padding: 8 }}>
+          <div style={{ background: T.white, borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, color: "#171719", lineHeight: "26px" }}>
+              {current.weekLabel}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {(current.items || []).map((it, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: "16px 0",
+                      borderTop: `1px solid ${T.gray200}`,
+                      borderBottom: "none",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 16, fontWeight: 500, color: "#0f0f10", lineHeight: "24px" }}>{it.title}</span>
+                      {it.priority && (
+                        <Badge type="Outline" size="Large" variant={priorityVariant(it.priority)} text={it.priority} />
+                      )}
+                    </div>
+                    {it.bullets && it.bullets.length > 0 && (
+                      <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+                        {it.bullets.map((b, bi) => (
+                          <li key={bi} style={{ fontSize: 16, fontWeight: 400, color: T.gray800, lineHeight: "24px" }}>{b}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
-                  {it.bullets && it.bullets.length > 0 && (
-                    <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
-                      {it.bullets.map((b, bi) => (
-                        <li key={bi} style={{ fontSize: 16, fontWeight: 400, color: T.gray800, lineHeight: "24px" }}>{b}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -1438,33 +1428,20 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
   const headText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, fontFamily: F, textAlign: "center" };
   const bodyText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, fontFamily: F, textAlign: "center" };
 
-  const priorityBadge = (p) => {
-    const map = {
-      High:   { border: T.blue500, color: T.blue500 },
-      Medium: { border: T.green500 || "#00C950", color: T.green500 || "#00C950" },
-      Low:    { border: T.gray200, color: T.gray800 },
-    };
-    const s = map[p] || map.Low;
-    return (
-      <span style={{
-        display: "inline-flex", alignItems: "center",
-        height: 24, padding: "4px 8px", borderRadius: 8,
-        border: `1px solid ${s.border}`, color: s.color,
-        fontSize: 14, fontWeight: 500, lineHeight: "20px", fontFamily: F,
-      }}>{p}</span>
-    );
-  };
+  const priorityBadge = (p) => (
+    <Badge type="Solid" variant="Info" size="Small" text={p} />
+  );
 
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", background: T.white, fontFamily: F, ...style }}>
-      {/* 헤더 */}
+      {/* 헤더 — 세로 선 없음 */}
       <div style={{ display: "flex", background: T.gray25, borderBottom: border }}>
-        <div style={{ width: WEEK_W, flexShrink: 0, borderRight: border, padding: cellPad }} />
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad, borderRight: border }}>
+        <div style={{ width: WEEK_W, flexShrink: 0, padding: cellPad }} />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad }}>
           <span style={headText}>Task</span>
         </div>
-        {columns.map((col, ci) => (
-          <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad, borderRight: ci < columns.length - 1 ? border : "none" }}>
+        {columns.map((col) => (
+          <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad }}>
             <span style={headText}>{col}</span>
           </div>
         ))}
@@ -1476,10 +1453,10 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
         const isLastWeek = wi === weeks.length - 1;
         return (
           <div key={wi} style={{ display: "flex", borderBottom: isLastWeek ? "none" : border }}>
-            {/* 주차 라벨 (세로 머지) */}
+            {/* 주차 라벨 (세로 머지) — 중앙 정렬 */}
             <div style={{
               width: WEEK_W, flexShrink: 0, borderRight: border,
-              display: "flex", flexDirection: "column", justifyContent: "center",
+              display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center",
               padding: "18px 16px", gap: 4,
             }}>
               <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: "#0F0F10", fontFamily: F }}>{week.weekLabel || `Week ${wi + 1}`}</div>

@@ -54,6 +54,116 @@ JSON 을 받으면 아래 순서로 진행합니다.
 
 ---
 
+## 🗺 JSON 필드 → 컴포넌트 매핑 표 (표준)
+
+쿠팡/ChatGPT 리뷰 리포트 패턴을 일반 규칙으로 정형화. 모든 신규 리포트에 동일하게 적용.
+
+| JSON 필드 | UI 위치 | 비고 |
+|---|---|---|
+| `meta.agentName` | 리포트 최상단 `ContentHeader.title` | 페이지 헤더, `marginBottom: 40` 으로 첫 섹션과 간격 |
+| `meta` description (없으면) | 상단 `ContentHeader.description` 도 `Section 1 data.description` 첫 문장 으로 보충 가능 (사용자 합의) | JSON `meta` 에 별도 description 필드 없으면 만들지 않음. 쿠팡 패턴: Section 1 첫 문장 차용 |
+| `section.sectionName` | `SectionHeading.overline` (작은 회색 라벨, 14px) | 각 섹션 식별 라벨 |
+| `section.headline` | `SectionHeading.title` (20px gray990) | 한 줄 강조 — 원문 그대로 |
+| `section.data.description` (1-2문장) | `SectionHeading.description` (14px gray800) | 그대로 한 군데 |
+| `section.data.description` (3문장 이상) | **첫 문장(리드)** → `SectionHeading.description` / **나머지** → `ContentCard` 안 `<TextBlock title="해석" bordered={false}>...</TextBlock>` | 위치만 분리, 원문 변경·중복 금지 |
+| `section.data.chartTitle` | 차트 컴포넌트의 `title` prop | 차트 자체 title (이미 중앙 정렬). 별도 `ContentHeader` 사용하지 않음 |
+| `section.data.items` | 차트 `data` 배열 | 키 매핑은 컴포넌트별 — `HBarChart {label, value, count}`, `DonutChart {id, value}`, `StackedHBar {label, key1, key2, ...}` |
+| `section.data.items[].isOther` | data item `hatched: true` | DonutChart/PieChart 빗금 (gray100 배경 + gray200 stripe), 기타 % 라벨 gray500 |
+| `section.data.colors` | (대부분 무시) | 차트 컴포넌트 색상은 정해진 규칙 우선. 단 `StackedHBar` 는 `colors` prop 으로 감성 색 override 가능 (`["#F87171","#E6E7E9","#7CCF00"]`) |
+
+---
+
+## 📋 섹션 타입별 표준 골격
+
+### Type A — Executive Summary (`componentType: "ExecutiveSummary"`)
+```jsx
+<div>
+  <SectionHeading
+    overline={section.sectionName}                  // "Executive Summary"
+    title={section.headline}
+    description={firstSentence(section.data.description)}
+  />
+  <ExecutiveSummaryCard
+    title={null}                                    // 위 SectionHeading 과 중복 방지
+    findings={{
+      title: "Key Findings",
+      items: restSentences(section.data.description), // 나머지 문장들
+    }}
+  />
+</div>
+```
+- `summaryItems` prop 은 JSON 에 명시적 지표가 없으면 **생략** (없는 값 만들지 않음)
+- 가능한 경우만 `summaryItems = [{label, value}, ...]` 로 첨가
+
+### Type B — 차트 섹션 (`HorizontalBarChart` / `StackedBarChart` / `DonutChart` 등)
+```jsx
+<div>
+  <SectionHeading
+    overline={section.sectionName}
+    title={section.headline}
+    description={firstSentence(section.data.description)}
+  />
+  <ReportSection>
+    <SectionCard>
+      <ContentCard padding={40}>
+        <Chart title={section.data.chartTitle} data={...} />
+      </ContentCard>
+      {/* description 이 길 때만 추가 */}
+      {hasLongDescription && (
+        <ContentCard>
+          <TextBlock title="해석" bordered={false}>
+            {restSentences(section.data.description)}
+          </TextBlock>
+        </ContentCard>
+      )}
+    </SectionCard>
+  </ReportSection>
+</div>
+```
+**차트 종류별 매핑**
+- `HorizontalBarChart` → `HBarChart` (단일 시리즈, 5개 항목)
+- `StackedBarChart` → `StackedHBar` (감성/세그먼트 누적, 8개 항목 라벨이 길면 수평이 유리). `colors=["#F87171","#E6E7E9","#7CCF00"]` + `keys=["부정","중립","긍정"]` 권장
+- `DonutChart` → `DonutChart` (합 100% 구성비). 합이 100% 초과 시 `HBarChart` 로 대체
+- `PieChart` → `PieChart` (innerRadius 0)
+- `LineChart` → `LineChart` / `LabeledLineChart`
+- `FunnelChart` → `FunnelChart`
+- `ComboChart` → `ComboChart`
+
+### Type C — `ClusterCard` / 카드 그리드
+- 2개 카드 → `UserCard(type="simple")` × 2 (icon + name + subtitle + description)
+- 3-4개 카드 → `PersonaCard` 또는 `SignalCard`
+- 카드는 `SectionCard` 직계로 배치 (중간 `ContentCard` 래퍼 금지 — 흰 카드 안 흰 카드 이중 중첩)
+
+```jsx
+<ReportSection>
+  <SectionCard>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8 }}>
+      <UserCard type="simple" name={item.title} subtitle={item.badge} description={item.description} />
+      <UserCard type="simple" ... />
+    </div>
+  </SectionCard>
+</ReportSection>
+```
+
+### Type D — `StrategyTable` (개선 로드맵)
+```jsx
+<ReportSection>
+  <SectionCard>
+    <ContentCard padding={0}>
+      <StrategyRoadmapTable periods={[
+        { badge: "Immediate",  period: "", rows: section.data.immediate.map(...) },
+        { badge: "Short-term", period: "", rows: section.data.short.map(...) },
+        { badge: "Mid-term",   period: "", rows: section.data.mid.map(...) },
+      ]} />
+    </ContentCard>
+  </SectionCard>
+</ReportSection>
+```
+- `period` (구체 기간 텍스트) 는 JSON 에 없으면 빈 문자열 — 만들지 않음
+- 각 row: `{strategy, objective, actionPlan, expectedImpact}` 그대로 매핑, `actionPlan` 의 `\n` 은 `whiteSpace: pre-wrap` 으로 자동 줄바꿈
+
+---
+
 ## 📐 핵심 skeleton
 
 ```jsx

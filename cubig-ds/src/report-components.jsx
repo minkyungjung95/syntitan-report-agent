@@ -58,14 +58,10 @@ export function SectionHeading({ title, description, style }) {
 export function ReportSection({ children, gap = 24, style }) {
   return (
     <div style={{
-      border: `1px solid ${T.gray200}`,
-      borderRadius: 20,
-      padding: "clamp(20px, 4vw, 40px)",
       display: "flex",
       flexDirection: "column",
       gap,
       fontFamily: F,
-      overflow: "hidden",
       ...style,
     }}>
       {children}
@@ -333,13 +329,12 @@ export function PersonaCard({ name, subtitle, metrics = [], icon, style }) {
   return (
     <div style={{
       flex: "1 1 calc(50% - 8px)", minWidth: 380,
-      border: `1px solid ${T.gray200}`,
+      background: T.white,
       borderRadius: 16,
       fontFamily: F,
       boxSizing: "border-box",
       padding: 24,
       display: "flex", flexDirection: "column", gap: 16,
-      boxShadow: "0px 1px 2px rgba(0,0,0,0.06)",
       ...style,
     }}>
       {/* Header: icon + name + badge */}

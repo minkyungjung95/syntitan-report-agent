@@ -78,8 +78,8 @@ export default function CoupangReviewReport() {
             description="4-5점이 86.4%로 전반적 만족도가 높습니다. 다만 1점 리뷰가 6.0%(60건)로 2점(1.9%)보다 3배 많아, 불만이 있으면 곧장 최저점을 주는 경향이 있습니다."
           />
           <ReportSection>
-            <ContentHeader title="별점 분포" />
             <SectionCard>
+              <ContentHeader title="별점 분포" />
               <ContentCard padding={40}>
                 <HBarChart data={ratingDistribution} maxValue={100} />
               </ContentCard>
@@ -95,28 +95,26 @@ export default function CoupangReviewReport() {
           />
           <ReportSection>
             <SectionCard>
-              <ContentCard padding={24}>
-                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                  <PersonaCard
-                    name="여러 장점을 구체적으로 나열하는 사람들"
-                    subtitle="4-5점 그룹 (864건, 86.4%)"
-                    metrics={[
-                      { key: "평균 리뷰 길이", value: "327자" },
-                      { key: "공통 언급", value: "가성비·디자인·바퀴" },
-                      { key: "핵심 감정", value: "종합 만족" },
-                    ]}
-                  />
-                  <PersonaCard
-                    name="한두 가지 결정적 문제에 집중하는 사람들"
-                    subtitle="1-2점 그룹 (79건, 7.9%)"
-                    metrics={[
-                      { key: "평균 리뷰 길이", value: "148자" },
-                      { key: "공통 언급", value: "지퍼·배송·잠금장치" },
-                      { key: "핵심 감정", value: "교환/환불 불만" },
-                    ]}
-                  />
-                </div>
-              </ContentCard>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <PersonaCard
+                  name="여러 장점을 구체적으로 나열하는 사람들"
+                  subtitle="4-5점 그룹 (864건, 86.4%)"
+                  metrics={[
+                    { key: "평균 리뷰 길이", value: "327자" },
+                    { key: "공통 언급", value: "가성비·디자인·바퀴" },
+                    { key: "핵심 감정", value: "종합 만족" },
+                  ]}
+                />
+                <PersonaCard
+                  name="한두 가지 결정적 문제에 집중하는 사람들"
+                  subtitle="1-2점 그룹 (79건, 7.9%)"
+                  metrics={[
+                    { key: "평균 리뷰 길이", value: "148자" },
+                    { key: "공통 언급", value: "지퍼·배송·잠금장치" },
+                    { key: "핵심 감정", value: "교환/환불 불만" },
+                  ]}
+                />
+              </div>
             </SectionCard>
           </ReportSection>
         </div>
@@ -128,8 +126,8 @@ export default function CoupangReviewReport() {
             description="가성비·디자인·바퀴·수납·내구성은 긍정이 94~97%로 매우 높습니다. 반면 배송/CS는 부정이 19%로 가장 높고, 지퍼/잠금장치도 10%로 다른 영역 대비 눈에 띕니다. 이 두 영역이 전체 부정의 대부분을 차지합니다."
           />
           <ReportSection>
-            <ContentHeader title="영역별 감성 분포 (부정 영향이 큰 순서)" />
             <SectionCard>
+              <ContentHeader title="영역별 감성 분포 (부정 영향이 큰 순서)" />
               <ContentCard padding={40}>
                 <VBarChart
                   stacked={true}

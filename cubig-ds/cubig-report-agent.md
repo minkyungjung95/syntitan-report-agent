@@ -108,9 +108,19 @@ border 라인으로 감싸는 영역. padding 40, borderRadius 20.
 ```
 
 #### `ContentHeader`
-border 안쪽 상단 제목. SectionCard 위에 위치.
+콘텐츠 영역(`SectionCard`) **안쪽** 상단에 놓는 세미 타이틀. 각 차트·테이블·카드에 붙이는 "리포트 제목".
+
+**규칙 (필수) — 항상 `SectionCard` 안에 배치합니다.** `SectionCard` 바깥(= `ReportSection` 직계)에 두지 않습니다. 즉, 리포트 제목은 항상 컨텐츠 영역(회색 8px 래핑) 안으로 들어가야 하며 ContentCard 위에 위치합니다.
+
 ```jsx
-<ContentHeader title="콘텐츠 제목" description="설명" />
+<ReportSection>
+  <SectionCard>
+    <ContentHeader title="콘텐츠 제목" description="설명" />
+    <ContentCard padding={40}>
+      <Chart ... />
+    </ContentCard>
+  </SectionCard>
+</ReportSection>
 ```
 
 #### `SectionCard`

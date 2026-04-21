@@ -4,7 +4,7 @@ import {
   TextBlock,
   StrategyRoadmapTable,
 } from "./report-components";
-import { VBarChart, DonutChart, StackedHBar } from "./charts";
+import { VBarChart, DonutChart, GroupedBarChart } from "./charts";
 
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
 
@@ -113,8 +113,9 @@ export default function CoupangReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <StackedHBar
+                <GroupedBarChart
                   title="영역별 감성 분포 (부정 영향이 큰 순서)"
+                  stacked
                   data={topicImpactData}
                   keys={["부정", "중립", "긍정"]}
                   colors={["#FF6467", "#E6E7E9", "#7CCF00"]}

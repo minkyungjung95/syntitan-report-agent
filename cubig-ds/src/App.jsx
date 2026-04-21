@@ -887,6 +887,23 @@ export default function App() {
             />
           </Card>
 
+          {/* Stacked Vertical Bar — Sentiment (세로 형태) */}
+          <Card title="Stacked Vertical Bar — Sentiment" subtitle="세로 스택형 — 각 카테고리를 컬럼으로 (부정=Red / 중립=Gray / 긍정=Lime)">
+            <GroupedBarChart
+              title="영역별 감성 분포"
+              stacked
+              colors={["#FF6467", "#E6E7E9", "#7CCF00"]}
+              data={[
+                { label: "응답 품질",      부정: 63, 중립: 8,  긍정: 29 },
+                { label: "가격/한도",     부정: 56, 중립: 7,  긍정: 37 },
+                { label: "UI/UX",       부정: 45, 중립: 15, 긍정: 40 },
+                { label: "콘텐츠 품질",   부정: 33, 중립: 12, 긍정: 55 },
+                { label: "편의성",        부정: 15, 중립: 10, 긍정: 75 },
+              ]}
+              keys={["부정", "중립", "긍정"]}
+            />
+          </Card>
+
           {/* Vertical Bar - Single */}
           <Card title="Vertical Bar (Single)" subtitle="단일 막대 - 항목별 비교">
             <VBarChart

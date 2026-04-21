@@ -793,7 +793,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
             if (typeof title === "string") {
               const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
               if (m) {
-                return (<>{m[1]}<span style={{ fontWeight: 500, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
+                return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
               }
             }
             return title;
@@ -1685,7 +1685,9 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
     );
   };
 
-  // 값 라벨 — 막대가 충분히 크면 안쪽(흰색), 작으면 외부(어두운 색)
+  // 값 라벨 — 막대가 충분히 크면 안쪽(흰/그레이), 작으면 외부(어두운 색)
+  // 스택 모드는 위/아래가 다른 세그먼트이므로 작을 땐 외부 표시 대신 숨김
+  // 그레이 배경에는 흰 글자 가독성 떨어지므로 GRAY500 으로 (HBar/StackedHBar 일관성)
   const ValueLabelsLayer = ({ bars }) => (
     <g>
       {bars.map((bar) => {
@@ -1694,8 +1696,12 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
         const isNeg = v < 0;
         const x = bar.x + bar.width / 2;
         const tooSmall = bar.height < 24;
+        const c = (bar.color || "").toLowerCase();
+        const isGrayBar = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
+        const insideTextColor = isGrayBar ? GRAY500 : WHITE;
         if (tooSmall) {
-          // 외부
+          if (isStacked) return null;
+          // grouped 모드: 막대 외부 표시
           const y = isNeg ? bar.y + bar.height + 14 : bar.y - 6;
           return (
             <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline={isNeg ? "hanging" : "auto"}
@@ -1704,11 +1710,11 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
             </text>
           );
         }
-        // 안쪽 (흰색)
+        // 안쪽
         const y = isNeg ? bar.y + bar.height - 8 : bar.y + 14;
         return (
           <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-            style={{ fontSize: 12, fontWeight: 600, fill: WHITE, fontFamily: "Pretendard, sans-serif" }}>
+            style={{ fontSize: 12, fontWeight: 600, fill: insideTextColor, fontFamily: "Pretendard, sans-serif" }}>
             {v.toLocaleString()}
           </text>
         );
@@ -1718,7 +1724,19 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
+      {title && (
+        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>
+          {(() => {
+            if (typeof title === "string") {
+              const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
+              if (m) {
+                return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
+              }
+            }
+            return title;
+          })()}
+        </div>
+      )}
       <div style={{ width: "100%", height: 380 }}>
         <ResponsiveBar
           data={data}
@@ -1768,7 +1786,7 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
       <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
         {actualKeys.map((k, i) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: paletteColors[i % paletteColors.length] }} />
             <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, fontFamily: "Pretendard, sans-serif" }}>{k}</span>
           </div>
         ))}

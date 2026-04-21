@@ -6,7 +6,7 @@ import {
   SignalCard,
   StrategyRoadmapTable,
 } from "./report-components";
-import { VBarChart, StackedHBar, LineChart } from "./charts";
+import { VBarChart, GroupedBarChart, LineChart } from "./charts";
 
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
 
@@ -109,10 +109,10 @@ export default function CsTicketReport() {
             <SectionCard>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <ContentCard padding={40} style={{ flex: "1 1 380px", minWidth: 380 }}>
-                  <LineChart title="월별 NPS 추이" variant="red" enableArea data={npsTrendData} />
+                  <LineChart title="월별 NPS 추이" variant="blue" enableArea data={npsTrendData} />
                 </ContentCard>
                 <ContentCard padding={40} style={{ flex: "1 1 380px", minWidth: 380 }}>
-                  <LineChart title="월별 평균 해결시간" variant="red" enableArea data={resolutionTimeTrendData} />
+                  <LineChart title="월별 평균 해결시간" variant="blue" enableArea data={resolutionTimeTrendData} />
                 </ContentCard>
               </div>
             </SectionCard>
@@ -167,8 +167,9 @@ export default function CsTicketReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <StackedHBar
+                <GroupedBarChart
                   title="카테고리별 NPS 분포 (추천자/중립/비추천자)"
+                  stacked
                   data={npsDistributionData}
                   keys={["비추천자", "중립", "추천자"]}
                   colors={["#FF6467", "#E6E7E9", "#7CCF00"]}

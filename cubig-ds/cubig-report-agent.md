@@ -5,6 +5,103 @@
 
 ---
 
+## 🔒 불변 체크리스트 (리포트 생성 시 반드시 검증)
+
+리포트를 출력하기 전에 아래 항목을 스스로 점검하세요. 하나라도 위반되면 재작성합니다.
+
+1. **외곽선/그림자 금지** — `ReportSection`, `ExecutiveSummaryCard`, `ExecutionRoadmap`, `UserCard`, `PersonaCard` 등 모든 래퍼에 `border` 나 `boxShadow` 를 **추가하지 않습니다**. 섹션 경계는 `SectionCard`(회색 gray50 배경) 와 `ContentCard`(흰 배경) 의 배경 대비로만 구분합니다.
+2. **리포트 제목은 항상 중앙 정렬** — 차트 자체 `title` prop 사용을 최우선으로 하고 (이미 `textAlign: center`), 복합 컨텐츠일 때만 `ContentHeader` 를 쓰되 **반드시 `ContentCard` 안쪽 최상단**에 위치합니다. `SectionCard` 바깥·직계에 두면 안 됩니다.
+3. **카드 중첩 금지** — 회색 `SectionCard` 안에 바로 `PersonaCard`/`UserCard` 를 배치합니다. 그 사이에 `ContentCard(padding=24)` 같은 흰 래퍼를 **끼우지 않습니다** (흰 카드 안에 흰 카드 이중 중첩).
+4. **반응형 폭 고정** — 모든 리포트는 `PageWrapper` 에 `maxWidth: 1864, minWidth: 838, width: "100%"`. 내부는 고정 px width 금지, `flex` + `minWidth` + `flexWrap: "wrap"` 로 구성 (838px에서 깨지지 않게).
+5. **HBarChart 색상 규칙** — `color` 미지정 시 1번 `CHART_COLORS[0]` Blue500, 2번 `CHART_COLORS[1]` Lime500, 3번 이후 `#E0E0E2` Gray200. 의미색이 필요한 경우만 각 항목에 `color` override.
+6. **stacked 차트 감성 색상 관례 적용 불가** — `VBarChart(stacked)` / `StackedHBar` 는 `colors` prop 미지원. 감성 색상이 필요하면 `HBarChart` 또는 `DonutChart/PieChart` 로 대체.
+7. **SignalCard 콜아웃 variant 내용별 선택** — `alert` 있을 때 `alertVariant` 를 문구 성격(정보/긍정/주의/부정/강조)에 맞게 선택. 모두 `Negative` 로 통일 X.
+8. **데이터 검증** — 빈 값/대시만 있는 행은 생성하지 않음. 차트 data 비면 섹션 생략 후 `TextBlock` 으로 대체. 복수 응답으로 합이 100% 초과하는 경우 `DonutChart` 대신 `HBarChart` 사용.
+9. **외곽 컨테이너 폭 제한 주의** — 리포트를 임베드하는 상위 컨테이너(App/라우트) 는 `maxWidth: "none"` 이어야 PageWrapper 1864 가 펴짐.
+
+---
+
+## 🧭 리포트 생성 워크플로우
+
+JSON 을 받으면 아래 순서로 진행합니다.
+
+1. **스키마 파악** — `meta.agentName`, `sections[]`, 각 섹션의 `id` / `sectionName` / `headline` / `componentType` / `data` 확인. `section.label = section.sectionName`(= SectionHeading title), `section.data.description`(= SectionHeading description)가 모두 있는지 검증.
+2. **컴포넌트 매핑** — 아래 "`componentType` → 컴포넌트" 테이블을 보고 섹션별로 1:1 매핑. 매핑 규칙에 없으면 가장 가까운 컴포넌트를 변형·조합 (새 컴포넌트 생성 금지).
+3. **데이터 검증** — 각 data 에 빈 값/placeholder 가 있으면 규칙(§데이터 검증 규칙)에 따라 섹션 생략 또는 TextBlock 대체.
+4. **구조 조립** — 기본 skeleton (§핵심 skeleton) 대로 `PageWrapper > ReportPage > 각 섹션` 배치. 각 섹션은 `SectionHeading → ReportSection → SectionCard → ContentCard` 중첩.
+5. **제목 배치** — 차트·테이블은 컴포넌트 자체 `title` prop 을 사용. 복합 컨텐츠만 `ContentHeader` 를 `ContentCard` 안쪽 최상단에.
+6. **색상 결정** — HBarChart 는 기본 규칙, 의미색 필요 시 item `color` override. VBarChart stacked 는 `CHART_COLORS` 자동 매핑.
+7. **반응형 점검** — 2/3열 배치가 있으면 `flexWrap: "wrap"` + 자식 `minWidth` 지정.
+8. **체크리스트 재점검** — §불변 체크리스트 9개 항목을 스스로 한 번 더 확인 후 출력.
+
+---
+
+## 📐 핵심 skeleton
+
+```jsx
+import {
+  PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
+  ExecutiveSummaryCard, PersonaCard, TextBlock, ActionList, StrategyRoadmapTable,
+} from "./report-components";
+import { HBarChart, VBarChart, DonutChart } from "./charts";
+
+export default function Report() {
+  return (
+    <PageWrapper>
+      <ReportPage>
+
+        {/* Executive Summary — 통합 카드 (외곽선/padding/shadow 없음) */}
+        <ExecutiveSummaryCard
+          title="Executive Summary"
+          summaryItems={[{ label: "총 리뷰", value: "1,000건" }, /*...*/]}
+          findings={{ title: "핵심 발견", items: ["...", "..."] }}
+        />
+
+        {/* 일반 섹션 — 차트 */}
+        <div>
+          <SectionHeading title="..." description="..." />
+          <ReportSection>
+            <SectionCard>
+              <ContentCard padding={40}>
+                <HBarChart title="별점 분포" data={...} maxValue={100} />
+              </ContentCard>
+            </SectionCard>
+          </ReportSection>
+        </div>
+
+        {/* 카드 그리드 — SectionCard 안에 바로 (ContentCard 래핑 X) */}
+        <div>
+          <SectionHeading title="..." description="..." />
+          <ReportSection>
+            <SectionCard>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <PersonaCard ... />
+                <PersonaCard ... />
+              </div>
+            </SectionCard>
+          </ReportSection>
+        </div>
+
+        {/* 로드맵 — StrategyRoadmapTable */}
+        <div>
+          <SectionHeading title="..." description="..." />
+          <ReportSection>
+            <SectionCard>
+              <ContentCard padding={0}>
+                <StrategyRoadmapTable periods={[...]} />
+              </ContentCard>
+            </SectionCard>
+          </ReportSection>
+        </div>
+
+      </ReportPage>
+    </PageWrapper>
+  );
+}
+```
+
+---
+
 ## 기본 원칙
 
 1. **import 경로**: 레이아웃/카드는 `./report-components`, 차트는 `./charts`, 토큰은 `./tokens.jsx`

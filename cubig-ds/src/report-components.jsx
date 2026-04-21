@@ -43,9 +43,12 @@ export function ReportPage({ children, style }) {
 }
 
 // ── SectionHeading: 대 타이틀 (border 밖, 완전 바깥) ──
-export function SectionHeading({ title, description, style }) {
+export function SectionHeading({ overline, title, description, style }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
+      {overline && (
+        <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, marginBottom: 4 }}>{overline}</div>
+      )}
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
         <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
@@ -70,12 +73,16 @@ export function ReportSection({ children, gap = 24, style }) {
 }
 
 // ── ContentHeader: 콘텐츠 제목 (기본 좌측 정렬) ──
-export function ContentHeader({ title, description, style }) {
+// overline: 타이틀 위에 노출되는 작은 회색 라벨 (14px gray800)
+export function ContentHeader({ overline, title, description, style }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
+      {overline && (
+        <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, marginBottom: 4 }}>{overline}</div>
+      )}
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
+        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray990 }}>{description}</div>
       )}
     </div>
   );
@@ -373,6 +380,7 @@ export function UserCard({
   icon,
   name,
   subtitle,
+  subtitleColor, // 있으면 subtitle 을 컬러 dot + chip 으로 렌더 (Section 3 badgeColor 같은 케이스)
   badge,
   description,
   details = [],
@@ -1094,7 +1102,7 @@ export function StrategyRoadmapTable({ periods = [], style }) {
     ...colStyle, display: "flex", alignItems: "center", justifyContent: "center",
     padding: "18px 16px", borderRight: border,
   };
-  const textStyle = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, textAlign: "center", fontFamily: F };
+  const textStyle = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, textAlign: "center", fontFamily: F, whiteSpace: "pre-wrap" };
 
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
@@ -1267,7 +1275,7 @@ export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems
       ...style,
     }}>
       {/* Title */}
-      <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>}
 
       {/* Wrapped content area */}
       <div style={{
@@ -1331,7 +1339,7 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
       fontFamily: F,
       display: "flex",
       flexDirection: "column",
-      gap: 32,
+      gap: 24,
       ...style,
     }}>
       {/* Header */}
@@ -1485,6 +1493,99 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CLUSTER PROFILE TABLE — clusters x categories matrix (charts.jsx 에서 이동)
+// ═══════════════════════════════════════════════════════════════════════════
+export function ClusterProfileTable({ title, data }) {
+  const { clusters, categories } = data;
+  const colCount = clusters.length;
+  const blue50 = T.blue50 || "#EFF6FF";
+  const blue500 = "#2B7FFF";
+
+  const cellBase = {
+    fontFamily: F, fontSize: 14, fontWeight: 400,
+    color: T.gray990, textAlign: "center", padding: "10px 12px",
+  };
+  const highlightCell = { ...cellBase, fontWeight: 700, color: blue500, background: blue50 };
+  const headerCell = {
+    fontFamily: F, fontSize: 14, fontWeight: 600,
+    color: T.gray990, textAlign: "center", lineHeight: 1.5,
+    padding: "16px 12px", background: T.gray25 || "#FAFAFA",
+  };
+  const labelCellBase = {
+    fontFamily: F, fontSize: 14, fontWeight: 600,
+    color: T.gray990, padding: "10px 12px", textAlign: "left", whiteSpace: "nowrap",
+  };
+  const rankLabelStyle = {
+    fontFamily: F, fontSize: 13, fontWeight: 400,
+    color: T.gray800, padding: "10px 12px", textAlign: "center", whiteSpace: "nowrap",
+  };
+  const rankTextStyle = (idx) => ({
+    fontFamily: F, fontSize: 13,
+    fontWeight: idx === 0 ? 600 : 400,
+    color: idx === 0 ? blue500 : T.gray800,
+  });
+  const gridCols = `100px 64px ${"1fr ".repeat(colCount).trim()}`;
+
+  return (
+    <div style={{ fontFamily: F }}>
+      {title && (
+        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990, textAlign: "center", marginBottom: 60 }}>
+          {title}
+        </div>
+      )}
+      <div style={{
+        display: "grid", gridTemplateColumns: gridCols,
+        border: `1px solid ${T.gray200}`, borderRadius: 8, overflow: "hidden", background: T.white,
+      }}>
+        <div style={{ ...labelCellBase, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>이미지</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.gray800 }}>Keyword</div>
+        </div>
+        <div style={{ background: T.gray25, borderBottom: `1px solid ${T.gray200}` }} />
+        {clusters.map((c, ci) => (
+          <div key={ci} style={{ ...headerCell, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
+            {c.keywords.map((kw, ki) => (
+              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 600, fontSize: ki === 0 ? 15 : 14 }}>{kw}</div>
+            ))}
+          </div>
+        ))}
+        {categories.map((cat, catIdx) => {
+          const rowCount = cat.ranks.length;
+          return cat.ranks.map((rank, ri) => {
+            const isFirstInCat = ri === 0;
+            const isLastInCat = ri === rowCount - 1;
+            const borderBot = isLastInCat ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
+            return (
+              <div key={`${catIdx}-${ri}`} style={{ display: "contents" }}>
+                {isFirstInCat ? (
+                  <div style={{
+                    ...labelCellBase, fontSize: 15, display: "flex", alignItems: "center",
+                    gridRow: `span ${rowCount}`, borderBottom: `2px solid ${T.gray200}`, borderRight: `1px solid ${T.gray200}`,
+                  }}>{cat.label}</div>
+                ) : null}
+                <div style={{ ...rankLabelStyle, borderBottom: borderBot }}>
+                  <span style={rankTextStyle(ri)}>{rank}</span>
+                </div>
+                {clusters.map((_c, ci) => {
+                  const val = cat.values[ci]?.[ri] ?? "";
+                  const isTop = ri === 0;
+                  return (
+                    <div key={ci} style={{
+                      ...(isTop ? highlightCell : cellBase),
+                      borderBottom: borderBot, borderLeft: `1px solid ${T.gray200}`,
+                    }}>{val}</div>
+                  );
+                })}
+              </div>
+            );
+          });
+        })}
+      </div>
     </div>
   );
 }

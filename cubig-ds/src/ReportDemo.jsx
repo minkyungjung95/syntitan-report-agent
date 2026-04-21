@@ -68,14 +68,25 @@ export default function ReportDemo() {
       {/* ═══════════════════════════════════════════════════ */}
       <Section>
         <Label style={{ marginBottom: 40 }}>1. Layout — Section Title</Label>
-        <ContentHeader title="Content Title" description="Content description appears inside the border, above the gray area." />
-        <SectionCard>
-          <ContentCard>
-            <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
-              Content Area
-            </div>
-          </ContentCard>
-        </SectionCard>
+
+        {/* Variant A: Overline + Title + Description + Content Area */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Content Area</div>
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <SectionCard>
+            <ContentCard>
+              <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
+                Content Area
+              </div>
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* Variant B: Overline + Title + Description (Content Area 없음) */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Header Only</div>
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+        </div>
       </Section>
 
       {/* ═══════════════════════════════════════════════════ */}
@@ -354,29 +365,52 @@ export default function ReportDemo() {
 
       <Section>
         <Label>7. ExecutiveSummaryCard</Label>
-        <ExecutiveSummaryCard
-          title="Executive Summary"
-          summaryItems={[
-            { label: "Survey Topic", value: "New premium membership launch response survey" },
-            { label: "Number of respondents", value: "5,000" },
-          ]}
-          findings={{
-            title: "Key Findings",
-            items: [
-              "Subscription intent : High or higher (68%)",
-              "Most desired benefit : Ad-free viewing (72%)",
-              "Main concern : Price burden (45%)",
-              "Reasonable price : $10-15 (52%)",
-            ],
-          }}
-        />
+
+        {/* Variant A: summaryItems 있는 케이스 */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Summary Items</div>
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ExecutiveSummaryCard
+            title={null}
+            summaryItems={[
+              { label: "Survey Topic", value: "New premium membership launch response survey" },
+              { label: "Number of respondents", value: "5,000" },
+            ]}
+            findings={{
+              title: "Key Findings",
+              items: [
+                "Subscription intent : High or higher (68%)",
+                "Most desired benefit : Ad-free viewing (72%)",
+                "Main concern : Price burden (45%)",
+                "Reasonable price : $10-15 (52%)",
+              ],
+            }}
+          />
+        </div>
+
+        {/* Variant B: summaryItems 없는 케이스 (findings 만, Executive Summary 타이틀 제거) */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Findings Only (데이터에 지표 없을 때)</div>
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ExecutiveSummaryCard
+            title={null}
+            findings={{
+              title: "Key Findings",
+              items: [
+                "Subscription intent : High or higher (68%)",
+                "Most desired benefit : Ad-free viewing (72%)",
+                "Main concern : Price burden (45%)",
+                "Reasonable price : $10-15 (52%)",
+              ],
+            }}
+          />
+        </div>
       </Section>
 
       <Section>
         <Label>8. ExecutionRoadmap</Label>
+        <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
         <ExecutionRoadmap
-          title="30-Day Execution Roadmap"
-          subtitle="(Baseline Scenario)"
           weeks={[
             {
               tab: "Week 1",

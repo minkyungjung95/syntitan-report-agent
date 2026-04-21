@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, ClusterProfileTable, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
+import { ClusterProfileTable } from "./report-components";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
@@ -294,7 +295,8 @@ export default function App() {
 
           {/* ── Chart Colors ── */}
           <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
-            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Chart Colors</h3>
+            <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Chart Colors</h3>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 12px" }}>데이터 시리즈 팔레트 8종 + 회색(비강조/중립) + 빗금(미분류/기타)</p>
             <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
               {CHART_COLORS.map((c, i) => (
                 <div key={i} style={{ textAlign:"center" }}>
@@ -303,6 +305,18 @@ export default function App() {
                   <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{c}</div>
                 </div>
               ))}
+              {/* Gray — 비강조·중립 세그먼트용 */}
+              <div style={{ textAlign:"center" }}>
+                <div style={{ width:56, height:56, borderRadius:8, background:T.gray200, border:`1px solid ${T.gray300}` }} />
+                <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>Gray</div>
+                <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>#E0E0E2</div>
+              </div>
+              {/* Hatched — 미분류/기타 빗금 패턴 (SemiDonut/Donut/Pie 공통) */}
+              <div style={{ textAlign:"center" }}>
+                <div style={{ width:56, height:56, borderRadius:8, border:`1px solid ${T.gray200}`, background: `repeating-linear-gradient(45deg, ${T.gray100}, ${T.gray100} 3px, ${T.gray200} 3px, ${T.gray200} 6px)` }} />
+                <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>Hatched</div>
+                <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>Unclassified</div>
+              </div>
             </div>
           </div>
 
@@ -653,7 +667,7 @@ export default function App() {
           </Card>
 
           {/* Donut */}
-          <Card title="Donut Chart" subtitle="원그래프 - 비율 표시에 적합">
+          <Card title="Donut Chart" subtitle="원그래프 - 비율 표시에 적합 (기타 항목은 hatched:true 로 빗금 렌더)">
             <div style={{ display:"flex", gap:40, flexWrap:"wrap" }}>
               <DonutChart
                 title="Response Rate by Age Group"
@@ -673,11 +687,21 @@ export default function App() {
                   { id:"Female", value:2200 },
                 ]}
               />
+              <DonutChart
+                title="Category Share (with 기타)"
+                data={[
+                  { id:"가성비", value:57 },
+                  { id:"바퀴/이동성", value:56 },
+                  { id:"디자인/색상", value:48 },
+                  { id:"내구성", value:46 },
+                  { id:"기타", value:21, hatched:true },
+                ]}
+              />
             </div>
           </Card>
 
           {/* Pie Chart */}
-          <Card title="Pie Chart (원형)" subtitle="전체 비율 표시 - 최대 6색상, 호버 툴팁">
+          <Card title="Pie Chart (원형)" subtitle="전체 비율 표시 - 최대 6색상, 호버 툴팁 (기타 항목은 hatched:true 로 빗금)">
             <div style={{ display:"flex", gap:40, flexWrap:"wrap" }}>
               <PieChart
                 title="Market Share by Brand"
@@ -707,6 +731,15 @@ export default function App() {
                 ]}
                 showInnerLabels
                 hideValues
+              />
+              <PieChart
+                title="Negative Review Breakdown (with 기타)"
+                data={[
+                  { id:"배송/CS", value:44 },
+                  { id:"파손/내구성", value:39 },
+                  { id:"지퍼/잠금장치", value:35 },
+                  { id:"기타", value:17, hatched:true },
+                ]}
               />
             </div>
           </Card>
@@ -778,6 +811,22 @@ export default function App() {
                 { label:"Brand Trust",            seg1:40, seg2:25, seg3:20, seg4:15 },
               ]}
               keys={["seg1","seg2","seg3","seg4"]}
+            />
+          </Card>
+
+          {/* Stacked Horizontal Bar — 감성 색상 (부정/중립/긍정) */}
+          <Card title="Stacked Horizontal Bar — Sentiment" subtitle="감성 색상 variant (부정=Red / 중립=Gray / 긍정=Green)">
+            <StackedHBar
+              title="영역별 감성 분포"
+              data={[
+                { label: "응답 품질",      부정: 63, 중립: 8,  긍정: 29 },
+                { label: "가격/한도",     부정: 56, 중립: 7,  긍정: 37 },
+                { label: "UI/UX",       부정: 45, 중립: 15, 긍정: 40 },
+                { label: "콘텐츠 품질",   부정: 33, 중립: 12, 긍정: 55 },
+                { label: "편의성",        부정: 15, 중립: 10, 긍정: 75 },
+              ]}
+              keys={["부정", "중립", "긍정"]}
+              colors={["#F87171", "#E6E7E9", "#7CCF00"]}
             />
           </Card>
 
@@ -902,9 +951,9 @@ export default function App() {
               yAxis={{ label: "Expectation", low: "Low", high: "High" }}
               xAxis={{ label: "Concern", low: "Low", high: "High" }}
               quadrants={[
-                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: T.blue200, labelColor: "#171719" },
-                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: T.blue400, labelColor: "#fff" },
-                { label: "Negative Perceiver", value: "5.4", tag: "Low expectation, High concern", color: "#FFD6D6", labelColor: "#E7000B" },
+                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: T.orange100, labelColor: T.orange700 },
+                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: T.green100, labelColor: T.green700 },
+                { label: "Negative Perceiver", value: "5.4", tag: "Low expectation, High concern", color: T.red100, labelColor: T.red700 },
                 { label: "Low Interest", value: "13.8", tag: "Low expectation, Low concern", color: T.gray100, labelColor: T.gray800 },
               ]}
             />

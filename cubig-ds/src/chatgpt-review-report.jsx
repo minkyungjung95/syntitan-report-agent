@@ -5,7 +5,7 @@ import {
   StrategyRoadmapTable,
   ExecutiveSummaryCard,
 } from "./report-components";
-import { HBarChart, VBarChart, DonutChart } from "./charts";
+import { HBarChart, DonutChart, StackedHBar } from "./charts";
 
 // ─── Data ──────────────────────────────────────────────────────────────────
 
@@ -29,13 +29,13 @@ const topicImpactData = [
   { label: "가격/한도 (11.2%)", 긍정: 30, 중립: 7, 부정: 63 },
 ];
 
-// 부정 리뷰 영역별 비중 (합 100%)
+// 부정 리뷰 영역별 비중 (합 100%) — 기타: isOther → hatched 빗금
 const negativeBreakdown = [
   { id: "가격/한도", value: 24.9 },
-  { id: "기타", value: 26.3 },
   { id: "콘텐츠 품질", value: 17.7 },
   { id: "기능/UX", value: 17.0 },
   { id: "성능/안정성", value: 14.1 },
+  { id: "기타", value: 26.3, hatched: true },
 ];
 
 // 긍정 리뷰 영역별 비중 (합 100%)
@@ -50,25 +50,26 @@ export default function ChatgptReviewReport() {
     <PageWrapper>
       <ReportPage>
 
-        {/* Section 1: Executive Summary */}
-        <ExecutiveSummaryCard
-          title="Executive Summary"
-          summaryItems={[
-            { label: "총 리뷰", value: "500건" },
-            { label: "평균 별점", value: "3.89 / 5.0" },
-            { label: "양극화 지수", value: "81.6% (1+5점)" },
-            { label: "부정 비율 (1-2점)", value: "23.0% (115건)" },
-          ]}
-          findings={{
-            title: "핵심 발견",
-            items: [
-              "평균 3.89점은 실제 만족도보다 높게 보이며, 1점(20.4%)과 5점(61.2%)에 81.6%가 몰려 있습니다.",
-              "불만이 있으면 88.7%가 곧장 1점을 주며, 1점 리뷰는 평균 74자로 5점(20자) 대비 3.7배 깁니다.",
-              "가격/한도(11.2%)·콘텐츠 품질(9.0%)·기능/UX(7.8%) 세 영역에 부정이 집중됩니다.",
-              "세 영역의 공통점은 '사용자가 지적해도 반영되지 않는 구조' — 3가지 조치로 불만 비율 23%→12% 달성 가능합니다.",
-            ],
-          }}
-        />
+        {/* Section 1: Executive Summary — overline(sectionName) + title(headline) + description(리드) + findings(나머지 문장 분리) */}
+        <div>
+          <SectionHeading
+            overline="Executive Summary"
+            title="불만이 쌓이는 이유는 사용 한도·오답 수정·업데이트 품질 세 영역에서 사용자 목소리가 반영되지 않기 때문입니다"
+            description="ChatGPT 한국어 리뷰 500건을 별점·감성·영역별로 분석했습니다."
+          />
+          <ExecutiveSummaryCard
+            title={null}
+            findings={{
+              title: "Key Findings",
+              items: [
+                "평균 3.89점이지만 1점과 5점에 81.6%가 몰려 있어, 평균 점수가 실제 만족도보다 높게 보입니다.",
+                "불만이 있으면 88.7%가 곧장 1점을 주며, 1점 리뷰는 5점보다 3.7배 길고 구체적입니다.",
+                "가격/한도·콘텐츠 품질·기능/UX 세 영역에 불만이 집중되고, 세 영역 모두 사용자가 문제를 지적해도 개선되지 않는 경험이 반복됩니다.",
+                "사용 한도 초기화 시점 공개, 오답 수정 프로세스 개선, 업데이트 전 품질 검증 세 가지 조치로 불만 비율을 절반 가까이 줄일 수 있습니다.",
+              ],
+            }}
+          />
+        </div>
 
         {/* Section 2: 리뷰 현황 — 별점 분포 (HBarChart) */}
         <div>
@@ -126,13 +127,12 @@ export default function ChatgptReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <VBarChart
+                <StackedHBar
                   title="영역별 감성 분포 (부정 영향이 큰 순서)"
-                  stacked={true}
                   data={topicImpactData}
-                  keys={["긍정", "중립", "부정"]}
+                  keys={["부정", "중립", "긍정"]}
+                  colors={["#F87171", "#E6E7E9", "#7CCF00"]}
                   indexBy="label"
-                  height={400}
                 />
               </ContentCard>
             </SectionCard>

@@ -19,7 +19,9 @@ export const CHART_COLORS = [
 ];
 
 const GRAY200 = "#E6E7E9";
+const GRAY300 = "#C5C6CA";
 const GRAY100 = "#F0F0F2";
+const GRAY500 = "#B6B8BD";
 const GRAY800 = "#7B7E85";
 const GRAY990 = "#171719";
 const WHITE = "#FFFFFF";
@@ -87,6 +89,9 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
   const isBottom = legendPosition === "bottom";
+  // color override + hatched 패턴 지원
+  // hatched(기타) → 회색, color override 있으면 해당 색, 없으면 팔레트 순서
+  const donutColors = data.map((d, i) => d.hatched ? GRAY200 : (d.color || CHART_COLORS[i % CHART_COLORS.length]));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: "center" }}>
@@ -95,14 +100,16 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
-            colors={CHART_COLORS}
+            colors={donutColors}
+            defs={[{ id: "donut-hatch", type: "patternLines", background: GRAY100, color: GRAY200, rotation: 45, lineWidth: 1.5, spacing: 6 }]}
+            fill={[{ match: (d) => d.data.hatched, id: "donut-hatch" }]}
             innerRadius={0.6}
             padAngle={0}
             cornerRadius={hoverActive ? 6 : 0}
             borderWidth={0}
             enableArcLabels={true}
             arcLabel={d => `${((d.value / total) * 100).toFixed(0)}%`}
-            arcLabelsTextColor={WHITE}
+            arcLabelsTextColor={(d) => d.data.hatched ? GRAY500 : WHITE}
             arcLabelsSkipAngle={20}
             enableArcLinkLabels={false}
             activeOuterRadiusOffset={0}
@@ -153,7 +160,11 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
         }}>
           {data.map((d, i) => (
             <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
-              <LegendDot color={CHART_COLORS[i % CHART_COLORS.length]} />
+              {d.hatched ? (
+                <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` }} />
+              ) : (
+                <LegendDot color={donutColors[i]} />
+              )}
               <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
             </div>
           ))}
@@ -171,7 +182,8 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
 export function PieChart({ data, title, size = 180, showInnerLabels = false, hideValues = false, legendPosition = "right" }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
-  const pieColors = data.map((d, i) => d.color || CHART_COLORS[i % CHART_COLORS.length]);
+  // hatched(기타) → 회색, color override 있으면 해당 색, 없으면 팔레트 순서
+  const pieColors = data.map((d, i) => d.hatched ? GRAY200 : (d.color || CHART_COLORS[i % CHART_COLORS.length]));
   const isBottom = legendPosition === "bottom";
 
   return (
@@ -182,13 +194,15 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
           <ResponsivePie
             data={data}
             colors={pieColors}
+            defs={[{ id: "pie-hatch", type: "patternLines", background: GRAY100, color: GRAY200, rotation: 45, lineWidth: 1.5, spacing: 6 }]}
+            fill={[{ match: (d) => d.data.hatched, id: "pie-hatch" }]}
             innerRadius={0}
             padAngle={0}
             cornerRadius={hoverActive ? 4 : 0}
             borderWidth={0}
             enableArcLabels={true}
             arcLabel={d => `${((d.value / total) * 100).toFixed(0)}%`}
-            arcLabelsTextColor={WHITE}
+            arcLabelsTextColor={(d) => d.data.hatched ? GRAY500 : WHITE}
             arcLabelsSkipAngle={30}
             theme={{ ...baseTheme, labels: { text: { fontSize: 14, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
             enableArcLinkLabels={false}
@@ -240,7 +254,11 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
         }}>
           {data.map((d, i) => (
             <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", flexWrap: "nowrap", minWidth: 0, whiteSpace: "nowrap" }}>
-              <LegendDot color={pieColors[i]} />
+              {d.hatched ? (
+                <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` }} />
+              ) : (
+                <LegendDot color={pieColors[i]} />
+              )}
               {d.icon && <span style={{ marginLeft: 8, display: "flex", alignItems: "center" }}>{d.icon}</span>}
               <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
             </div>
@@ -275,12 +293,12 @@ export const FemaleIcon = ({ size = 16, color = "#F43F5E" }) => (
 //    - hatched 패턴(Unclassified 등) 지원
 // ═══════════════════════════════════════════════════════════════════════
 
-// 빗금 패턴용 SVG 정의
-function HatchPattern({ id, color = GRAY800 }) {
+// 빗금 패턴용 SVG 정의 — 배경 gray100, stripe gray200
+function HatchPattern({ id, color = GRAY200 }) {
   return (
     <pattern id={id} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
       <rect width="6" height="6" fill={GRAY100} />
-      <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="1.5" strokeOpacity="0.3" />
+      <line x1="0" y1="0" x2="0" y2="6" stroke={color} strokeWidth="1.5" />
     </pattern>
   );
 }
@@ -473,7 +491,7 @@ export function SemiDonutChart({
             >
               {/* 컬러 마커 + 라벨 */}
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` : color }} />
+                <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY200}, ${GRAY200} 2px, ${GRAY300} 2px, ${GRAY300} 4px)` : color }} />
                 <span style={{ fontSize: 16, fontWeight: 600, color: GRAY990, lineHeight: "24px" }}>{d.id}</span>
               </div>
               {/* 설명 */}
@@ -711,8 +729,9 @@ function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
   );
 }
 
-export function StackedHBar({ data, keys, indexBy = "label", title }) {
+export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
+  const paletteColors = colors || CHART_COLORS;
   // 호버된 바의 고유 ID — "행라벨__시리즈키" 조합 (같은 색 다른 행은 영향 없게)
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -753,7 +772,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
           data={data}
           keys={actualKeys}
           indexBy={indexBy}
-          colors={CHART_COLORS}
+          colors={paletteColors}
           groupMode="stacked"
           layout="horizontal"
           maxValue={100}
@@ -787,7 +806,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title }) {
       <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
         {actualKeys.map((k, i) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: paletteColors[i % paletteColors.length] }} />
             <span style={{ fontSize: 12, color: GRAY990 }}>{k}</span>
           </div>
         ))}
@@ -1451,157 +1470,7 @@ export function QuadrantChart({
 //     ]
 //   }
 // ═══════════════════════════════════════════════════════════════════════
-export function ClusterProfileTable({ title, data }) {
-  const { clusters, categories } = data;
-  const colCount = clusters.length;
-  const blue50 = T.blue50 || "#EFF6FF";
-  const blue500 = "#2B7FFF";
-
-  const cellBase = {
-    fontFamily: "Pretendard, sans-serif",
-    fontSize: 14,
-    fontWeight: 400,
-    color: GRAY990,
-    textAlign: "center",
-    padding: "10px 12px",
-  };
-
-  const highlightCell = {
-    ...cellBase,
-    fontWeight: 700,
-    color: blue500,
-    background: blue50,
-  };
-
-  const headerCell = {
-    fontFamily: "Pretendard, sans-serif",
-    fontSize: 14,
-    fontWeight: 600,
-    color: GRAY990,
-    textAlign: "center",
-    lineHeight: 1.5,
-    padding: "16px 12px",
-    background: T.gray25 || "#FAFAFA",
-  };
-
-  const labelCellBase = {
-    fontFamily: "Pretendard, sans-serif",
-    fontSize: 14,
-    fontWeight: 600,
-    color: GRAY990,
-    padding: "10px 12px",
-    textAlign: "left",
-    whiteSpace: "nowrap",
-  };
-
-  const rankLabelStyle = {
-    fontFamily: "Pretendard, sans-serif",
-    fontSize: 13,
-    fontWeight: 400,
-    color: T.gray800,
-    padding: "10px 12px",
-    textAlign: "center",
-    whiteSpace: "nowrap",
-  };
-
-  // Rank text style: 1순위만 SemiBold + blue500, 나머지 Regular + gray800
-  const rankTextStyle = (idx) => ({
-    fontFamily: "Pretendard, sans-serif",
-    fontSize: 13,
-    fontWeight: idx === 0 ? 600 : 400,
-    color: idx === 0 ? blue500 : T.gray800,
-  });
-
-  // Grid template: category-label | rank-label | cluster1 | cluster2 | ...
-  const gridCols = `100px 64px ${"1fr ".repeat(colCount).trim()}`;
-
-  return (
-    <div style={{ fontFamily: "Pretendard, sans-serif" }}>
-      {title && (
-        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 60 }}>
-          {title}
-        </div>
-      )}
-
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: gridCols,
-        border: `1px solid ${T.gray200}`,
-        borderRadius: 8,
-        overflow: "hidden",
-        background: T.white,
-      }}>
-        {/* ── Header row ── */}
-        <div style={{ ...labelCellBase, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>이미지</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.gray800 }}>Keyword</div>
-        </div>
-        <div style={{ background: T.gray25, borderBottom: `1px solid ${T.gray200}` }} />
-        {clusters.map((c, ci) => (
-          <div key={ci} style={{ ...headerCell, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
-            {c.keywords.map((kw, ki) => (
-              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 600, fontSize: ki === 0 ? 15 : 14 }}>{kw}</div>
-            ))}
-          </div>
-        ))}
-
-        {/* ── Category rows ── */}
-        {categories.map((cat, catIdx) => {
-          const isLast = catIdx === categories.length - 1;
-          const rowCount = cat.ranks.length;
-
-          return cat.ranks.map((rank, ri) => {
-            const isFirstInCat = ri === 0;
-            const isLastInCat = ri === rowCount - 1;
-            const borderBot = isLastInCat ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
-
-            return (
-              <div key={`${catIdx}-${ri}`} style={{ display: "contents" }}>
-                {/* Category label (spans rows visually via empty cells) */}
-                {isFirstInCat ? (
-                  <div style={{
-                    ...labelCellBase,
-                    fontSize: 15,
-                    display: "flex",
-                    alignItems: "center",
-                    gridRow: `span ${rowCount}`,
-                    borderBottom: `2px solid ${T.gray200}`,
-                    borderRight: `1px solid ${T.gray200}`,
-                  }}>
-                    {cat.label}
-                  </div>
-                ) : null}
-
-                {/* Rank label */}
-                <div style={{
-                  ...rankLabelStyle,
-                  borderBottom: borderBot,
-                }}>
-                  <span style={rankTextStyle(ri)}>{rank}</span>
-                </div>
-
-                {/* Cluster values */}
-                {clusters.map((_c, ci) => {
-                  const val = cat.values[ci]?.[ri] ?? "";
-                  const isTop = ri === 0;
-                  return (
-                    <div key={ci} style={{
-                      ...(isTop ? highlightCell : cellBase),
-                      borderBottom: borderBot,
-                      borderLeft: `1px solid ${T.gray200}`,
-                    }}>
-                      {val}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          });
-        })}
-      </div>
-    </div>
-  );
-}
+// ClusterProfileTable 은 report-components.jsx 로 이동됨
 
 
 // ═══════════════════════════════════════════════════════════════════════

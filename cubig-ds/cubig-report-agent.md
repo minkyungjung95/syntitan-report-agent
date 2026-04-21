@@ -18,6 +18,22 @@
 7. **SignalCard 콜아웃 variant 내용별 선택** — `alert` 있을 때 `alertVariant` 를 문구 성격(정보/긍정/주의/부정/강조)에 맞게 선택. 모두 `Negative` 로 통일 X.
 8. **데이터 검증** — 빈 값/대시만 있는 행은 생성하지 않음. 차트 data 비면 섹션 생략 후 `TextBlock` 으로 대체. 복수 응답으로 합이 100% 초과하는 경우 `DonutChart` 대신 `HBarChart` 사용.
 9. **외곽 컨테이너 폭 제한 주의** — 리포트를 임베드하는 상위 컨테이너(App/라우트) 는 `maxWidth: "none"` 이어야 PageWrapper 1864 가 펴짐.
+10. **차트 다양화 (필수)** — 한 리포트 안에서 **같은 차트 타입을 3번 이상 반복하지 않습니다**. 보기 좋게 섞되, 데이터 성격에 맞춰 선택합니다.
+    - 단일 카테고리 % 비교 / 순위형 → `HBarChart` (상위 2개 강조 컬러 + 나머지 회색)
+    - 분포 / 구성비(합 100%) → `DonutChart` / `PieChart` / `SemiDonutChart`
+    - 세그먼트별 누적 분포 → `VBarChart(stacked)` / `StackedHBar`
+    - 시계열 / 추세 → `LineChart` / `LabeledLineChart`
+    - 이중 지표 비교(단위 다른 두 지표) → `ComboChart`
+    - 단계별 전환 → `FunnelChart`
+    - 2x2 세그먼트 매핑 → `QuadrantChart`
+    - 다차원 지표 비교 → `RadarChart`
+    - 그룹별 비교 → `GroupedBarChart`
+    - 카드 그리드 → `PersonaCard` / `UserCard` / `SignalCard` 배열
+    - 표형 상세 → `DataTable` / `GroupedTable` / `ClusterProfileTable` / `StrategyRoadmapTable` / `WeeklyPlanTable` / `FlowTable`
+    - 숫자 요약 → `InfoCardRow` / `MiniStatGrid` / `StatRowGroup`
+    - 긴 해석 텍스트 → `TextBlock` / `InsightCard`
+
+    ⚠ 리포트 생성 후 **사용한 차트 타입 리스트를 스스로 점검**하고, 동일 타입이 3+ 반복되면 적어도 하나를 위 목록에서 다른 타입으로 대체합니다.
 
 ---
 

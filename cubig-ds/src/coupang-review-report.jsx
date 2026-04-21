@@ -5,7 +5,7 @@ import {
   StrategyRoadmapTable,
   ExecutiveSummaryCard,
 } from "./report-components";
-import { HBarChart, VBarChart } from "./charts";
+import { HBarChart, VBarChart, DonutChart } from "./charts";
 
 // ─── Data Transforms ────────────────────────────────────────────────────────
 // HBarChart 기본 색상 규칙에 따름 — 1번 Blue500, 2번 Lime500, 3번 이후 Gray200
@@ -29,21 +29,21 @@ const topicImpactData = [
   { label: "배송/CS (18.2%)", 긍정: 71, 중립: 10, 부정: 19 },
 ];
 
-// 부정 리뷰 영역별 비중 (HBarChart — 각 영역의 % 언급률)
+// 부정 리뷰 영역별 비중 (DonutChart — 각 영역의 언급 비율)
 const negativeBreakdown = [
-  { label: "배송/CS", value: 44.3, count: 35 },
-  { label: "파손/내구성", value: 39.2, count: 31 },
-  { label: "지퍼/잠금장치", value: 35.4, count: 28 },
-  { label: "기타", value: 16.5, count: 13 },
+  { id: "배송/CS", value: 44.3 },
+  { id: "파손/내구성", value: 39.2 },
+  { id: "지퍼/잠금장치", value: 35.4 },
+  { id: "기타", value: 16.5 },
 ];
 
-// 긍정 리뷰 영역별 비중
+// 긍정 리뷰 영역별 비중 (DonutChart)
 const positiveBreakdown = [
-  { label: "가성비", value: 57.2, count: 494 },
-  { label: "바퀴/이동성", value: 56.0, count: 484 },
-  { label: "디자인/색상", value: 48.4, count: 418 },
-  { label: "내구성", value: 45.6, count: 394 },
-  { label: "기타", value: 20.8, count: 180 },
+  { id: "가성비", value: 57.2 },
+  { id: "바퀴/이동성", value: 56.0 },
+  { id: "디자인/색상", value: 48.4 },
+  { id: "내구성", value: 45.6 },
+  { id: "기타", value: 20.8 },
 ];
 
 export default function CoupangReviewReport() {
@@ -149,11 +149,7 @@ export default function CoupangReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <HBarChart
-                  title="부정 리뷰 영역별 언급 비율"
-                  data={negativeBreakdown}
-                  maxValue={100}
-                />
+                <DonutChart title="부정 리뷰 영역별 언급 비율" size={260} data={negativeBreakdown} legendPosition="right" />
               </ContentCard>
               <ContentCard>
                 <TextBlock title="해석" bordered={false}>
@@ -173,11 +169,7 @@ export default function CoupangReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <HBarChart
-                  title="긍정 리뷰 영역별 언급 비율"
-                  data={positiveBreakdown}
-                  maxValue={100}
-                />
+                <DonutChart title="긍정 리뷰 영역별 언급 비율" size={260} data={positiveBreakdown} legendPosition="right" />
               </ContentCard>
               <ContentCard>
                 <TextBlock title="해석" bordered={false}>

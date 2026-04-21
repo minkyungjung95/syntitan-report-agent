@@ -56,13 +56,7 @@ const Toggle = ({ value, onChange, label }) => (
 
 export default function ReportDemo() {
   const [contentCount, setContentCount] = useState(1);
-  const [tableType, setTableType] = useState("data");
-  const [signalStyle, setSignalStyle] = useState("callout");
-  const [signalCount, setSignalCount] = useState("3");
-  const [signalCallout, setSignalCallout] = useState("Cautionary");
-  const [insightLayout, setInsightLayout] = useState("vertical");
   const [userCardType, setUserCardType] = useState("simple");
-  const [textBlockStyle, setTextBlockStyle] = useState("bullets");
   return (
     <PageWrapper>
       <div style={{ marginBottom: 48 }}>
@@ -150,119 +144,86 @@ export default function ReportDemo() {
 
 
       <Section>
-        <Label>1. TextBlock</Label>
-        <PillFilter
-          options={[
-            { value: "bullets", label: "With Bullets" },
-            { value: "paragraph", label: "Without Bullets" },
-          ]}
-          value={textBlockStyle}
-          onChange={setTextBlockStyle}
-        />
+        <Label>1. TextBlock — With Bullets</Label>
         <SectionCard>
           <ContentCard>
-            {textBlockStyle === "bullets" ? (
-              <TextBlock title="Key Findings" bordered={false} items={[
-                "핵심 발견 사항 1: 고객 세션 간격이 평균 4.2일에서 8.7일로 증가했습니다.",
-                "핵심 발견 사항 2: 자산 연결 기능 사용률이 3.2%로 크게 하락했습니다.",
-                "핵심 발견 사항 3: 최근 2주간 고객 지원 티켓이 4건 발생하며 불만이 증가하고 있습니다.",
-              ]} />
-            ) : (
-              <TextBlock title="Interpretation" bordered={false}>
-                분석 결과, 해당 고객군은 초기 온보딩 이후 핵심 기능에 대한 재참여율이 현저히 낮은 것으로 나타났습니다. 특히 자산 연결 기능의 미활용이 이탈 신호의 주요 원인으로 작용하고 있으며, 세션 간격 증가와 지원 요청 빈도 상승이 이를 뒷받침합니다. 단계별 개입 전략을 통해 복귀율 개선이 가능할 것으로 판단됩니다.
-              </TextBlock>
-            )}
+            <TextBlock title="Key Findings" bordered={false} items={[
+              "핵심 발견 사항 1: 고객 세션 간격이 평균 4.2일에서 8.7일로 증가했습니다.",
+              "핵심 발견 사항 2: 자산 연결 기능 사용률이 3.2%로 크게 하락했습니다.",
+              "핵심 발견 사항 3: 최근 2주간 고객 지원 티켓이 4건 발생하며 불만이 증가하고 있습니다.",
+            ]} />
           </ContentCard>
         </SectionCard>
       </Section>
 
       <Section>
-        <Label>2. SignalCard</Label>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
-          <PillFilter
-            options={[
-              { value: "callout", label: "With Callout" },
-              { value: "plain", label: "Without Callout" },
-            ]}
-            value={signalStyle}
-            onChange={setSignalStyle}
-            style={{ marginBottom: 0 }}
-          />
-          <PillFilter
-            options={[
-              { value: "2", label: "2 Cards" },
-              { value: "3", label: "3 Cards" },
-            ]}
-            value={signalCount}
-            onChange={setSignalCount}
-            style={{ marginBottom: 0 }}
-          />
-        </div>
-        {signalStyle === "callout" && (
-          <div style={{ marginBottom: 20 }}>
-            <PillFilter
-              options={[
-                { value: "Primary", label: "Primary" },
-                { value: "Secondary", label: "Secondary" },
-                { value: "Positive", label: "Positive" },
-                { value: "Negative", label: "Negative" },
-                { value: "Cautionary", label: "Cautionary" },
-                { value: "Info", label: "Info" },
-              ]}
-              value={signalCallout}
-              onChange={setSignalCallout}
-              style={{ marginBottom: 0 }}
-            />
-          </div>
-        )}
-        {(() => {
-          if (signalStyle === "callout") {
-            const signalData = [
-              { number: 1, title: "고객 세션 간격 급증", items: ["최근 30일 평균 세션 간격 4.2일 → 8.7일로 증가", "주간 활성 세션 수 57% 감소", "마지막 접속 후 12일 경과"], alert: "세션 간격 임계치 초과" },
-              { number: 2, title: "자산 연결 기능 미활용", items: ["자산 연결 기능 사용률 3.2%로 하락", "최초 온보딩 이후 기능 재사용 없음"], alert: "핵심 기능 이탈 위험" },
-              { number: 3, title: "고객 지원 요청 증가", items: ["최근 2주간 지원 티켓 4건 발생", "평균 응답 대기 시간 48시간 초과", "부정적 피드백 비율 67%"], alert: "고객 만족도 하락 감지" },
-            ];
-            const cards = signalCount === "2" ? signalData.slice(0, 2) : signalData;
-            return (
-              <SectionCard>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {cards.map((s, i) => (
-                    <SignalCard key={i} number={s.number} title={s.title} items={s.items} alert={s.alert} alertVariant={signalCallout} bordered={false} />
-                  ))}
-                </div>
-              </SectionCard>
-            );
-          }
-          /* Without Callout — StrategyCard 스타일 */
-          const strategyData = [
-            { badge: { text: "Low-Price Strategy", type: "Solid", size: "Medium", variant: "Brand" }, price: "$1,181.82", priceLabel: "PMC-Based Price", desc: "원가 기반의 최저가 전략으로, 시장 진입 초기 점유율 확보에 적합합니다. 경쟁사 대비 가격 우위를 통해 빠른 고객 확보가 가능합니다." },
-            { badge: { text: "Balanced Strategy", type: "Solid", size: "Medium", variant: "Info" }, price: "$1,311.48", priceLabel: "IPP-Based Price", desc: "업계 평균과 고객 기대를 반영한 균형 전략입니다. 수익성과 경쟁력을 동시에 확보하며 안정적인 시장 포지셔닝이 가능합니다." },
-            { badge: { text: "Premium Strategy", type: "Solid", size: "Medium", variant: "Secondary" }, price: "$1,408.00", priceLabel: "PME-Based Price", desc: "프리미엄 포지셔닝을 통한 고수익 전략입니다. 브랜드 가치와 차별화된 서비스를 기반으로 높은 마진율을 확보합니다." },
-          ];
-          const cards = signalCount === "2" ? strategyData.slice(0, 2) : strategyData;
-          return (
-            <SectionCard>
-              <div style={{ display: "flex", gap: 8 }}>
-                {cards.map((s, i) => (
-                  <StrategyCard key={i} badge={s.badge} price={s.price} priceLabel={s.priceLabel} bordered={false} style={{ background: T.white }}>
-                    {s.desc}
-                  </StrategyCard>
-                ))}
-              </div>
-            </SectionCard>
-          );
-        })()}
+        <Label>1. TextBlock — Without Bullets</Label>
+        <SectionCard>
+          <ContentCard>
+            <TextBlock title="Interpretation" bordered={false}>
+              분석 결과, 해당 고객군은 초기 온보딩 이후 핵심 기능에 대한 재참여율이 현저히 낮은 것으로 나타났습니다. 특히 자산 연결 기능의 미활용이 이탈 신호의 주요 원인으로 작용하고 있으며, 세션 간격 증가와 지원 요청 빈도 상승이 이를 뒷받침합니다. 단계별 개입 전략을 통해 복귀율 개선이 가능할 것으로 판단됩니다.
+            </TextBlock>
+          </ContentCard>
+        </SectionCard>
       </Section>
 
       <Section>
-        <Label>2-2. InsightContent (Content Area)</Label>
-        {(() => {
-          const vItems = [
+        <Label>2. SignalCard — With Callout</Label>
+        <SectionCard>
+          <div style={{ display: "flex", gap: 8 }}>
+            {[
+              { number: 1, title: "고객 세션 간격 급증", items: ["최근 30일 평균 세션 간격 4.2일 → 8.7일로 증가", "주간 활성 세션 수 57% 감소", "마지막 접속 후 12일 경과"], alert: "세션 간격 임계치 초과" },
+              { number: 2, title: "자산 연결 기능 미활용", items: ["자산 연결 기능 사용률 3.2%로 하락", "최초 온보딩 이후 기능 재사용 없음"], alert: "핵심 기능 이탈 위험" },
+              { number: 3, title: "고객 지원 요청 증가", items: ["최근 2주간 지원 티켓 4건 발생", "평균 응답 대기 시간 48시간 초과", "부정적 피드백 비율 67%"], alert: "고객 만족도 하락 감지" },
+            ].map((s, i) => (
+              <SignalCard key={i} number={s.number} title={s.title} items={s.items} alert={s.alert} alertVariant="Cautionary" bordered={false} />
+            ))}
+          </div>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>2. SignalCard — Without Callout (StrategyCard 스타일)</Label>
+        <SectionCard>
+          <div style={{ display: "flex", gap: 8 }}>
+            {[
+              { badge: { text: "Low-Price Strategy", type: "Solid", size: "Medium", variant: "Brand" }, price: "$1,181.82", priceLabel: "PMC-Based Price", desc: "원가 기반의 최저가 전략으로, 시장 진입 초기 점유율 확보에 적합합니다. 경쟁사 대비 가격 우위를 통해 빠른 고객 확보가 가능합니다." },
+              { badge: { text: "Balanced Strategy", type: "Solid", size: "Medium", variant: "Info" }, price: "$1,311.48", priceLabel: "IPP-Based Price", desc: "업계 평균과 고객 기대를 반영한 균형 전략입니다. 수익성과 경쟁력을 동시에 확보하며 안정적인 시장 포지셔닝이 가능합니다." },
+              { badge: { text: "Premium Strategy", type: "Solid", size: "Medium", variant: "Secondary" }, price: "$1,408.00", priceLabel: "PME-Based Price", desc: "프리미엄 포지셔닝을 통한 고수익 전략입니다. 브랜드 가치와 차별화된 서비스를 기반으로 높은 마진율을 확보합니다." },
+            ].map((s, i) => (
+              <StrategyCard key={i} badge={s.badge} price={s.price} priceLabel={s.priceLabel} bordered={false} style={{ background: T.white }}>
+                {s.desc}
+              </StrategyCard>
+            ))}
+          </div>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>2-2. InsightContent (Content Area) — Vertical</Label>
+        <ContentArea wrap={true}>
+          {[
             { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
             { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
             { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
-          ];
-          const hItems = [
+          ].map((it, i) => (
+            <InsightContent
+              key={i}
+              layout="vertical"
+              wrap={true}
+              icon={it.icon}
+              header={it.header}
+              title={it.title}
+              description={it.description}
+            />
+          ))}
+        </ContentArea>
+      </Section>
+
+      <Section>
+        <Label>2-2. InsightContent (Content Area) — Horizontal</Label>
+        <ContentArea wrap={true}>
+          {[
             { label: "고유 고객 수", value: "24명", items: [
               "전체 고객 대비 약 30%를 차지하는 대규모 이탈 위험 고객군으로, 서비스 안정성에 중대한 영향을 미침",
               "24명으로 전체 80명 중 상당 비중 차지",
@@ -278,41 +239,17 @@ export default function ReportDemo() {
               "전체 평균 대비 117.8% 수준으로 재방문 주기 다소 길어짐",
               "접속 빈도 증가를 위한 리마인더 및 개인화 알림 전략 필요",
             ]},
-          ];
-          return (
-            <>
-              <PillFilter
-                options={[{ value: "vertical", label: "Vertical" }, { value: "horizontal", label: "Horizontal" }]}
-                value={insightLayout}
-                onChange={setInsightLayout}
-              />
-              <ContentArea wrap={true}>
-                {insightLayout === "vertical"
-                  ? vItems.map((it, i) => (
-                    <InsightContent
-                      key={i}
-                      layout="vertical"
-                      wrap={true}
-                      icon={it.icon}
-                      header={it.header}
-                      title={it.title}
-                      description={it.description}
-                    />
-                  ))
-                  : hItems.map((it, i) => (
-                    <InsightContent
-                      key={i}
-                      layout="horizontal"
-                      wrap={true}
-                      label={it.label}
-                      value={it.value}
-                      items={it.items}
-                    />
-                  ))}
-              </ContentArea>
-            </>
-          );
-        })()}
+          ].map((it, i) => (
+            <InsightContent
+              key={i}
+              layout="horizontal"
+              wrap={true}
+              label={it.label}
+              value={it.value}
+              items={it.items}
+            />
+          ))}
+        </ContentArea>
       </Section>
 
       <Section>
@@ -326,129 +263,131 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>6. Tables</Label>
-        <PillFilter
-          options={[
-            { value: "data", label: "DataTable" },
-            { value: "qa", label: "QATable (2-col)" },
-            { value: "def", label: "DefinitionTable" },
-            { value: "roadmap", label: "StrategyRoadmapTable" },
-            { value: "weekly", label: "WeeklyPlanTable" },
-          ]}
-          value={tableType}
-          onChange={setTableType}
-        />
-        {(() => {
-          const tableContent = (
-            <>
-              {tableType === "data" && (
-                <DataTable
-                  columns={[
-                    { key: "label", label: "Label" },
-                    { key: "col1", label: "Column 1", align: "center" },
-                    { key: "col2", label: "Column 2", align: "center" },
-                    { key: "col3", label: "Column 3", align: "center" },
-                  ]}
-                  data={[
-                    { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
-                    { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
-                    { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
-                  ]}
-                />
-              )}
-              {tableType === "qa" && (
-                <QATable
-                  bordered={false}
-                  columns={["Question", "Answer"]}
-                  rows={[
-                    { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
-                    { question: "Q. Who is the target customer, and what challenges are they facing?", answer: "Home entertainment enthusiasts frustrated by LCD blooming, motion blur, and limited smart TV ecosystems" },
-                    { question: "Q. How does the product solve the customer's problem?", answer: "Perfect blacks via OLED, smooth 120Hz gaming, webOS 24 with built-in AI recommendations" },
-                    { question: "Q. Enter any competitor products you would like us to reference.", answer: "Sansung 65-inch OLED 4K Smart TV" },
-                  ]}
-                />
-              )}
-              {tableType === "def" && (
-                <DefinitionTable items={[
-                  { color: CHART_COLORS[3], abbr: "ABC", fullName: "Full Name Description", definition: "Definition text", note: "*Additional note", price: "$1,328.95" },
-                  { color: CHART_COLORS[0], abbr: "DEF", fullName: "Full Name Description", definition: "Definition text", price: "$1,421.79" },
-                  { color: CHART_COLORS[1], abbr: "GHI", fullName: "Full Name Description", definition: "Definition text", price: "$1,562.50" },
-                  { color: CHART_COLORS[2], abbr: "JKL", fullName: "Full Name Description", definition: "Definition text", note: "*Additional note", price: "$1,675.00" },
-                ]} />
-              )}
-              {tableType === "roadmap" && (
-                <StrategyRoadmapTable periods={[
-                  {
-                    badge: "Immediate", period: "within 1 week",
-                    rows: [
-                      { strategy: "긴급 윈백 캠페인", objective: "이탈 경과일 180일 미만 고객 대상 자산 연결 기능 체험 인센티브 제공", actionPlan: "개인화 푸시 알림 및 리마인더 발송, 체험 가이드 제공", expectedImpact: "복귀율 20% 이상 증가" },
-                    ],
-                  },
-                  {
-                    badge: "Short-term", period: "within 1 month",
-                    rows: [
-                      { strategy: "세션 간격 알림 시스템 도입", objective: "세션 간격 4일 초과 시 자동 리마인드 발송", actionPlan: "앱 푸시, 이메일, SMS 등 다채널 알림", expectedImpact: "세션 간격 증가율 30% 감소" },
-                      { strategy: "온보딩 플로우 재설계", objective: "다양한 기능 체험 유도 및 탐색 지원", actionPlan: "기능별 추천 콘텐츠 및 가이드 제공", expectedImpact: "기능 사용 다양성 유지 및 증가" },
-                    ],
-                  },
-                  {
-                    badge: "Mid-term", period: "within 3 months",
-                    rows: [
-                      { strategy: "고객 지원 및 피드백 활성화", objective: "고객 불만 및 지원 요청 조기 탐지", actionPlan: "지원 채널 모니터링 강화 및 신속 대응", expectedImpact: "고객 만족도 향상 및 이탈 신호 조기 포착" },
-                    ],
-                  },
-                ]} />
-              )}
-              {tableType === "weekly" && (
-                <WeeklyPlanTable weeks={[
-                  {
-                    weekLabel: "Week 1",
-                    subtitle: "Foundation Setup & Design",
-                    items: [
-                      { priority: "High", task: "Premium Membership Design Completed", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
-                      { priority: "Medium", task: "PB Product Initial Lineup Finalized", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
-                      { priority: "Low", task: "IT System Development Scope Definition", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
-                    ],
-                  },
-                  {
-                    weekLabel: "Week 2",
-                    subtitle: "Foundation Setup & Design",
-                    items: [
-                      { priority: "High", task: "Membership API Development", owner: "Engineering Team", define: "Backend API endpoints and DB schema", output: "Working API endpoints" },
-                      { priority: "Medium", task: "PB Product Sourcing Confirmed", owner: "Merchandising Team", define: "Vendor contracts and pricing finalized", output: "Signed vendor agreements" },
-                      { priority: "Low", task: "QA Test Plan Created", owner: "QA Team", define: "Test scenarios for membership flow", output: "Test plan document" },
-                    ],
-                  },
-                  {
-                    weekLabel: "Week 3",
-                    subtitle: "Foundation Setup & Design",
-                    items: [
-                      { priority: "High", task: "Pilot Group Rollout", owner: "Operations Team", define: "1,000 pilot users selected and onboarded", output: "Pilot user cohort" },
-                      { priority: "Medium", task: "Marketing Campaign Drafted", owner: "Marketing Team", define: "Channel strategy and creative assets", output: "Campaign brief" },
-                      { priority: "Low", task: "CS Training Completed", owner: "CS Team", define: "FAQ and escalation procedures", output: "Training materials" },
-                    ],
-                  },
-                  {
-                    weekLabel: "Week 4",
-                    subtitle: "Foundation Setup & Design",
-                    items: [
-                      { priority: "High", task: "Public Launch", owner: "Marketing Team", define: "Full-scale rollout with PR announcement", output: "Live product" },
-                      { priority: "Medium", task: "Performance Dashboard Live", owner: "Data Team", define: "KPI tracking and alerts configured", output: "Dashboard URL" },
-                      { priority: "Low", task: "Post-Launch Review Scheduled", owner: "All Teams", define: "Retrospective meeting and report", output: "Review document" },
-                    ],
-                  },
-                ]} />
-              )}
-            </>
-          );
-          return (
-            <SectionCard>
-              <ContentCard padding={0}>
-                {tableContent}
-              </ContentCard>
-            </SectionCard>
-          );
-        })()}
+        <Label>6. Tables — DataTable</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <DataTable
+              columns={[
+                { key: "label", label: "Label" },
+                { key: "col1", label: "Column 1", align: "center" },
+                { key: "col2", label: "Column 2", align: "center" },
+                { key: "col3", label: "Column 3", align: "center" },
+              ]}
+              data={[
+                { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
+                { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
+                { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
+              ]}
+            />
+          </ContentCard>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>6. Tables — QATable (2-col)</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <QATable
+              bordered={false}
+              columns={["Question", "Answer"]}
+              rows={[
+                { question: "Q. Describe the product in one sentence, focusing on its key function or differentiator", answer: "65-inch OLED with self-lit pixels, Dolby Vision IQ, 120Hz for gaming, AI 4K upscaling" },
+                { question: "Q. Who is the target customer, and what challenges are they facing?", answer: "Home entertainment enthusiasts frustrated by LCD blooming, motion blur, and limited smart TV ecosystems" },
+                { question: "Q. How does the product solve the customer's problem?", answer: "Perfect blacks via OLED, smooth 120Hz gaming, webOS 24 with built-in AI recommendations" },
+                { question: "Q. Enter any competitor products you would like us to reference.", answer: "Sansung 65-inch OLED 4K Smart TV" },
+              ]}
+            />
+          </ContentCard>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>6. Tables — DefinitionTable</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <DefinitionTable items={[
+              { color: CHART_COLORS[3], abbr: "ABC", fullName: "Full Name Description", definition: "Definition text", note: "*Additional note", price: "$1,328.95" },
+              { color: CHART_COLORS[0], abbr: "DEF", fullName: "Full Name Description", definition: "Definition text", price: "$1,421.79" },
+              { color: CHART_COLORS[1], abbr: "GHI", fullName: "Full Name Description", definition: "Definition text", price: "$1,562.50" },
+              { color: CHART_COLORS[2], abbr: "JKL", fullName: "Full Name Description", definition: "Definition text", note: "*Additional note", price: "$1,675.00" },
+            ]} />
+          </ContentCard>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>6. Tables — StrategyRoadmapTable</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <StrategyRoadmapTable periods={[
+              {
+                badge: "Immediate", period: "within 1 week",
+                rows: [
+                  { strategy: "긴급 윈백 캠페인", objective: "이탈 경과일 180일 미만 고객 대상 자산 연결 기능 체험 인센티브 제공", actionPlan: "개인화 푸시 알림 및 리마인더 발송, 체험 가이드 제공", expectedImpact: "복귀율 20% 이상 증가" },
+                ],
+              },
+              {
+                badge: "Short-term", period: "within 1 month",
+                rows: [
+                  { strategy: "세션 간격 알림 시스템 도입", objective: "세션 간격 4일 초과 시 자동 리마인드 발송", actionPlan: "앱 푸시, 이메일, SMS 등 다채널 알림", expectedImpact: "세션 간격 증가율 30% 감소" },
+                  { strategy: "온보딩 플로우 재설계", objective: "다양한 기능 체험 유도 및 탐색 지원", actionPlan: "기능별 추천 콘텐츠 및 가이드 제공", expectedImpact: "기능 사용 다양성 유지 및 증가" },
+                ],
+              },
+              {
+                badge: "Mid-term", period: "within 3 months",
+                rows: [
+                  { strategy: "고객 지원 및 피드백 활성화", objective: "고객 불만 및 지원 요청 조기 탐지", actionPlan: "지원 채널 모니터링 강화 및 신속 대응", expectedImpact: "고객 만족도 향상 및 이탈 신호 조기 포착" },
+                ],
+              },
+            ]} />
+          </ContentCard>
+        </SectionCard>
+      </Section>
+
+      <Section>
+        <Label>6. Tables — WeeklyPlanTable</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <WeeklyPlanTable weeks={[
+              {
+                weekLabel: "Week 1",
+                subtitle: "Foundation Setup & Design",
+                items: [
+                  { priority: "High", task: "Premium Membership Design Completed", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                  { priority: "Medium", task: "PB Product Initial Lineup Finalized", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                  { priority: "Low", task: "IT System Development Scope Definition", owner: "Product Planning Team + CRM Team", define: "Annual fees and enrollment criteria; specify IT system requirements", output: "PB product planning document" },
+                ],
+              },
+              {
+                weekLabel: "Week 2",
+                subtitle: "Foundation Setup & Design",
+                items: [
+                  { priority: "High", task: "Membership API Development", owner: "Engineering Team", define: "Backend API endpoints and DB schema", output: "Working API endpoints" },
+                  { priority: "Medium", task: "PB Product Sourcing Confirmed", owner: "Merchandising Team", define: "Vendor contracts and pricing finalized", output: "Signed vendor agreements" },
+                  { priority: "Low", task: "QA Test Plan Created", owner: "QA Team", define: "Test scenarios for membership flow", output: "Test plan document" },
+                ],
+              },
+              {
+                weekLabel: "Week 3",
+                subtitle: "Foundation Setup & Design",
+                items: [
+                  { priority: "High", task: "Pilot Group Rollout", owner: "Operations Team", define: "1,000 pilot users selected and onboarded", output: "Pilot user cohort" },
+                  { priority: "Medium", task: "Marketing Campaign Drafted", owner: "Marketing Team", define: "Channel strategy and creative assets", output: "Campaign brief" },
+                  { priority: "Low", task: "CS Training Completed", owner: "CS Team", define: "FAQ and escalation procedures", output: "Training materials" },
+                ],
+              },
+              {
+                weekLabel: "Week 4",
+                subtitle: "Foundation Setup & Design",
+                items: [
+                  { priority: "High", task: "Public Launch", owner: "Marketing Team", define: "Full-scale rollout with PR announcement", output: "Live product" },
+                  { priority: "Medium", task: "Performance Dashboard Live", owner: "Data Team", define: "KPI tracking and alerts configured", output: "Dashboard URL" },
+                  { priority: "Low", task: "Post-Launch Review Scheduled", owner: "All Teams", define: "Retrospective meeting and report", output: "Review document" },
+                ],
+              },
+            ]} />
+          </ContentCard>
+        </SectionCard>
       </Section>
 
       <Section>

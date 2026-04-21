@@ -1390,9 +1390,9 @@ export function QuadrantChart({
                         borderRadius: i === 1 ? "0 4px 0 0" : 0,
                         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                         padding: 16, cursor: "default", overflow: "visible",
-                        transition: "transform 0.2s",
-                        transform: isHovered ? "scale(1.01)" : "scale(1)",
-                        position: "relative", zIndex: isHovered ? 100 : 1,
+                        transition: "filter 0.15s",
+                        filter: isHovered ? "brightness(0.96)" : "none",
+                        position: "relative", zIndex: isHovered ? 2 : 1,
                       }}
                     >
                       <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: q.labelColor || T.gray990, textAlign: "center" }}>
@@ -2226,7 +2226,7 @@ export function ComboChart({
             );
           })}
 
-          {/* 선 */}
+          {/* 선 + 호버 가능한 점 */}
           {(() => {
             const pts = data
               .map((d, i) => ({ i, v: +d[lineKey] }))
@@ -2234,19 +2234,34 @@ export function ComboChart({
             if (pts.length < 2) return null;
             const path = pts.map((p, idx) => `${idx === 0 ? "M" : "L"} ${xCat(p.i)} ${yLine(p.v)}`).join(" ");
             return (
-              <g style={{ pointerEvents: "none" }}>
-                <path d={path} fill="none" stroke={LINE} strokeWidth={2.5} />
+              <>
+                <path d={path} fill="none" stroke={LINE} strokeWidth={2.5} style={{ pointerEvents: "none" }} />
                 {pts.map(p => {
                   const isH = hoveredIdx === p.i;
+                  const updatePos = (e) => {
+                    const r = containerRef.current?.getBoundingClientRect();
+                    if (r) setTooltipPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+                  };
                   return (
-                    <circle key={`lp-${p.i}`} cx={xCat(p.i)} cy={yLine(p.v)}
-                      r={isH ? 7 : 6}
-                      fill={WHITE} stroke={LINE} strokeWidth={2.5}
-                      style={{ transition: "r 0.15s" }}
-                    />
+                    <g key={`lp-${p.i}`}>
+                      {/* 히트 영역 (투명, 큰 반경) */}
+                      <circle cx={xCat(p.i)} cy={yLine(p.v)} r={14}
+                        fill="transparent"
+                        onMouseEnter={(e) => { setHoveredIdx(p.i); updatePos(e); }}
+                        onMouseMove={updatePos}
+                        onMouseLeave={() => setHoveredIdx(null)}
+                        style={{ cursor: "default" }}
+                      />
+                      {/* 실제 렌더 원 */}
+                      <circle cx={xCat(p.i)} cy={yLine(p.v)}
+                        r={isH ? 7 : 6}
+                        fill={WHITE} stroke={LINE} strokeWidth={2.5}
+                        style={{ transition: "r 0.15s", pointerEvents: "none" }}
+                      />
+                    </g>
                   );
                 })}
-              </g>
+              </>
             );
           })()}
 

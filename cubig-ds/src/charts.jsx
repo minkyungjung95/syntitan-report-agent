@@ -89,9 +89,9 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
   const isBottom = legendPosition === "bottom";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: isBottom ? "center" : "stretch" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: "center" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", gap: isBottom ? 24 : 40 }}>
+      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", justifyContent: "center", gap: isBottom ? 24 : 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
@@ -175,9 +175,9 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
   const isBottom = legendPosition === "bottom";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: isBottom ? "center" : "stretch" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: "center" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", gap: isBottom ? 24 : 40 }}>
+      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", justifyContent: "center", gap: isBottom ? 24 : 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
@@ -1911,7 +1911,7 @@ export function FunnelChart({
 
   return (
     <div ref={containerRef} style={{ fontFamily: FF, width: "100%", ...style }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, marginBottom: 16 }}>{title}</div>}
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
 
       <div style={{ position: "relative" }}>
         <svg viewBox={`0 0 ${containerW} ${chartHeight}`} width="100%" style={{ display: "block", overflow: "visible" }}>

@@ -69,10 +69,10 @@ export function ReportSection({ children, gap = 24, style }) {
   );
 }
 
-// ── ContentHeader: 리포트 차트/표 제목 (항상 중앙 정렬) ──
+// ── ContentHeader: 콘텐츠 제목 (기본 좌측 정렬) ──
 export function ContentHeader({ title, description, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, alignItems: "center", textAlign: "center", ...style }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
         <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>

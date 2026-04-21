@@ -18,6 +18,7 @@ import {
   ExecutionRoadmap,
   ExecutiveSummaryCard,
   WeeklyPlanTable,
+  ClusterProfileTable,
 } from "./report-components";
 
 const F = "Pretendard, sans-serif";
@@ -72,7 +73,7 @@ export default function ReportDemo() {
         {/* Variant A: Overline + Title + Description + Content Area */}
         <div style={{ marginBottom: 40 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Content Area</div>
-          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
           <SectionCard>
             <ContentCard>
               <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
@@ -85,7 +86,7 @@ export default function ReportDemo() {
         {/* Variant B: Overline + Title + Description (Content Area 없음) */}
         <div>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Header Only</div>
-          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
         </div>
       </Section>
 
@@ -156,11 +157,26 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
+        <Label>2. SignalCard — Without Callout (default Info / 부정 내용은 Negative)</Label>
+        <SectionCard>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "stretch" }}>
+            {[
+              { number: 1, variant: "Negative", title: "기능 오류·결제/환불 두 카테고리가 전체 NPS를 끌어내림", items: ["전체 NPS 하락의 주요 원인이 두 카테고리에 집중됨", "전담 자원·우선순위 체계 부재로 처리 지연·SLA 위반 누적"] },
+              { number: 2, title: "해결시간이 곧 만족도", items: ["모든 카테고리에서 해결시간이 길수록 NPS 하락", "임계 시간을 넘기면 만족도가 급격히 떨어짐"] },
+              { number: 3, title: "카테고리 특성과 무관한 일괄 SLA 적용", items: ["해결시간 4배 격차 카테고리들이 같은 큐에서 처리됨", "복잡한 카테고리일수록 SLA 위반이 구조적으로 발생"] },
+            ].map((s, i) => (
+              <SignalCard key={i} number={s.number} variant={s.variant} title={s.title} items={s.items} bordered={false} />
+            ))}
+          </div>
+        </SectionCard>
+      </Section>
+
+      <Section>
         <Label>2. SignalCard — Without Callout (StrategyCard 스타일)</Label>
         <SectionCard>
           <div style={{ display: "flex", gap: 8 }}>
             {[
-              { badge: { text: "Low-Price Strategy", type: "Solid", size: "Medium", variant: "Brand" }, price: "$1,181.82", priceLabel: "PMC-Based Price", desc: "원가 기반의 최저가 전략으로, 시장 진입 초기 점유율 확보에 적합합니다. 경쟁사 대비 가격 우위를 통해 빠른 고객 확보가 가능합니다." },
+              { badge: { text: "Low-Price Strategy", type: "Solid", size: "Medium", variant: "Positive" }, price: "$1,181.82", priceLabel: "PMC-Based Price", desc: "원가 기반의 최저가 전략으로, 시장 진입 초기 점유율 확보에 적합합니다. 경쟁사 대비 가격 우위를 통해 빠른 고객 확보가 가능합니다." },
               { badge: { text: "Balanced Strategy", type: "Solid", size: "Medium", variant: "Info" }, price: "$1,311.48", priceLabel: "IPP-Based Price", desc: "업계 평균과 고객 기대를 반영한 균형 전략입니다. 수익성과 경쟁력을 동시에 확보하며 안정적인 시장 포지셔닝이 가능합니다." },
               { badge: { text: "Premium Strategy", type: "Solid", size: "Medium", variant: "Secondary" }, price: "$1,408.00", priceLabel: "PME-Based Price", desc: "프리미엄 포지셔닝을 통한 고수익 전략입니다. 브랜드 가치와 차별화된 서비스를 기반으로 높은 마진율을 확보합니다." },
             ].map((s, i) => (
@@ -237,23 +253,72 @@ export default function ReportDemo() {
 
       <Section>
         <Label>6. Tables — DataTable</Label>
-        <SectionCard>
-          <ContentCard padding={0}>
-            <DataTable
-              columns={[
-                { key: "label", label: "Label" },
-                { key: "col1", label: "Column 1", align: "center" },
-                { key: "col2", label: "Column 2", align: "center" },
-                { key: "col3", label: "Column 3", align: "center" },
-              ]}
-              data={[
-                { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
-                { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
-                { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
-              ]}
-            />
-          </ContentCard>
-        </SectionCard>
+
+        {/* 기본 — highlight 없음 */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Default</div>
+          <SectionCard>
+            <ContentCard padding={0}>
+              <DataTable
+                columns={[
+                  { key: "label", label: "Label" },
+                  { key: "col1", label: "Column 1", align: "center" },
+                  { key: "col2", label: "Column 2", align: "center" },
+                  { key: "col3", label: "Column 3", align: "center" },
+                ]}
+                data={[
+                  { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
+                  { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
+                  { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
+                ]}
+              />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 컬럼 강조 — column.highlight: true (Blue) */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Column highlight — Blue (column.highlight: true)</div>
+          <SectionCard>
+            <ContentCard padding={0}>
+              <DataTable
+                columns={[
+                  { key: "label", label: "Label" },
+                  { key: "col1", label: "Column 1", align: "center", highlight: true },
+                  { key: "col2", label: "Column 2", align: "center" },
+                  { key: "col3", label: "Column 3", align: "center" },
+                ]}
+                data={[
+                  { label: "Row 1", col1: "56.3%", col2: "56.3%", col3: "56.3%" },
+                  { label: "Row 2", col1: "90%", col2: "90%", col3: "90%" },
+                  { label: "Row 3", col1: "86.8%", col2: "91.9%", col3: "85.15%" },
+                ]}
+              />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
+        {/* 컬럼 강조 — column.highlight: "red" */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Column highlight — Red (column.highlight: "red") · 부정 지표 강조</div>
+          <SectionCard>
+            <ContentCard padding={0}>
+              <DataTable
+                columns={[
+                  { key: "label", label: "Label" },
+                  { key: "col1", label: "Column 1", align: "center", highlight: "red" },
+                  { key: "col2", label: "Column 2", align: "center", highlight: "red" },
+                  { key: "col3", label: "Column 3", align: "center" },
+                ]}
+                data={[
+                  { label: "Row 1", col1: "-32", col2: "-58", col3: "-8" },
+                  { label: "Row 2", col1: "35%", col2: "55%", col3: "15%" },
+                  { label: "Row 3", col1: "22.1시간", col2: "32.5시간", col3: "14.8시간" },
+                ]}
+              />
+            </ContentCard>
+          </SectionCard>
+        </div>
       </Section>
 
       <Section>
@@ -364,12 +429,54 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
+        <Label>6. Tables — ClusterProfileTable</Label>
+        <SectionCard>
+          <ContentCard padding={0}>
+            <ClusterProfileTable
+              data={{
+                clusters: [
+                  { keywords: ["30대 초중반", "재미있고", "트렌디한 사람"] },
+                  { keywords: ["20대 초중반", "트렌디하고", "사교적인 여성"] },
+                  { keywords: ["20대 초중반", "매니아스럽고", "트렌디한 여성"] },
+                ],
+                categories: [
+                  {
+                    label: "성별",
+                    ranks: ["1순위", "2순위"],
+                    values: [["중성", "남성"], ["여성", "중성"], ["여성", "중성"]],
+                  },
+                  {
+                    label: "연령",
+                    ranks: ["1순위", "2순위", "3순위"],
+                    values: [
+                      ["30대 초중반", "20대 초중반", "20대 후반"],
+                      ["20대 초중반", "20대 후반", "30대 초중반"],
+                      ["20대 초중반", "10대 후반", "20대 후반"],
+                    ],
+                  },
+                  {
+                    label: "성격",
+                    ranks: ["1순위", "2순위", "3순위", "4순위"],
+                    values: [
+                      ["재미있는", "트렌디한", "창의적인", "도전적인"],
+                      ["트렌디한", "사교적인", "허세가 많은", "재미있는"],
+                      ["매니아스러운", "트렌디한", "참견을 잘하는", "산만한"],
+                    ],
+                  },
+                ],
+              }}
+            />
+          </ContentCard>
+        </SectionCard>
+      </Section>
+
+      <Section>
         <Label>7. ExecutiveSummaryCard</Label>
 
         {/* Variant A: summaryItems 있는 케이스 */}
         <div style={{ marginBottom: 40 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Summary Items</div>
-          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
           <ExecutiveSummaryCard
             title={null}
             summaryItems={[
@@ -391,7 +498,7 @@ export default function ReportDemo() {
         {/* Variant B: summaryItems 없는 케이스 (findings 만, Executive Summary 타이틀 제거) */}
         <div>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Findings Only (데이터에 지표 없을 때)</div>
-          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
+          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
           <ExecutiveSummaryCard
             title={null}
             findings={{
@@ -409,7 +516,7 @@ export default function ReportDemo() {
 
       <Section>
         <Label>8. ExecutionRoadmap</Label>
-        <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
+        <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
         <ExecutionRoadmap
           weeks={[
             {

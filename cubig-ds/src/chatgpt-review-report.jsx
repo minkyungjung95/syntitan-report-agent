@@ -5,7 +5,7 @@ import {
   TextBlock,
   StrategyRoadmapTable,
 } from "./report-components";
-import { HBarChart, DonutChart, StackedHBar } from "./charts";
+import { VBarChart, DonutChart, StackedHBar } from "./charts";
 import { T, IdentityPlatformOutlineIcon } from "./tokens.jsx";
 
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
@@ -18,8 +18,6 @@ const ratingDistribution = [
   { label: "1점", value: 20.4, count: 102 },
 ];
 
-// JSON categories=[긍정,중립,부정], values 순서도 동일.
-// StackedHBar 는 keys=["부정","중립","긍정"] (좌측부터 부정) + colors=감성 매핑
 const topicImpactData = [
   { label: "고객 지원 (3.2%)", 긍정: 81, 중립: 6, 부정: 13 },
   { label: "온보딩/학습 (2.8%)", 긍정: 50, 중립: 0, 부정: 50 },
@@ -31,7 +29,6 @@ const topicImpactData = [
   { label: "가격/한도 (11.2%)", 긍정: 30, 중립: 7, 부정: 63 },
 ];
 
-// 부정 심층 — JSON 순서, 기타 isOther → hatched
 const negativeBreakdown = [
   { id: "가격/한도", value: 24.9 },
   { id: "콘텐츠 품질", value: 17.7 },
@@ -40,7 +37,6 @@ const negativeBreakdown = [
   { id: "기타", value: 26.3, hatched: true },
 ];
 
-// 긍정 심층 — 3개
 const positiveBreakdown = [
   { id: "편리성", value: 58.6 },
   { id: "학습/정보", value: 28.8 },
@@ -50,27 +46,30 @@ const positiveBreakdown = [
 export default function ChatgptReviewReport() {
   return (
     <PageWrapper>
-      {/* 상단 리포트 헤더 — title = meta.agentName, description = Section 1 리드 */}
       <ContentHeader
         title="리뷰 데이터 분석 리포트 — ChatGPT"
-        description="ChatGPT 한국어 리뷰 500건을 별점·감성·영역별로 분석했습니다."
         style={{ marginBottom: 40 }}
       />
 
       <ReportPage>
 
-        {/* Section 1: Executive Summary — Type A 골격 */}
+        {/* Section 1: Executive Summary */}
         <div>
           <SectionHeading
             overline="Executive Summary"
             title="불만이 쌓이는 이유는 사용 한도·오답 수정·업데이트 품질 세 영역에서 사용자 목소리가 반영되지 않기 때문입니다"
-            description="ChatGPT 한국어 리뷰 500건을 별점·감성·영역별로 분석했습니다."
           />
           <ExecutiveSummaryCard
             title={null}
+            summaryItems={[
+              { label: "총 리뷰", value: "500건" },
+              { label: "평균 별점", value: "3.89 / 5.0" },
+              { label: "부정 비율 (1-2점)", value: "23.0% (115건)" },
+            ]}
             findings={{
               title: "Key Findings",
               items: [
+                "ChatGPT 한국어 리뷰 500건을 별점·감성·영역별로 분석했습니다.",
                 "평균 3.89점이지만 1점과 5점에 81.6%가 몰려 있어, 평균 점수가 실제 만족도보다 높게 보입니다.",
                 "불만이 있으면 88.7%가 곧장 1점을 주며, 1점 리뷰는 5점보다 3.7배 길고 구체적입니다.",
                 "가격/한도·콘텐츠 품질·기능/UX 세 영역에 불만이 집중되고, 세 영역 모두 사용자가 문제를 지적해도 개선되지 않는 경험이 반복됩니다.",
@@ -80,7 +79,7 @@ export default function ChatgptReviewReport() {
           />
         </div>
 
-        {/* Section 2: 리뷰 현황 — Type B (HBarChart) */}
+        {/* Section 2: 리뷰 현황 */}
         <div>
           <SectionHeading
             overline="리뷰 현황"
@@ -90,18 +89,23 @@ export default function ChatgptReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <HBarChart title="별점 분포" data={ratingDistribution} maxValue={100} />
+                <VBarChart
+                  title="별점 분포"
+                  data={ratingDistribution}
+                  keys={["value"]}
+                  indexBy="label"
+                  height={320}
+                />
               </ContentCard>
             </SectionCard>
           </ReportSection>
         </div>
 
-        {/* Section 3: 별점 분석 — Type C (UserCard simple × 2) */}
+        {/* Section 3: 별점 분석 — UserCard simple × 2 */}
         <div>
           <SectionHeading
             overline="별점 분석"
             title="만족 리뷰는 가볍고 불만 리뷰는 구체적이며, 1점 리뷰가 평균 74자로 5점 리뷰보다 3.7배 깁니다"
-            description="5점 리뷰의 37%가 '좋아요', '굿' 같은 5자 이하 반응인 반면, 1점 리뷰는 가격 한도·콘텐츠 품질·기능 변경 등 구체적인 이유를 적습니다."
           />
           <ReportSection>
             <SectionCard>
@@ -125,12 +129,12 @@ export default function ChatgptReviewReport() {
           </ReportSection>
         </div>
 
-        {/* Section 4: 영역별 감성 분석 — Type B (StackedHBar 감성 색) + 긴 description 분리 */}
+        {/* Section 4: 영역별 감성 분석 — StackedHBar 감성 색 (description 은 SectionHeading 으로) */}
         <div>
           <SectionHeading
             overline="영역별 감성 분석"
             title="가격/한도·콘텐츠 품질·기능/UX 세 영역에 부정 리뷰가 집중되며, 각 영역에서 부정 리뷰가 56~63%를 차지합니다"
-            description="8개 영역 중 7개에서 불만이 나타나지만, 상위 세 영역과 나머지의 격차가 큽니다."
+            description="8개 영역 중 7개에서 불만이 나타나지만, 상위 세 영역과 나머지의 격차가 큽니다. 성능/안정성은 부정 비율이 74%로 가장 높지만 전체 리뷰의 5.4%뿐이어서 전체 만족도에 미치는 영향은 제한적입니다. 반면 가격/한도(11.2%)·콘텐츠 품질(9.0%)·기능/UX(7.8%)는 비중과 부정 비율이 모두 높아 개선 효과가 가장 큽니다."
           />
           <ReportSection>
             <SectionCard>
@@ -139,67 +143,61 @@ export default function ChatgptReviewReport() {
                   title="영역별 감성 분포 (부정 영향이 큰 순서)"
                   data={topicImpactData}
                   keys={["부정", "중립", "긍정"]}
-                  colors={["#F87171", "#E6E7E9", "#7CCF00"]}
+                  colors={["#FF6467", "#E6E7E9", "#7CCF00"]}
                   indexBy="label"
                 />
               </ContentCard>
-              <ContentCard>
-                <TextBlock title="해석" bordered={false}>
-                  성능/안정성은 부정 비율이 74%로 가장 높지만 전체 리뷰의 5.4%뿐이어서 전체 만족도에 미치는 영향은 제한적입니다. 반면 가격/한도(11.2%)·콘텐츠 품질(9.0%)·기능/UX(7.8%)는 비중과 부정 비율이 모두 높아 개선 효과가 가장 큽니다.
-                </TextBlock>
-              </ContentCard>
             </SectionCard>
           </ReportSection>
         </div>
 
-        {/* Section 5: 부정 심층 분석 — Type B (DonutChart) + 긴 description 분리 */}
-        <div>
-          <SectionHeading
-            overline="부정 심층 분석"
-            title="부정 리뷰의 59.6%가 가격/한도·콘텐츠 품질·기능/UX 세 영역에 집중되며, 공통점은 사용자 피드백이 반영되지 않는 구조입니다"
-            description="세 영역 모두 사용자가 문제를 지적해도 달라지지 않는다는 공통점이 있습니다."
-          />
-          <ReportSection>
-            <SectionCard>
-              <ContentCard padding={40}>
-                <DonutChart title="부정 리뷰 영역별 비중" size={260} data={negativeBreakdown} legendPosition="right" />
-              </ContentCard>
-              <ContentCard>
-                <TextBlock title="해석" bordered={false}>
-                  가격/한도는 초기화 시점을 알 수 없어 결제 신뢰가 흔들리고, 콘텐츠 품질은 오답을 지적해도 고쳐지지 않아 유료 사용자가 이탈하며, 기능/UX는 업데이트 후 기존 기능이 깨져 부정이 누적됩니다.
-                </TextBlock>
-              </ContentCard>
-            </SectionCard>
-          </ReportSection>
+        {/* Section 5 + 6: 부정/긍정 심층 분석 — 좌우 가로 배치 (쿠팡 형식) */}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
+          {/* 부정 심층 */}
+          <div style={{ flex: "1 1 420px", minWidth: 420, display: "flex", flexDirection: "column" }}>
+            <SectionHeading
+              overline="부정 심층 분석"
+              title="부정 리뷰의 59.6%가 가격/한도·콘텐츠 품질·기능/UX 세 영역에 집중되며, 공통점은 사용자 피드백이 반영되지 않는 구조입니다"
+            />
+            <ReportSection style={{ flex: 1 }}>
+              <SectionCard style={{ flex: 1 }}>
+                <ContentCard padding={40}>
+                  <DonutChart title="부정 리뷰 영역별 비중" size={200} data={negativeBreakdown} legendPosition="bottom" />
+                </ContentCard>
+                <ContentCard style={{ flex: 1 }}>
+                  <TextBlock title="해석" bordered={false}>
+                    세 영역 모두 사용자가 문제를 지적해도 달라지지 않는다는 공통점이 있습니다. 가격/한도는 초기화 시점을 알 수 없어 결제 신뢰가 흔들리고, 콘텐츠 품질은 오답을 지적해도 고쳐지지 않아 유료 사용자가 이탈하며, 기능/UX는 업데이트 후 기존 기능이 깨져 부정이 누적됩니다.
+                  </TextBlock>
+                </ContentCard>
+              </SectionCard>
+            </ReportSection>
+          </div>
+          {/* 긍정 심층 */}
+          <div style={{ flex: "1 1 420px", minWidth: 420, display: "flex", flexDirection: "column" }}>
+            <SectionHeading
+              overline="긍정 심층 분석"
+              title="긍정 리뷰의 58.6%가 편리성에 집중되며, AI 챗봇만 줄 수 있는 고유 가치가 만족의 핵심입니다"
+            />
+            <ReportSection style={{ flex: 1 }}>
+              <SectionCard style={{ flex: 1 }}>
+                <ContentCard padding={40}>
+                  <DonutChart title="긍정 리뷰 영역별 비중" size={200} data={positiveBreakdown} legendPosition="bottom" />
+                </ContentCard>
+                <ContentCard style={{ flex: 1 }}>
+                  <TextBlock title="해석" bordered={false}>
+                    세 영역 모두 AI 챗봇이기 때문에 가능한 경험이라는 공통점이 있습니다. 편리성은 궁금한 걸 바로 물어볼 수 있다는 점이 핵심이고, 학습/정보는 새로운 개념을 쉽게 배울 수 있다는 점이 강점이며, 소통/감정은 대화 상대가 된다는 점에서 만족도가 높습니다. 다만 경쟁사 언급 11건 중 5건이 이탈 사례로, 오답 고집과 업데이트 문제가 개선되지 않으면 이 가치도 지킬 수 없습니다.
+                  </TextBlock>
+                </ContentCard>
+              </SectionCard>
+            </ReportSection>
+          </div>
         </div>
 
-        {/* Section 6: 긍정 심층 분석 — Type B (DonutChart) + 긴 description 분리 */}
-        <div>
-          <SectionHeading
-            overline="긍정 심층 분석"
-            title="긍정 리뷰의 58.6%가 편리성에 집중되며, AI 챗봇만 줄 수 있는 고유 가치가 만족의 핵심입니다"
-            description="세 영역 모두 AI 챗봇이기 때문에 가능한 경험이라는 공통점이 있습니다."
-          />
-          <ReportSection>
-            <SectionCard>
-              <ContentCard padding={40}>
-                <DonutChart title="긍정 리뷰 영역별 비중" size={260} data={positiveBreakdown} legendPosition="right" />
-              </ContentCard>
-              <ContentCard>
-                <TextBlock title="해석" bordered={false}>
-                  편리성은 궁금한 걸 바로 물어볼 수 있다는 점이 핵심이고, 학습/정보는 새로운 개념을 쉽게 배울 수 있다는 점이 강점이며, 소통/감정은 대화 상대가 된다는 점에서 만족도가 높습니다. 다만 경쟁사 언급 11건 중 5건이 이탈 사례로, 오답 고집과 업데이트 문제가 개선되지 않으면 이 가치도 지킬 수 없습니다.
-                </TextBlock>
-              </ContentCard>
-            </SectionCard>
-          </ReportSection>
-        </div>
-
-        {/* Section 7: 개선 로드맵 — Type D (StrategyRoadmapTable) */}
+        {/* Section 7: 개선 로드맵 */}
         <div>
           <SectionHeading
             overline="개선 로드맵"
             title="사용 한도 초기화 시점 공개·오답 수정 개선·업데이트 품질 검증 세 가지로, 전체 불만 비율 23%를 12%까지 줄일 수 있습니다"
-            description="즉시 가능한 한도 초기화 잔여 시간 표시와 업데이트 긴급 복구로 빠르게 효과를 내고, 이후 오답 수정 절차와 품질 검증 체계를 갖추면 유료 사용자 이탈까지 방지할 수 있습니다."
           />
           <ReportSection>
             <SectionCard>

@@ -1,6 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
-import { ClusterProfileTable } from "./report-components";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
@@ -700,6 +699,35 @@ export default function App() {
             </div>
           </Card>
 
+          {/* Donut — Vertical (legend bottom) */}
+          <Card title="Donut Chart — Vertical (legend bottom)" subtitle="좁은 컬럼 / 가로 배치된 두 카드 안 등 폭이 제한된 곳에 적합. legendPosition='bottom'">
+            <div style={{ display:"flex", gap:40, flexWrap:"wrap" }}>
+              <DonutChart
+                title="부정 리뷰 영역별 비중"
+                size={200}
+                legendPosition="bottom"
+                data={[
+                  { id:"배송/CS", value:44.3 },
+                  { id:"지퍼/잠금장치", value:35.4 },
+                  { id:"파손/내구성", value:39.2 },
+                  { id:"기타", value:16.5, hatched:true },
+                ]}
+              />
+              <DonutChart
+                title="긍정 리뷰 영역별 비중"
+                size={200}
+                legendPosition="bottom"
+                data={[
+                  { id:"가성비", value:57 },
+                  { id:"바퀴/이동성", value:56 },
+                  { id:"디자인/색상", value:48 },
+                  { id:"내구성", value:46 },
+                  { id:"기타", value:21, hatched:true },
+                ]}
+              />
+            </div>
+          </Card>
+
           {/* Pie Chart */}
           <Card title="Pie Chart (원형)" subtitle="전체 비율 표시 - 최대 6색상, 호버 툴팁 (기타 항목은 hatched:true 로 빗금)">
             <div style={{ display:"flex", gap:40, flexWrap:"wrap" }}>
@@ -758,6 +786,20 @@ export default function App() {
             />
           </Card>
 
+          {/* Semi Donut — Legend Only (description 없이 범례만) */}
+          <Card title="Semi Donut Chart — Legend Only" subtitle="하단 범례 설명 없이 범례만 (description 필드 생략)">
+            <SemiDonutChart
+              title="Sentiment Analysis"
+              data={[
+                { id: "Positive", value: 65 },
+                { id: "Neutral", value: 18 },
+                { id: "Negative", value: 7 },
+                { id: "Unclassified", value: 8, hatched: true },
+              ]}
+              size={320}
+            />
+          </Card>
+
           {/* Flow Table */}
           <Card title="Flow Table (전환율 테이블)" subtitle="기능별 사용 경험 → 전환율 → 현재 사용률 흐름">
             <FlowTable
@@ -799,6 +841,21 @@ export default function App() {
             />
           </Card>
 
+          {/* Horizontal Bar — Inline Value (값이 막대 내부에) */}
+          <Card title="Horizontal Bar — Inline Value" subtitle="우측 카운터 제거 + 값(% / count)을 막대 내부 우측에 표시 (maxValue 미지정 시 데이터 최댓값 기준 자동 — 가장 긴 막대가 끝까지)">
+            <HBarChart
+              title="Satisfaction Level Distribution"
+              valueInside
+              data={[
+                { label:"Very High", value:32, count:9999 },
+                { label:"High", value:32, count:9999 },
+                { label:"Medium", value:14, count:123 },
+                { label:"Low", value:10, count:99 },
+                { label:"Very Low", value:0, count:0 },
+              ]}
+            />
+          </Card>
+
           {/* Stacked Horizontal Bar */}
           <Card title="Stacked Horizontal Bar" subtitle="100% 누적 막대 - 구성비 비교 (값 개수에 따라 2~8개 자동 대응)">
             <StackedHBar
@@ -815,7 +872,7 @@ export default function App() {
           </Card>
 
           {/* Stacked Horizontal Bar — 감성 색상 (부정/중립/긍정) */}
-          <Card title="Stacked Horizontal Bar — Sentiment" subtitle="감성 색상 variant (부정=Red / 중립=Gray / 긍정=Green)">
+          <Card title="Stacked Horizontal Bar — Sentiment" subtitle="감성 색상 variant (부정=Red / 중립=Gray / 긍정=Lime)">
             <StackedHBar
               title="영역별 감성 분포"
               data={[
@@ -826,7 +883,7 @@ export default function App() {
                 { label: "편의성",        부정: 15, 중립: 10, 긍정: 75 },
               ]}
               keys={["부정", "중립", "긍정"]}
-              colors={["#F87171", "#E6E7E9", "#7CCF00"]}
+              colors={["#FF6467", "#E6E7E9", "#7CCF00"]}
             />
           </Card>
 
@@ -919,6 +976,49 @@ export default function App() {
             />
           </Card>
 
+          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 매핑 · 점선 크로스헤어 · x/y 키-값 툴팁) */}
+          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례">
+            <MultiLineChart
+              title="국가별 × 교통수단별 이용 수"
+              data={[
+                { id: "한국", data: [
+                  { x: "비행기", y: 540 }, { x: "기차", y: 820 }, { x: "지하철", y: 1050 },
+                  { x: "버스", y: 910 }, { x: "자동차", y: 760 }, { x: "자전거", y: 260 },
+                ]},
+                { id: "일본", data: [
+                  { x: "비행기", y: 480 }, { x: "기차", y: 1080 }, { x: "지하철", y: 920 },
+                  { x: "버스", y: 780 }, { x: "자동차", y: 620 }, { x: "자전거", y: 520 },
+                ]},
+                { id: "미국", data: [
+                  { x: "비행기", y: 820 }, { x: "기차", y: 430 }, { x: "지하철", y: 560 },
+                  { x: "버스", y: 610 }, { x: "자동차", y: 1140 }, { x: "자전거", y: 180 },
+                ]},
+                { id: "독일", data: [
+                  { x: "비행기", y: 410 }, { x: "기차", y: 680 }, { x: "지하철", y: 470 },
+                  { x: "버스", y: 520 }, { x: "자동차", y: 790 }, { x: "자전거", y: 620 },
+                ]},
+              ]}
+            />
+          </Card>
+
+          {/* Line / Area Chart (Red) — No Badge */}
+          <Card title="Line / Area Chart (Red) — No Badge" subtitle="레드 라인 차트 - 툴팁은 표시하되 'x명 이탈' 뱃지만 비활성화 (disableBadge prop) · NPS 같은 일반 수치 추이용">
+            <LineChart
+              title="월별 NPS 추이"
+              variant="red"
+              enableArea
+              disableBadge
+              data={[{
+                id: "NPS",
+                data: [
+                  { x:"1월", y:-20 },
+                  { x:"2월", y:-18 },
+                  { x:"3월", y:-16 },
+                ],
+              }]}
+            />
+          </Card>
+
           {/* Labeled Line Chart */}
           <Card title="Labeled Line Chart" subtitle="데이터 포인트 라벨 + 하단 테이블 + 어노테이션">
             <LabeledLineChart
@@ -951,52 +1051,15 @@ export default function App() {
               yAxis={{ label: "Expectation", low: "Low", high: "High" }}
               xAxis={{ label: "Concern", low: "Low", high: "High" }}
               quadrants={[
-                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: T.orange100, labelColor: T.orange700 },
-                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: T.green100, labelColor: T.green700 },
+                { label: "Cautious Adopter", value: "39.7", tag: "High expectation, High concern", color: T.lime100, labelColor: T.lime700 },
+                { label: "Positive Adopter", value: "41.1", tag: "High expectation, Low concern", color: T.blue100, labelColor: T.blue500 },
                 { label: "Negative Perceiver", value: "5.4", tag: "Low expectation, High concern", color: T.red100, labelColor: T.red700 },
                 { label: "Low Interest", value: "13.8", tag: "Low expectation, Low concern", color: T.gray100, labelColor: T.gray800 },
               ]}
             />
           </Card>
 
-          {/* Cluster Profile Table */}
-          <Card title="Cluster Profile Table" subtitle="클러스터별 프로필 비교 테이블">
-            <ClusterProfileTable
-              title="클러스터별 이미지 프로필"
-              data={{
-                clusters: [
-                  { keywords: ["30대 초중반", "재미있고", "트렌디한 사람"] },
-                  { keywords: ["20대 초중반", "트렌디하고", "사교적인 여성"] },
-                  { keywords: ["20대 초중반", "매니아스럽고", "트렌디한 여성"] },
-                ],
-                categories: [
-                  {
-                    label: "성별",
-                    ranks: ["1순위", "2순위"],
-                    values: [["중성", "남성"], ["여성", "중성"], ["여성", "중성"]],
-                  },
-                  {
-                    label: "연령",
-                    ranks: ["1순위", "2순위", "3순위"],
-                    values: [
-                      ["30대 초중반", "20대 초중반", "20대 후반"],
-                      ["20대 초중반", "20대 후반", "30대 초중반"],
-                      ["20대 초중반", "10대 후반", "20대 후반"],
-                    ],
-                  },
-                  {
-                    label: "성격",
-                    ranks: ["1순위", "2순위", "3순위", "4순위"],
-                    values: [
-                      ["재미있는", "트렌디한", "창의적인", "도전적인"],
-                      ["트렌디한", "사교적인", "허세가 많은", "재미있는"],
-                      ["매니아스러운", "트렌디한", "참견을 잘하는", "산만한"],
-                    ],
-                  },
-                ],
-              }}
-            />
-          </Card>
+          {/* Cluster Profile Table 은 ReportDemo (6. Tables) 로 이동됨 */}
 
           {/* Grouped Bar */}
           <Card title="Grouped Bar" subtitle="그룹형 세로 막대 - 여러 시리즈 비교">
@@ -1024,6 +1087,20 @@ export default function App() {
                 { label:"Q4", product:110, service:90, other:80 },
               ]}
               keys={["product","service","other"]}
+            />
+          </Card>
+
+          {/* Grouped Bar — Negative Values (3년 × 3지표, 막대 외부 값 라벨 표기) */}
+          <Card title="Grouped Bar — Negative Values" subtitle="음수 데이터 지원 · 매출액/영업이익/당기순이익 (2021·2022·2023) · 0 기준선 + 막대 외부 값 라벨 · CHART_COLORS 자동">
+            <GroupedBarChart
+              title="연도별 손익 추이 (단위: 억원)"
+              showValueLabels
+              data={[
+                { label:"2021년", 매출액: 86,   영업이익: -778, 당기순이익: -783 },
+                { label:"2022년", 매출액: 1276, 영업이익: -322, 당기순이익: -325 },
+                { label:"2023년", 매출액: 2020, 영업이익: -9,   당기순이익: 15 },
+              ]}
+              keys={["매출액", "영업이익", "당기순이익"]}
             />
           </Card>
 

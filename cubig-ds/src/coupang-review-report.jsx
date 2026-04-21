@@ -4,7 +4,7 @@ import {
   TextBlock,
   StrategyRoadmapTable,
 } from "./report-components";
-import { HBarChart, DonutChart, StackedHBar } from "./charts";
+import { VBarChart, DonutChart, StackedHBar } from "./charts";
 
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
 
@@ -47,10 +47,9 @@ const positiveBreakdown = [
 export default function CoupangReviewReport() {
   return (
     <PageWrapper>
-      {/* 상단 리포트 헤더 — title = meta.agentName, description = 분석 대상 리드 */}
+      {/* 상단 리포트 헤더 — title = meta.agentName */}
       <ContentHeader
         title="리뷰 데이터 분석 리포트 — 쿠팡 캐리어"
-        description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다."
         style={{ marginBottom: 40 }}
       />
 
@@ -61,13 +60,18 @@ export default function CoupangReviewReport() {
           <SectionHeading
             overline="Executive Summary"
             title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다"
-            description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다."
           />
           <ExecutiveSummaryCard
             title={null}
+            summaryItems={[
+              { label: "총 리뷰", value: "1,000건" },
+              { label: "평균 별점", value: "4.5 / 5.0" },
+              { label: "부정 비율 (1-2점)", value: "7.9% (79건)" },
+            ]}
             findings={{
               title: "Key Findings",
               items: [
+                "쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다.",
                 "평균 4.5점으로 전반적 만족도가 높고, 5점 리뷰가 77.5%를 차지합니다.",
                 "가성비·디자인·바퀴 이동성이 만족의 핵심이며, 부정은 전체의 7.9%(79건)에 불과하지만 배송/CS(44%)와 지퍼/잠금장치(35%)에 집중됩니다.",
                 "부정 리뷰 중 가장 많은 공감(598)을 받은 리뷰는 상세페이지와 실제 재질이 다르다는 내용으로, 제품 신뢰에 직접 영향을 미칩니다.",
@@ -87,7 +91,13 @@ export default function CoupangReviewReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <HBarChart title="별점 분포" data={ratingDistribution} maxValue={100} />
+                <VBarChart
+                  title="별점 분포"
+                  data={ratingDistribution}
+                  keys={["value"]}
+                  indexBy="label"
+                  height={320}
+                />
               </ContentCard>
             </SectionCard>
           </ReportSection>
@@ -107,7 +117,7 @@ export default function CoupangReviewReport() {
                   title="영역별 감성 분포 (부정 영향이 큰 순서)"
                   data={topicImpactData}
                   keys={["부정", "중립", "긍정"]}
-                  colors={["#F87171", "#E6E7E9", "#7CCF00"]}
+                  colors={["#FF6467", "#E6E7E9", "#7CCF00"]}
                   indexBy="label"
                 />
               </ContentCard>
@@ -115,42 +125,49 @@ export default function CoupangReviewReport() {
           </ReportSection>
         </div>
 
-        {/* Section 4: 부정 심층 분석 — 긴 description 은 SectionHeading.description (리드) + TextBlock 해석 으로 분리 */}
-        <div>
+        {/* Section 4 + 5: 부정/긍정 심층 분석 — 좌우 가로 배치 (헤딩/본문 행 정렬) */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gridTemplateRows: "auto 1fr",
+          columnGap: 16,
+          rowGap: 0,
+          alignItems: "stretch",
+        }}>
+          {/* 부정 심층 — 헤딩 (row 1, col 1) */}
           <SectionHeading
             overline="부정 심층 분석"
             title="부정 리뷰의 79%가 배송/CS·지퍼/잠금장치·파손/내구성 세 영역에 집중되며, 제품 자체보다 품질 관리와 배송 과정의 문제입니다"
-            description="부정 리뷰는 지퍼 고장·배송 파손·잠금장치 불량 등 한두 가지 결정적 문제에 집중하며, 교환/환불 경험과 함께 강한 부정을 표현합니다."
+            style={{ gridColumn: 1, gridRow: 1 }}
           />
-          <ReportSection>
-            <SectionCard>
+          {/* 긍정 심층 — 헤딩 (row 1, col 2) */}
+          <SectionHeading
+            overline="긍정 심층 분석"
+            title="긍정 리뷰의 57%가 가성비를 언급하며, 가격 대비 디자인·바퀴·수납이 만족의 핵심입니다"
+            style={{ gridColumn: 2, gridRow: 1 }}
+          />
+          {/* 부정 심층 — 본문 (row 2, col 1) */}
+          <ReportSection style={{ gridColumn: 1, gridRow: 2 }}>
+            <SectionCard style={{ flex: 1 }}>
               <ContentCard padding={40}>
-                <DonutChart title="부정 리뷰 영역별 비중" size={260} data={negativeBreakdown} legendPosition="right" />
+                <DonutChart title="부정 리뷰 영역별 비중" size={200} data={negativeBreakdown} legendPosition="bottom" />
               </ContentCard>
-              <ContentCard>
+              <ContentCard style={{ flex: 1 }}>
                 <TextBlock title="해석" bordered={false}>
-                  세 영역의 공통점은 제품 설계가 아니라 품질 관리 과정에서 발생하는 문제라는 점입니다 — 배송/CS는 배송 중 파손과 교환/환불 과정의 불편이 핵심이고, 지퍼/잠금장치는 초기 불량이 많아 출고 전 검수가 미흡한 것으로 보이며, 파손/내구성은 사용 직후 스크래치·깨짐이 발생하는 사례입니다.
+                  부정 리뷰는 지퍼 고장·배송 파손·잠금장치 불량 등 한두 가지 결정적 문제에 집중하며, 교환/환불 경험과 함께 강한 부정을 표현합니다. 세 영역의 공통점은 제품 설계가 아니라 품질 관리 과정에서 발생하는 문제라는 점입니다 — 배송/CS는 배송 중 파손과 교환/환불 과정의 불편이 핵심이고, 지퍼/잠금장치는 초기 불량이 많아 출고 전 검수가 미흡한 것으로 보이며, 파손/내구성은 사용 직후 스크래치·깨짐이 발생하는 사례입니다.
                 </TextBlock>
               </ContentCard>
             </SectionCard>
           </ReportSection>
-        </div>
-
-        {/* Section 5: 긍정 심층 분석 — 동일 분리 패턴 (리드 + TextBlock 해석) */}
-        <div>
-          <SectionHeading
-            overline="긍정 심층 분석"
-            title="긍정 리뷰의 57%가 가성비를 언급하며, 가격 대비 디자인·바퀴·수납이 만족의 핵심입니다"
-            description="긍정 리뷰는 가성비·디자인·바퀴·수납 등 여러 항목을 함께 언급하며, '이 가격에 이 정도면 충분하다'는 종합 만족이 핵심입니다."
-          />
-          <ReportSection>
-            <SectionCard>
+          {/* 긍정 심층 — 본문 (row 2, col 2) */}
+          <ReportSection style={{ gridColumn: 2, gridRow: 2 }}>
+            <SectionCard style={{ flex: 1 }}>
               <ContentCard padding={40}>
-                <DonutChart title="긍정 리뷰 영역별 비중" size={260} data={positiveBreakdown} legendPosition="right" />
+                <DonutChart title="긍정 리뷰 영역별 비중" size={200} data={positiveBreakdown} legendPosition="bottom" />
               </ContentCard>
-              <ContentCard>
+              <ContentCard style={{ flex: 1 }}>
                 <TextBlock title="해석" bordered={false}>
-                  세 영역 모두 이 가성비 인식 위에 성립합니다 — 가성비는 가격 대비 전반적 품질이 좋다는 종합 평가이고, 바퀴/이동성은 부드럽게 잘 굴러간다는 실사용 만족이며, 디자인/색상은 예쁜 외관과 색상 선택지가 만족의 요인입니다. 다만 가성비 기반 만족은 가격이 오르면 흔들릴 수 있어, 현재 가격대를 유지하는 것이 중요합니다.
+                  긍정 리뷰는 가성비·디자인·바퀴·수납 등 여러 항목을 함께 언급하며, '이 가격에 이 정도면 충분하다'는 종합 만족이 핵심입니다. 세 영역 모두 이 가성비 인식 위에 성립합니다 — 가성비는 가격 대비 전반적 품질이 좋다는 종합 평가이고, 바퀴/이동성은 부드럽게 잘 굴러간다는 실사용 만족이며, 디자인/색상은 예쁜 외관과 색상 선택지가 만족의 요인입니다. 다만 가성비 기반 만족은 가격이 오르면 흔들릴 수 있어, 현재 가격대를 유지하는 것이 중요합니다.
                 </TextBlock>
               </ContentCard>
             </SectionCard>
@@ -162,14 +179,13 @@ export default function CoupangReviewReport() {
           <SectionHeading
             overline="개선 로드맵"
             title="배송 품질 관리와 지퍼/잠금장치 출고 검수를 강화하면, 부정률 7.9%를 4% 이하로 줄일 수 있습니다"
-            description="부정의 대부분이 제품 설계가 아닌 품질 관리 과정에서 발생하므로, 출고 전 검수와 배송 포장을 개선하면 빠르게 효과를 볼 수 있습니다. 현재 가성비·디자인·바퀴 등 긍정 요인은 유지하면서 부정만 줄이는 방향입니다."
           />
           <ReportSection>
             <SectionCard>
               <ContentCard padding={0}>
                 <StrategyRoadmapTable periods={[
                   {
-                    badge: "Immediate", period: "",
+                    badge: "즉시", period: "1주 이내",
                     rows: [
                       {
                         strategy: "배송 포장 강화",
@@ -186,7 +202,7 @@ export default function CoupangReviewReport() {
                     ],
                   },
                   {
-                    badge: "Short-term", period: "",
+                    badge: "단기", period: "1개월 이내",
                     rows: [
                       {
                         strategy: "교환/환불 프로세스 개선",
@@ -203,7 +219,7 @@ export default function CoupangReviewReport() {
                     ],
                   },
                   {
-                    badge: "Mid-term", period: "",
+                    badge: "중기", period: "3개월 이내",
                     rows: [
                       {
                         strategy: "가성비 포지셔닝 유지",

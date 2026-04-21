@@ -81,38 +81,49 @@ JSON 을 받으면 아래 순서로 진행합니다.
   <SectionHeading
     overline={section.sectionName}                  // "Executive Summary"
     title={section.headline}
-    description={firstSentence(section.data.description)}
+    // description 은 보통 생략 — 핵심 지표는 summaryItems 로 빼고 본문은 findings 로 분리
   />
   <ExecutiveSummaryCard
     title={null}                                    // 위 SectionHeading 과 중복 방지
+    summaryItems={[
+      { label: "총 리뷰",          value: "1,000건" },
+      { label: "평균 별점",        value: "4.5 / 5.0" },
+      { label: "부정 비율 (1-2점)", value: "7.9% (79건)" },
+    ]}
     findings={{
       title: "Key Findings",
-      items: restSentences(section.data.description), // 나머지 문장들
+      items: splitSentences(section.data.description), // description 문장 분해
     }}
   />
 </div>
 ```
-- `summaryItems` prop 은 JSON 에 명시적 지표가 없으면 **생략** (없는 값 만들지 않음)
-- 가능한 경우만 `summaryItems = [{label, value}, ...]` 로 첨가
+
+**summaryItems 작성 규칙 (필수)**
+- **JSON description 안에 명시된 핵심 지표(숫자)** 만 카드로 분리. 보통 3개 안팎: **총 리뷰 / 평균 별점 / 부정 비율** (리뷰 분석 리포트 기준).
+- "분석 대상", "분석 영역" 같은 메타 설명 카드는 **만들지 않음** — 끼워넣기.
+- JSON 에 해당 숫자가 없으면 그 카드는 생략. 억지로 만들지 않음.
+- description 의 첫 문장(분석 대상 안내)도 SectionHeading.description 으로 두지 않고, 정보를 summaryItems 로 분해.
 
 ### Type B — 차트 섹션 (`HorizontalBarChart` / `StackedBarChart` / `DonutChart` 등)
+
+**기본 — SectionHeading 은 overline + title 만, description 은 항상 생략.** description 본문(있을 경우)은 차트 아래 `TextBlock title="해석"` 으로만 표시합니다.
+
 ```jsx
 <div>
   <SectionHeading
     overline={section.sectionName}
     title={section.headline}
-    description={firstSentence(section.data.description)}
   />
   <ReportSection>
     <SectionCard>
       <ContentCard padding={40}>
         <Chart title={section.data.chartTitle} data={...} />
       </ContentCard>
-      {/* description 이 길 때만 추가 */}
-      {hasLongDescription && (
+      {/* description 이 있으면 항상 차트 아래 TextBlock 해석으로 */}
+      {section.data.description && (
         <ContentCard>
           <TextBlock title="해석" bordered={false}>
-            {restSentences(section.data.description)}
+            {section.data.description}
           </TextBlock>
         </ContentCard>
       )}
@@ -120,6 +131,31 @@ JSON 을 받으면 아래 순서로 진행합니다.
   </ReportSection>
 </div>
 ```
+
+**짝 섹션은 좌우 가로 배치 (Type B-pair)** — 부정/긍정 심층, A/B 비교 같은 대칭 구조는 한 묶음으로 좌우 나란히. 화면 좁아지면 `flexWrap` 으로 자동 세로 전환.
+
+```jsx
+<div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
+  {[부정, 긍정].map((s) => (
+    <div style={{ flex: "1 1 420px", minWidth: 420, display: "flex", flexDirection: "column" }}>
+      <SectionHeading overline={s.sectionName} title={s.headline} />
+      <ReportSection style={{ flex: 1 }}>
+        <SectionCard style={{ flex: 1 }}>
+          <ContentCard padding={40}>
+            <DonutChart title={s.data.chartTitle} size={200} legendPosition="bottom" data={...} />
+          </ContentCard>
+          <ContentCard style={{ flex: 1 }}>  {/* 한 쪽 해석이 길어도 빈 회색 영역 안 보이도록 */}
+            <TextBlock title="해석" bordered={false}>{s.data.description}</TextBlock>
+          </ContentCard>
+        </SectionCard>
+      </ReportSection>
+    </div>
+  ))}
+</div>
+```
+- 가로 배치 시 `DonutChart` 는 `legendPosition="bottom"` + `size: 200` 권장 (좁은 폭 적합)
+- 마지막 ContentCard 에 `style={{ flex: 1 }}` 필수 — 양쪽 해석 길이가 달라도 흰 카드가 남은 공간을 채워서 회색 SectionCard 영역이 비지 않음
+
 **차트 종류별 매핑**
 - `HorizontalBarChart` → `HBarChart` (단일 시리즈, 5개 항목)
 - `StackedBarChart` → `StackedHBar` (감성/세그먼트 누적, 8개 항목 라벨이 길면 수평이 유리). `colors=["#F87171","#E6E7E9","#7CCF00"]` + `keys=["부정","중립","긍정"]` 권장

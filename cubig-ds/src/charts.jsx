@@ -94,9 +94,9 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
   const donutColors = data.map((d, i) => d.hatched ? GRAY200 : (d.color || CHART_COLORS[i % CHART_COLORS.length]));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, alignItems: "center" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", justifyContent: "center", gap: isBottom ? 24 : 40 }}>
+      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", justifyContent: "center", gap: 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
@@ -187,7 +187,7 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
   const isBottom = legendPosition === "bottom";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, alignItems: "center" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
       <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", justifyContent: "center", gap: isBottom ? 24 : 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
@@ -474,34 +474,58 @@ export function SemiDonutChart({
         })()}
       </div>
 
-      {/* 구분선 */}
-      <div style={{ height: 1.5, background: GRAY200, margin: "24px 0 0" }} />
-
-      {/* 범례 테이블 (2컬럼 grid: 라벨 | 설명) */}
-      <div>
-        {data.map((d, i) => {
-          const color = d.hatched ? GRAY200 : getColor(d, i);
-          const labelColor = color === GRAY200 ? GRAY800 : color;
+      {(() => {
+        const allEmpty = data.every((d) => !d.description);
+        if (allEmpty) {
+          // Legend Only — DonutChart bottom 스타일의 가로 wrap 범례
           return (
-            <div key={d.id}
-              style={{
-                display: "grid", gridTemplateColumns: "160px 1fr", alignItems: "center",
-                padding: "12px 0", borderBottom: `1px solid ${GRAY200}`,
-              }}
-            >
-              {/* 컬러 마커 + 라벨 */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY200}, ${GRAY200} 2px, ${GRAY300} 2px, ${GRAY300} 4px)` : color }} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: GRAY990, lineHeight: "24px" }}>{d.id}</span>
-              </div>
-              {/* 설명 */}
-              {d.description ? (
-                <div style={{ fontSize: 14, fontWeight: 400, color: GRAY800, lineHeight: "22px" }}>{d.description}</div>
-              ) : <div />}
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 20px", marginTop: 24 }}>
+              {data.map((d, i) => {
+                const color = d.hatched ? GRAY200 : getColor(d, i);
+                return (
+                  <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: FF, whiteSpace: "nowrap" }}>
+                    <div style={{
+                      width: 10, height: 10, borderRadius: "50%", flexShrink: 0,
+                      background: d.hatched
+                        ? `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)`
+                        : color,
+                    }} />
+                    <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
+                  </div>
+                );
+              })}
             </div>
           );
-        })}
-      </div>
+        }
+        return (
+          <>
+            {/* 구분선 */}
+            <div style={{ height: 1.5, background: GRAY200, margin: "24px 0 0" }} />
+            {/* 범례 테이블 (2컬럼 grid: 라벨 | 설명) */}
+            <div>
+              {data.map((d, i) => {
+                const color = d.hatched ? GRAY200 : getColor(d, i);
+                return (
+                  <div key={d.id}
+                    style={{
+                      display: "grid", gridTemplateColumns: "160px 1fr", alignItems: "center",
+                      padding: "12px 0", borderBottom: `1px solid ${GRAY200}`,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY200}, ${GRAY200} 2px, ${GRAY300} 2px, ${GRAY300} 4px)` : color }} />
+                      <span style={{ fontSize: 16, fontWeight: 600, color: GRAY990, lineHeight: "24px" }}>{d.id}</span>
+                    </div>
+                    {d.description ? (
+                      <div style={{ fontSize: 14, fontWeight: 400, color: GRAY800, lineHeight: "22px" }}>{d.description}</div>
+                    ) : <div />}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
@@ -520,54 +544,72 @@ export function SemiDonutChart({
 // Bar: height 48, borderRadius 0 8 8 0 (우측만), 색상별
 // Percent: 20px Medium #171719
 // Count: 18px Regular #7B7E85, gap 4
-function HBarItem({ label, value, count, barColor, maxPct }) {
+function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
   const [hovered, setHovered] = useState(false);
   const pct = maxPct > 0 ? (value / maxPct) * 100 : 0;
   const displayColor = hovered ? darken(barColor, 0.1) : barColor;
+  // 회색 배경 위 흰 글자 가독성 떨어지므로 GRAY500 으로 (StackedHBar 와 동일)
+  const c = (barColor || "").toLowerCase();
+  const isGrayBar = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
+  const insideTextColor = isGrayBar ? GRAY500 : WHITE;
 
   return (
     <div
-      style={{ display: "flex", alignItems: "center", gap: 16, height: 56, position: "relative" }}
+      style={{ display: "flex", alignItems: "center", gap: 24, height: 48, position: "relative" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Label */}
-      <div style={{ width: 120, minWidth: 120, flexShrink: 0, display: "flex", alignItems: "center", height: 48 }}>
+      {/* Label — 우측 정렬 (StackedHBar 와 동일) */}
+      <div style={{ width: 120, minWidth: 120, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", height: 40 }}>
         <span style={{
-          fontSize: 16, fontWeight: 500, lineHeight: "24px", color: GRAY990,
+          fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990,
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%",
+          textAlign: "right",
         }}>{label}</span>
       </div>
       {/* Container */}
       <div style={{
         flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 16,
-        borderLeft: `1px solid ${GRAY200}`, padding: "12px 12px 12px 0",
+        borderLeft: `1px solid ${GRAY200}`, padding: "4px 12px 4px 0",
         position: "relative",
       }}>
         {/* Bar area */}
-        <div style={{ flex: 1, minWidth: 0, position: "relative", height: 48 }}>
+        <div style={{ flex: 1, minWidth: 0, position: "relative", height: 40 }}>
           {/* Bar */}
           <div style={{
-            width: `${Math.max(pct, 0.5)}%`, height: 48,
+            width: `${Math.max(pct, 0.5)}%`, height: 40,
             background: displayColor,
             borderRadius: "0 2px 2px 0",
             transition: "width 0.6s ease, background 0.15s ease",
-          }} />
+            display: valueInside ? "flex" : "block",
+            alignItems: valueInside ? "center" : undefined,
+            justifyContent: valueInside ? "flex-end" : undefined,
+            paddingRight: valueInside ? 12 : undefined,
+            boxSizing: "border-box",
+          }}>
+            {valueInside && pct > 5 && (
+              <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: insideTextColor, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
+                {value}%{count != null ? ` (${count.toLocaleString()})` : ""}
+              </span>
+            )}
+          </div>
           {/* Hover overlay on bar only */}
           {hovered && pct > 0 && (
             <div style={{
               position: "absolute", top: 0, left: 0,
-              width: `${Math.max(pct, 0.5)}%`, height: 48,
+              width: `${Math.max(pct, 0.5)}%`, height: 40,
               background: "rgba(0,0,0,0.10)",
               borderRadius: "0 2px 2px 0", pointerEvents: "none",
             }} />
           )}
         </div>
-        {/* Counter */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
-          <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{value}%</span>
-          {count != null && <span style={{ fontSize: 18, fontWeight: 400, lineHeight: "26px", color: GRAY800 }}>({count.toLocaleString()})</span>}
-        </div>
+        {/* Counter — valueInside 가 아닐 때만 우측에 표시 */}
+        {!valueInside && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{value}%</span>
+            {count != null && <span style={{ fontSize: 18, fontWeight: 400, lineHeight: "26px", color: GRAY800 }}>({count.toLocaleString()})</span>}
+          </div>
+        )}
         {/* Tooltip: 바 중앙 위 2px */}
         {hovered && (
           <div style={{
@@ -583,20 +625,22 @@ function HBarItem({ label, value, count, barColor, maxPct }) {
   );
 }
 
-export function HBarChart({ data, title, maxValue = 100 }) {
-  const max = maxValue;
+export function HBarChart({ data, title, maxValue, valueInside = false }) {
+  // maxValue 미지정 시 데이터의 최댓값으로 자동 — 가장 긴 막대가 끝까지 차게
+  const max = maxValue ?? Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      {/* Inline Value variant 일 때만 우측 여백 40 (타이틀 제외) */}
+      <div style={{ display: "flex", flexDirection: "column", paddingRight: valueInside ? 40 : 0 }}>
         {data.map((d, i) => {
           let barColor;
           if (d.color) barColor = d.color;
           else if (i === 0) barColor = CHART_COLORS[0]; // Blue 500 — 1번 항목
           else if (i === 1) barColor = CHART_COLORS[1]; // Lime 500 — 2번 항목
           else barColor = GRAY200;                      // 3번 이후 회색
-          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} />;
+          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} />;
         })}
       </div>
     </div>
@@ -629,7 +673,7 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
   const bandW = chartWidth > 0 ? (chartWidth - MARGIN_L - MARGIN_R) / data.length : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div ref={containerRef} style={{ width: "100%", height }}>
         <ResponsiveBar
@@ -719,12 +763,17 @@ function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
           transition: "filter 0.15s ease",
         }}
       />
-      {bar.data.value > 5 && (
-        <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
-          fill={WHITE} fontSize={12} fontFamily="Pretendard, sans-serif" fontWeight={500} style={{ pointerEvents: "none" }}>
-          {bar.data.value}%
-        </text>
-      )}
+      {bar.data.value > 5 && (() => {
+        // 회색 배경(중립) 위에는 GRAY500 라벨 — 원형 그래프 hatched 와 통일
+        const c = (bar.color || "").toLowerCase();
+        const isGrayBg = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
+        return (
+          <text x={bar.width / 2} y={bar.height / 2} textAnchor="middle" dominantBaseline="central"
+            fill={isGrayBg ? GRAY500 : WHITE} fontSize={12} fontFamily="Pretendard, sans-serif" fontWeight={500} style={{ pointerEvents: "none" }}>
+            {bar.data.value}%
+          </text>
+        );
+      })()}
     </g>
   );
 }
@@ -738,18 +787,26 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && (
-        // 전체 폭(라벨 + 차트) 기준으로 제목 중앙 정렬
+        // 전체 폭(라벨 + 차트) 기준으로 제목 중앙 정렬 — 괄호 부가설명은 한 단계 얇고 연한 색
         <div style={{ width: "100%", fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>
-          {title}
+          {(() => {
+            if (typeof title === "string") {
+              const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
+              if (m) {
+                return (<>{m[1]}<span style={{ fontWeight: 500, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
+              }
+            }
+            return title;
+          })()}
         </div>
       )}
-      {/* 라벨(가변) + 차트(flex:1) 레이아웃 — 라벨 길이에 따라 자동 조정 */}
-      <div style={{ display: "flex", width: "100%", gap: 0, alignItems: "stretch" }}>
+      {/* 라벨(가변) + 차트(flex:1) 레이아웃 — 라벨 길이에 따라 자동 조정 (우측 여백 40, 타이틀 제외) */}
+      <div style={{ display: "flex", width: "100%", gap: 0, alignItems: "stretch", paddingRight: 40 }}>
         {/* 왼쪽 라벨 — 컨텐츠 크기만큼 (고정 아님) */}
         {(() => {
           const mTop = 4, mBot = 4;
           return (
-            <div style={{ flex: "0 0 auto", maxWidth: 240, display: "flex", flexDirection: "column-reverse", paddingRight: 12, paddingTop: mTop, paddingBottom: mBot }}>
+            <div style={{ flex: "0 0 auto", minWidth: 140, maxWidth: 240, display: "flex", flexDirection: "column-reverse", paddingRight: 24, paddingTop: mTop, paddingBottom: mBot }}>
               {data.map((d, i) => (
                 <div key={i} style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-end",
@@ -767,7 +824,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
           );
         })()}
         {/* 오른쪽 그래프 — 남은 공간 전부 사용 */}
-        <div style={{ flex: 1, minWidth: 0, height: Math.max(60 * data.length + 20, 140) }}>
+        <div style={{ flex: 1, minWidth: 0, height: Math.max(54 * data.length + 20, 120) }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
@@ -858,21 +915,22 @@ function LineTooltip({ point, valueLabel, valuePrefix, badge, badgeVariant = "re
   );
 }
 
-export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", badgeFormatter, badgeLabel }) {
+export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", badgeFormatter, badgeLabel, disableTooltip = false, disableBadge = false }) {
   const isRed = variant === "red";
   const lineColor = isRed ? RED500 : CHART_COLORS[0];
 
   // Y축: 5단계 통일
   const allY = data.flatMap(s => s.data.map(d => d.y));
   const yMin = Math.min(...allY);
-  const yMax = Math.max(...allY);
-  const yFormat = isRed ? (v => `${v}%`) : undefined;
+  // red variant 라고 무조건 % / 이탈률 처리하지 않음 — 일반 수치 데이터(NPS, 시간 등)에도 사용 가능
+  const yFormat = undefined;
 
   // areaBaselineValue를 yScale min과 일치시켜 넘침 방지
-  const scaleMin = isRed ? 0 : yMin;
+  // isRed 라도 데이터에 음수 있으면 그대로 사용 (NPS 같은 음수 지표 잘림 방지)
+  const scaleMin = isRed && yMin >= 0 ? 0 : yMin;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div style={{ width: "100%", height: 280 }}>
         <ResponsiveLine
@@ -904,9 +962,10 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           useMesh
           enableCrosshair
           crosshairType="x"
-          tooltip={({ point }) => {
+          tooltip={disableTooltip ? () => null : ({ point }) => {
             let badge = null;
-            if (isRed) {
+            // badge 는 disableBadge 가 false 일 때만, 명시적으로 전달된 경우 표시
+            if (!disableBadge) {
               if (typeof badgeFormatter === "function") {
                 badge = badgeFormatter(point.data);
               } else if (point.data.badge) {
@@ -918,10 +977,10 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
             return (
               <LineTooltip
                 point={point}
-                valuePrefix={valuePrefix || (isRed ? "이탈률 " : "")}
-                valueLabel={isRed ? `${point.data.yFormatted}%` : undefined}
+                valuePrefix={valuePrefix || ""}
+                valueLabel={undefined}
                 badge={badge}
-                badgeVariant="red"
+                badgeVariant={isRed ? "red" : undefined}
               />
             );
           }}
@@ -930,6 +989,84 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
             itemWidth: 120, itemHeight: 20, symbolSize: 10, symbolShape: "circle",
           }] : []}
         />
+      </div>
+    </div>
+  );
+}
+
+// ─── MultiLineChart: 다중 시리즈 전용 — CHART_COLORS 자동 매핑, cross 점선 크로스헤어,
+//                   x/y 키-값 툴팁, PSM 차트 스타일의 하단 가로 선형 범례 (직선 연결)
+export function MultiLineChart({ data, title, curve = "linear" }) {
+  const palette = CHART_COLORS;
+
+  const allY = data.flatMap(s => s.data.map(d => d.y));
+  const yMin = Math.min(...allY);
+  const scaleMin = yMin < 0 ? yMin : 0;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
+      <div style={{ width: "100%", height: 280 }}>
+        <ResponsiveLine
+          data={data}
+          colors={palette}
+          curve={curve}
+          lineWidth={2}
+          enableArea={false}
+          areaBaselineValue={scaleMin}
+          margin={{ top: 20, right: 40, bottom: 50, left: 60 }}
+          yScale={{ type: "linear", min: scaleMin, max: "auto" }}
+          enablePoints
+          pointSize={10}
+          pointBorderWidth={2}
+          pointBorderColor="#CACCCF"
+          pointColor={WHITE}
+          enableGridX={false}
+          enableGridY
+          gridYValues={5}
+          animate
+          motionConfig="gentle"
+          theme={{
+            ...baseTheme,
+            crosshair: { line: { stroke: GRAY800, strokeWidth: 1, strokeOpacity: 0.8, strokeDasharray: "4 4" } },
+          }}
+          axisBottom={{ tickSize: 0, tickPadding: 12 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
+          useMesh
+          enableCrosshair
+          crosshairType="cross"
+          tooltip={({ point }) => (
+            <div style={{
+              background: WHITE,
+              border: `1px solid ${GRAY200}`,
+              borderRadius: 6,
+              padding: "10px 12px",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+              fontFamily: "Pretendard, sans-serif",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 12,
+              whiteSpace: "nowrap",
+              fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990,
+            }}>
+              <span>X: <strong style={{ fontWeight: 600 }}>{point.data.xFormatted}</strong></span>
+              <span>Y: <strong style={{ fontWeight: 600 }}>{point.data.yFormatted}</strong></span>
+            </div>
+          )}
+        />
+      </div>
+      {/* 하단 가로 범례 — PSM 스타일 (실선만, 4개, CHART_COLORS 순서) */}
+      <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap" }}>
+        {data.map((s, i) => (
+          <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width={32} height={3}>
+              <line x1={0} y1={1.5} x2={32} y2={1.5}
+                stroke={palette[i % palette.length]} strokeWidth={2.5}
+                strokeLinecap="round" />
+            </svg>
+            <span style={{ fontSize: 14, fontWeight: 500, color: GRAY990, fontFamily: "Pretendard, sans-serif" }}>{s.id}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1190,19 +1327,12 @@ export function LabeledLineChart({
         )}
       </div>
 
-      {/* 하단 테이블 */}
+      {/* 하단 카테고리 라벨 */}
       {categories && (
-        <div style={{ borderTop: `2px solid ${GRAY990}`, marginTop: 8, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
-          {/* 카테고리 라벨 */}
-          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "10px 0 4px" }}>
+        <div style={{ borderTop: `1px solid #CACCCF`, marginTop: 8, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "10px 0 8px" }}>
             {categories.map((c, i) => (
               <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 14, fontWeight: 500, color: GRAY990 }}>{c.label}</span>
-            ))}
-          </div>
-          {/* 건수 */}
-          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "2px 0 8px" }}>
-            {categories.map((c, i) => (
-              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 13, fontWeight: 400, color: GRAY800 }}>({c.count?.toLocaleString()})</span>
             ))}
           </div>
         </div>
@@ -1476,22 +1606,128 @@ export function QuadrantChart({
 // ═══════════════════════════════════════════════════════════════════════
 // GROUPED BAR (Nivo - 세로 그룹/스택 막대)
 // ═══════════════════════════════════════════════════════════════════════
-export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked = false, layout = "vertical" }) {
+export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked = false, layout = "vertical", colors, showValueLabels = true }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
   const isStacked = stacked;
+  const paletteColors = colors || CHART_COLORS;
+  // 음수 데이터 자동 지원 — 데이터 min/max 계산해서 명시적으로 전달
+  const allValues = data.flatMap((d) => actualKeys.map((k) => Number(d[k]) || 0));
+  const rawMin = Math.min(...allValues, 0);
+  const rawMax = Math.max(...allValues, 0);
+  const padPct = 0.15;
+  const range = rawMax - rawMin || 1;
+  const dataMin = rawMin < 0 ? Math.floor(rawMin - range * padPct) : 0;
+  const dataMax = Math.ceil(rawMax + range * padPct);
+  const hasNegative = rawMin < 0;
+  // 음수 데이터 — 0과 음수 구간을 포함한 tick 배열을 명시적으로 생성
+  const niceStep = (() => {
+    const mag = Math.pow(10, Math.floor(Math.log10(range)));
+    const norm = range / mag;
+    if (norm <= 2) return mag / 5;
+    if (norm <= 5) return mag / 2;
+    return mag;
+  })();
+  const tickValues = (() => {
+    if (!hasNegative) return undefined;
+    const lo = Math.floor(dataMin / niceStep) * niceStep;
+    const hi = Math.ceil(dataMax / niceStep) * niceStep;
+    const arr = [];
+    for (let v = lo; v <= hi; v += niceStep) arr.push(v);
+    return arr;
+  })();
+  // X축 라벨 — 상단에 Solid Secondary 뱃지 형태로 렌더
+  const XAxisLayer = ({ bars }) => {
+    const groups = {};
+    bars.forEach((bar) => {
+      const idx = bar.data.indexValue;
+      if (!groups[idx]) groups[idx] = [];
+      groups[idx].push(bar);
+    });
+    // 뱃지: bg #F0F0F2 (gray100) / text #7B7E85 (gray800) / radius 8 / padding 4px 10px
+    const fontSize = 13;
+    const charW = 8; // 대략 한글 14px 폭
+    const padX = 10;
+    const padY = 4;
+    const badgeH = fontSize + padY * 2 + 4; // 4px line-height 여유
+    const badgeY = -badgeH - 4; // 플롯 영역 위 4px
+    return (
+      <g>
+        {Object.entries(groups).map(([idx, gb]) => {
+          const minX = Math.min(...gb.map((b) => b.x));
+          const maxX = Math.max(...gb.map((b) => b.x + b.width));
+          const cx = (minX + maxX) / 2;
+          const text = String(idx);
+          const badgeW = Math.max(text.length * charW + padX * 2, 40);
+          return (
+            <g key={idx}>
+              <rect
+                x={cx - badgeW / 2}
+                y={badgeY}
+                width={badgeW}
+                height={badgeH}
+                rx={8}
+                ry={8}
+                fill="#F0F0F2"
+              />
+              <text
+                x={cx}
+                y={badgeY + badgeH / 2}
+                textAnchor="middle"
+                dominantBaseline="central"
+                style={{ fontSize, fontWeight: 500, fill: "#7B7E85", fontFamily: "Pretendard, sans-serif" }}
+              >
+                {text}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    );
+  };
+
+  // 값 라벨 — 막대가 충분히 크면 안쪽(흰색), 작으면 외부(어두운 색)
+  const ValueLabelsLayer = ({ bars }) => (
+    <g>
+      {bars.map((bar) => {
+        const v = bar.data.value;
+        if (v == null) return null;
+        const isNeg = v < 0;
+        const x = bar.x + bar.width / 2;
+        const tooSmall = bar.height < 24;
+        if (tooSmall) {
+          // 외부
+          const y = isNeg ? bar.y + bar.height + 14 : bar.y - 6;
+          return (
+            <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline={isNeg ? "hanging" : "auto"}
+              style={{ fontSize: 12, fontWeight: 600, fill: GRAY990, fontFamily: "Pretendard, sans-serif" }}>
+              {v.toLocaleString()}
+            </text>
+          );
+        }
+        // 안쪽 (흰색)
+        const y = isNeg ? bar.y + bar.height - 8 : bar.y + 14;
+        return (
+          <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
+            style={{ fontSize: 12, fontWeight: 600, fill: WHITE, fontFamily: "Pretendard, sans-serif" }}>
+            {v.toLocaleString()}
+          </text>
+        );
+      })}
+    </g>
+  );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ width: "100%", height: 300 }}>
+      <div style={{ width: "100%", height: 380 }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
           indexBy={indexBy}
-          colors={CHART_COLORS}
+          colors={paletteColors}
           groupMode={isStacked ? "stacked" : "grouped"}
           layout={layout}
-          margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+          margin={{ top: 30, right: 20, bottom: 100, left: 72 }}
           padding={0.25}
           innerPadding={isStacked ? 0 : 4}
           borderRadius={0}
@@ -1499,11 +1735,21 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
           animate
           motionConfig="gentle"
           theme={baseTheme}
-          axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
+          minValue={dataMin}
+          maxValue={dataMax}
+          markers={hasNegative ? [{ axis: "y", value: 0, lineStyle: { stroke: "#CACCCF", strokeWidth: 1 } }] : []}
+          axisBottom={hasNegative ? null : { tickSize: 0, tickPadding: 16 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: tickValues || 5, format: (v) => v.toLocaleString() }}
+          layers={(() => {
+            const baseLayers = ["grid", "axes", "bars", "markers"];
+            if (showValueLabels) baseLayers.push(ValueLabelsLayer);
+            if (hasNegative) baseLayers.push(XAxisLayer);
+            baseLayers.push("legends");
+            return baseLayers;
+          })()}
           enableGridX={false}
           enableGridY
-          gridYValues={5}
+          gridYValues={tickValues || 5}
           onMouseEnter={(_datum, event) => {
             const el = event.currentTarget;
             el.style.filter = "brightness(0.85)";
@@ -1538,7 +1784,7 @@ export function RadarChart({ data, keys, indexBy = "category", title, color = "#
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div style={{ width: "100%", height: 360 }}>
         <ResponsiveRadar
@@ -1583,7 +1829,9 @@ export function RadarChart({ data, keys, indexBy = "category", title, color = "#
 // ═══════════════════════════════════════════════════════════════════════
 // PSM 가격 수요 곡선 그래프
 // ═══════════════════════════════════════════════════════════════════════
-const PSM_COLORS = ["#00A63E", "#FDC700", "#8A77E0", "#FF6467"];
+// PSM 4곡선 색 — CHART_COLORS 팔레트 순서(1·2·3·4번)
+// Too Cheap=Blue500, Cheap=Lime500, Expensive=DeepPurple400, Too Expensive=Blue300
+const PSM_COLORS = CHART_COLORS.slice(0, 4);
 const PSM_DASH = [null, "8 4", "8 4", null];
 const PSM_LABELS = ["Too Cheap", "Cheap", "Expensive", "Too Expensive"];
 
@@ -1651,7 +1899,7 @@ export function PSMChart({ data, title, intersections: manualPts }) {
   const intersections = (manualPts && manualPts.length > 0) ? manualPts : auto;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
       <div style={{ width: "100%", height: 380 }}>
         <ResponsiveLine

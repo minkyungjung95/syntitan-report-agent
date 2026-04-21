@@ -5,6 +5,7 @@ import App from './App.jsx'
 
 const CoupangReviewReport = lazy(() => import('./coupang-review-report'))
 const ChatgptReviewReport = lazy(() => import('./chatgpt-review-report'))
+const CsTicketReport = lazy(() => import('./cs-ticket-report'))
 
 function Root() {
   const route = window.location.hash.replace(/^#\/?/, '')
@@ -21,6 +22,14 @@ function Root() {
     return (
       <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
         <ChatgptReviewReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'cs') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <CsTicketReport />
       </Suspense>
     )
   }

@@ -51,7 +51,7 @@ export function SectionHeading({ overline, title, description, style }) {
       )}
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
+        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray990 }}>{description}</div>
       )}
     </div>
   );
@@ -603,6 +603,13 @@ export function Interpretation(props) { return <TextBlock {...props} />; }
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function DataTable({ columns = [], data = [], style }) {
+  // 컬럼별 highlight — col.highlight: true|"blue" → 블루, "red" → 레드
+  const blue500 = "#2B7FFF";
+  const red500 = T.red500 || "#FB2C36";
+  const hlColor = (col) => col.highlight === "red" ? red500 : blue500;
+  const hlBg = (col) => col.highlight === "red"
+    ? "rgba(254, 242, 242, 0.7)"   // red50 70%
+    : "rgba(239, 246, 255, 0.7)";  // blue50 70%
   return (
     <div style={{ width: "100%", overflowX: "auto", fontFamily: F, ...style }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -612,7 +619,8 @@ export function DataTable({ columns = [], data = [], style }) {
               <th key={i} style={{
                 padding: "12px 16px",
                 fontSize: 14, fontWeight: 500, lineHeight: "20px",
-                color: T.gray800, textAlign: col.align || "left",
+                color: col.highlight ? T.gray990 : T.gray800,
+                textAlign: col.align || "left",
                 width: col.width, whiteSpace: "nowrap",
                 borderBottom: `1px solid ${T.gray200}`,
                 borderTopLeftRadius: i === 0 ? 16 : 0,
@@ -629,8 +637,11 @@ export function DataTable({ columns = [], data = [], style }) {
               {columns.map((col, ci) => (
                 <td key={ci} style={{
                   padding: "16px 16px",
-                  fontSize: 14, fontWeight: ci === 0 ? 400 : 600, lineHeight: "20px",
-                  color: ci === 0 ? T.gray800 : T.gray990,
+                  fontSize: 14,
+                  fontWeight: col.highlight ? 700 : (ci === 0 ? 500 : 400),
+                  lineHeight: "20px",
+                  color: col.highlight ? hlColor(col) : T.gray990,
+                  background: col.highlight ? hlBg(col) : "transparent",
                   textAlign: col.align || "left",
                   borderBottom: ri < data.length - 1 ? `1px solid ${T.gray100}` : "none",
                 }}>
@@ -654,29 +665,29 @@ export function QATable({ columns = ["Question", "Answer"], rows = [], bordered 
       border: bordered ? `1px solid ${T.gray200}` : "none",
       borderRadius: 16, overflow: "hidden", fontFamily: F, ...style,
     }}>
-      <div style={{ display: "flex", height: 56, background: T.gray25, borderBottom: `1px solid ${T.gray200}` }}>
+      <div style={{ display: "flex", height: 48, background: T.gray25, borderBottom: `1px solid ${T.gray200}` }}>
         {columns.map((c, i) => (
           <div key={i} style={{
             flex: 1, minWidth: 0, display: "flex", alignItems: "center",
             padding: "0 16px",
-            fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray800,
+            fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800,
           }}>{c}</div>
         ))}
       </div>
       {rows.map((r, ri) => (
         <div key={ri} style={{
-          display: "flex", minHeight: 60, alignItems: "stretch",
-          borderBottom: ri < rows.length - 1 ? `1px solid ${T.gray200}` : "none",
+          display: "flex", minHeight: 56, alignItems: "stretch",
+          borderBottom: ri < rows.length - 1 ? `1px solid ${T.gray100}` : "none",
         }}>
           <div style={{
             flex: 1, minWidth: 0, display: "flex", alignItems: "center",
             padding: "16px",
-            fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800,
+            fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990,
           }}>{r.question}</div>
           <div style={{
             flex: 1, minWidth: 0, display: "flex", alignItems: "center",
             padding: "16px",
-            fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990,
+            fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990,
           }}>
             {r.prefix && <span style={{ fontWeight: 700, marginRight: 4 }}>{r.prefix}</span>}
             <span>{r.answer}</span>
@@ -692,11 +703,11 @@ export function GroupedTable({ columns = [], groups = [], style }) {
     <div style={{ width: "100%", overflowX: "auto", fontFamily: F, ...style }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ height: 56, background: T.gray50, borderBottom: `1px solid ${T.gray200}` }}>
+          <tr style={{ height: 48, background: T.gray25, borderBottom: `1px solid ${T.gray200}` }}>
             {columns.map((col, i) => (
               <th key={i} style={{
-                padding: "16px 16px",
-                fontSize: 13, fontWeight: 600, lineHeight: "18px",
+                padding: "12px 16px",
+                fontSize: 14, fontWeight: 500, lineHeight: "20px",
                 color: T.gray800, textAlign: col.align || "center",
                 width: col.width,
               }}>
@@ -721,8 +732,8 @@ export function GroupedTable({ columns = [], groups = [], style }) {
                 {columns.slice(1).map((col, ci) => (
                   <td key={ci} style={{
                     padding: "16px 16px",
-                    fontSize: 14, fontWeight: 400, lineHeight: "22px",
-                    color: T.gray800, textAlign: col.align || "center",
+                    fontSize: 14, fontWeight: 400, lineHeight: "20px",
+                    color: T.gray990, textAlign: col.align || "center",
                   }}>
                     {row[col.key]}
                   </td>
@@ -754,16 +765,16 @@ export function DefinitionTable({ items = [], style }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: T.gray990 }}>{item.abbr}</div>
-                    <div style={{ fontSize: 12, fontWeight: 400, color: T.gray800 }}>{item.fullName}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, lineHeight: "20px", color: T.gray990 }}>{item.abbr}</div>
+                    <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: T.gray800 }}>{item.fullName}</div>
                   </div>
                 </div>
               </td>
               <td style={{ padding: "16px 16px", borderBottom: i < items.length - 1 ? `1px solid ${T.gray100}` : "none" }}>
-                <div style={{ fontSize: 14, fontWeight: 400, color: T.gray800 }}>{item.definition}</div>
-                {item.note && <div style={{ fontSize: 12, fontWeight: 400, color: T.gray400, marginTop: 2 }}>{item.note}</div>}
+                <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990 }}>{item.definition}</div>
+                {item.note && <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: T.gray400, marginTop: 2 }}>{item.note}</div>}
               </td>
-              <td style={{ padding: "16px 16px", fontSize: 16, fontWeight: 600, color: T.gray990, borderBottom: i < items.length - 1 ? `1px solid ${T.gray100}` : "none" }}>{item.price}</td>
+              <td style={{ padding: "16px 16px", fontSize: 14, fontWeight: 700, lineHeight: "20px", color: T.gray990, borderBottom: i < items.length - 1 ? `1px solid ${T.gray100}` : "none" }}>{item.price}</td>
             </tr>
           ))}
         </tbody>
@@ -916,7 +927,9 @@ export function StatRow({ label, value, items = [], style }) {
   );
 }
 
-export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", bordered = true, style }) {
+export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", variant, bordered = true, style }) {
+  // alert 있음 → Secondary(기본). alert 없음 → variant prop 사용 (default Info, 부정적이면 Negative 등)
+  const badgeVariant = alert ? "Secondary" : (variant || "Info");
   return (
     <div style={{
       flex: 1, minWidth: 0,
@@ -929,9 +942,9 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
       background: T.white,
       ...style,
     }}>
-      {/* Badge */}
+      {/* Badge — alert 있으면 Secondary, 없으면 variant prop (default Info, 부정 내용이면 Negative 등) */}
       <div style={{ display: "flex" }}>
-        <Badge type="Solid" variant="Secondary" size="Medium" text={`Signal ${number}`} />
+        <Badge type="Solid" variant={badgeVariant} size="Medium" text={`Signal ${number}`} />
       </div>
       {/* Badge → Title gap 24 */}
       <div style={{ marginTop: 24 }}>
@@ -1102,7 +1115,8 @@ export function StrategyRoadmapTable({ periods = [], style }) {
     ...colStyle, display: "flex", alignItems: "center", justifyContent: "center",
     padding: "18px 16px", borderRight: border,
   };
-  const textStyle = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, textAlign: "center", fontFamily: F, whiteSpace: "pre-wrap" };
+  const textStyle = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990, textAlign: "center", fontFamily: F };
+  const formatCell = (v) => (typeof v === "string" ? v.replace(/\n+/g, " · ") : v);
 
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
@@ -1126,15 +1140,12 @@ export function StrategyRoadmapTable({ periods = [], style }) {
               alignItems: "center", justifyContent: "center", gap: 6,
               padding: 16, borderRight: border,
             }}>
-              <div style={{
-                background: T.blue50, borderRadius: 8, padding: "4px 8px",
-                fontSize: 14, fontWeight: 500, color: T.blue500, lineHeight: "20px", whiteSpace: "nowrap",
-              }}>
-                {period.badge}
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray1000 || T.strong, textAlign: "center" }}>
-                {period.period}
-              </div>
+              <Badge type="Solid" variant="Info" size="Small" text={period.badge} />
+              {period.period && (
+                <div style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: T.gray990, textAlign: "center" }}>
+                  {period.period}
+                </div>
+              )}
             </div>
             {/* 로우들 */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -1142,10 +1153,10 @@ export function StrategyRoadmapTable({ periods = [], style }) {
                 const isLastRow = ri === period.rows.length - 1;
                 return (
                   <div key={ri} style={{ display: "flex", borderBottom: isLastRow ? "none" : border }}>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.strategy}</span></div>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.objective}</span></div>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.actionPlan}</span></div>
-                    <div style={{ ...cellStyle, borderRight: "none" }}><span style={textStyle}>{row.expectedImpact}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.strategy)}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.objective)}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.actionPlan)}</span></div>
+                    <div style={{ ...cellStyle, borderRight: "none" }}><span style={textStyle}>{formatCell(row.expectedImpact)}</span></div>
                   </div>
                 );
               })}
@@ -1428,8 +1439,8 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
   const WEEK_W = 232;
   const border = `1px solid ${T.gray200}`;
   const cellPad = "16px";
-  const headText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, fontFamily: F, textAlign: "center" };
-  const bodyText = { fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, fontFamily: F, textAlign: "center" };
+  const headText = { fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, fontFamily: F, textAlign: "center" };
+  const bodyText = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990, fontFamily: F, textAlign: "center" };
 
   const priorityBadge = (p) => (
     <Badge type="Solid" variant="Info" size="Small" text={p} />
@@ -1506,27 +1517,28 @@ export function ClusterProfileTable({ title, data }) {
   const blue50 = T.blue50 || "#EFF6FF";
   const blue500 = "#2B7FFF";
 
+  // 표준: 헤더 14/500/gray800, 본문 14/400/gray990, highlight 14/700/blue500
   const cellBase = {
-    fontFamily: F, fontSize: 14, fontWeight: 400,
-    color: T.gray990, textAlign: "center", padding: "10px 12px",
+    fontFamily: F, fontSize: 14, fontWeight: 400, lineHeight: "20px",
+    color: T.gray990, textAlign: "center", padding: "12px 16px",
   };
-  const highlightCell = { ...cellBase, fontWeight: 700, color: blue500, background: blue50 };
+  const highlightCell = { ...cellBase, fontWeight: 700, color: blue500, background: "rgba(239, 246, 255, 0.7)" };
   const headerCell = {
-    fontFamily: F, fontSize: 14, fontWeight: 600,
-    color: T.gray990, textAlign: "center", lineHeight: 1.5,
-    padding: "16px 12px", background: T.gray25 || "#FAFAFA",
+    fontFamily: F, fontSize: 14, fontWeight: 500, lineHeight: "20px",
+    color: T.gray800, textAlign: "center",
+    padding: "12px 16px", background: T.gray25 || "#FAFAFA",
   };
   const labelCellBase = {
-    fontFamily: F, fontSize: 14, fontWeight: 600,
-    color: T.gray990, padding: "10px 12px", textAlign: "left", whiteSpace: "nowrap",
+    fontFamily: F, fontSize: 14, fontWeight: 500, lineHeight: "20px",
+    color: T.gray990, padding: "12px 16px", textAlign: "left", whiteSpace: "nowrap",
   };
   const rankLabelStyle = {
-    fontFamily: F, fontSize: 13, fontWeight: 400,
-    color: T.gray800, padding: "10px 12px", textAlign: "center", whiteSpace: "nowrap",
+    fontFamily: F, fontSize: 14, fontWeight: 400, lineHeight: "20px",
+    color: T.gray800, padding: "12px 16px", textAlign: "center", whiteSpace: "nowrap",
   };
   const rankTextStyle = (idx) => ({
-    fontFamily: F, fontSize: 13,
-    fontWeight: idx === 0 ? 600 : 400,
+    fontFamily: F, fontSize: 14,
+    fontWeight: idx === 0 ? 700 : 400,
     color: idx === 0 ? blue500 : T.gray800,
   });
   const gridCols = `100px 64px ${"1fr ".repeat(colCount).trim()}`;
@@ -1540,32 +1552,38 @@ export function ClusterProfileTable({ title, data }) {
       )}
       <div style={{
         display: "grid", gridTemplateColumns: gridCols,
-        border: `1px solid ${T.gray200}`, borderRadius: 8, overflow: "hidden", background: T.white,
+        borderRadius: 12, overflow: "hidden", background: T.white,
       }}>
-        <div style={{ ...labelCellBase, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>이미지</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.gray800 }}>Keyword</div>
+        <div style={{ ...labelCellBase, color: T.gray800, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center", whiteSpace: "normal" }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: T.gray800 }}>이미지</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: T.gray800 }}>Keyword</div>
         </div>
         <div style={{ background: T.gray25, borderBottom: `1px solid ${T.gray200}` }} />
         {clusters.map((c, ci) => (
-          <div key={ci} style={{ ...headerCell, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
+          <div key={ci} style={{ ...headerCell, color: T.gray990, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
             {c.keywords.map((kw, ki) => (
-              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 600, fontSize: ki === 0 ? 15 : 14 }}>{kw}</div>
+              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 500, fontSize: 14 }}>{kw}</div>
             ))}
           </div>
         ))}
         {categories.map((cat, catIdx) => {
           const rowCount = cat.ranks.length;
+          const isLastCat = catIdx === categories.length - 1;
           return cat.ranks.map((rank, ri) => {
             const isFirstInCat = ri === 0;
             const isLastInCat = ri === rowCount - 1;
-            const borderBot = isLastInCat ? `2px solid ${T.gray200}` : `1px solid ${T.gray100}`;
+            // 마지막 카테고리의 마지막 row 는 하단 선 제거
+            const borderBot = (isLastInCat && isLastCat)
+              ? "none"
+              : (isLastInCat ? `1px solid ${T.gray200}` : `1px solid ${T.gray100}`);
             return (
               <div key={`${catIdx}-${ri}`} style={{ display: "contents" }}>
                 {isFirstInCat ? (
                   <div style={{
                     ...labelCellBase, fontSize: 15, display: "flex", alignItems: "center",
-                    gridRow: `span ${rowCount}`, borderBottom: `2px solid ${T.gray200}`, borderRight: `1px solid ${T.gray200}`,
+                    gridRow: `span ${rowCount}`,
+                    borderBottom: isLastCat ? "none" : `1px solid ${T.gray200}`,
+                    borderRight: `1px solid ${T.gray200}`,
                   }}>{cat.label}</div>
                 ) : null}
                 <div style={{ ...rankLabelStyle, borderBottom: borderBot }}>

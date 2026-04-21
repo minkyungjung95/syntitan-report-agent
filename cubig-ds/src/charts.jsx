@@ -14,6 +14,8 @@ export const CHART_COLORS = [
   "#8EC5FF", // 4. Blue 300
   "#00BBA7", // 5. Teal 500
   "#FDC700", // 6. Yellow 400
+  "#C27AFF", // 7. Purple 400
+  "#FDA5D5", // 8. Pink 300
 ];
 
 const GRAY200 = "#E6E7E9";
@@ -166,15 +168,16 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
 //    - innerRadius 0, 호버 시 흰색 stroke + 나머지 opacity 0.2
 //    - 범례: DonutChart와 동일
 // ═══════════════════════════════════════════════════════════════════════
-export function PieChart({ data, title, size = 180, showInnerLabels = false, hideValues = false }) {
+export function PieChart({ data, title, size = 180, showInnerLabels = false, hideValues = false, legendPosition = "right" }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
   const pieColors = data.map((d, i) => d.color || CHART_COLORS[i % CHART_COLORS.length]);
+  const isBottom = legendPosition === "bottom";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 60 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: isBottom ? 24 : 60, alignItems: isBottom ? "center" : "stretch" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>{title}</div>}
-      <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+      <div style={{ display: "flex", flexDirection: isBottom ? "column" : "row", alignItems: "center", gap: isBottom ? 24 : 40 }}>
         <div style={{ width: size, height: size, flexShrink: 0 }}>
           <ResponsivePie
             data={data}
@@ -227,17 +230,21 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
             )}
           />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
-          {data.map((d, i) => {
-            const pct = ((d.value / total) * 100).toFixed(0);
-            return (
-              <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", flexWrap: "nowrap", minWidth: 0 }}>
-                <LegendDot color={pieColors[i]} />
-                {d.icon && <span style={{ marginLeft: 8, display: "flex", alignItems: "center" }}>{d.icon}</span>}
-                <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8, whiteSpace: "nowrap" }}>{d.id}</span>
-              </div>
-            );
-          })}
+        <div style={{
+          display: "flex",
+          flexDirection: isBottom ? "row" : "column",
+          flexWrap: isBottom ? "wrap" : "nowrap",
+          justifyContent: isBottom ? "center" : "flex-start",
+          gap: isBottom ? "8px 20px" : 10,
+          minWidth: 0,
+        }}>
+          {data.map((d, i) => (
+            <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", flexWrap: "nowrap", minWidth: 0, whiteSpace: "nowrap" }}>
+              <LegendDot color={pieColors[i]} />
+              {d.icon && <span style={{ marginLeft: 8, display: "flex", alignItems: "center" }}>{d.icon}</span>}
+              <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1018,8 +1025,8 @@ export function LabeledLineChart({
       {subtitle && <div style={{ fontSize: 14, fontWeight: 400, color: GRAY800, marginBottom: 20 }}>{subtitle}</div>}
 
       <div style={{ position: "relative" }}>
-        {/* 범례 (우측 상단) */}
-        <div style={{ position: "absolute", top: 0, right: 0, display: "flex", flexDirection: "column", gap: 8, zIndex: 2 }}>
+        {/* 범례 (우측 상단, 그래프 호버와 안 겹치게 약간 위로) */}
+        <div style={{ position: "absolute", top: -24, right: 0, display: "flex", flexDirection: "column", gap: 8, zIndex: 2 }}>
           {series.map((s, i) => (
             <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <svg width="30" height="12">
@@ -1068,7 +1075,8 @@ export function LabeledLineChart({
                       onMouseLeave={() => setHovered(null)}
                       style={{ cursor: "default" }}
                     >
-                      <circle cx={p.x} cy={p.y} r={isH ? 7 : 5} fill={WHITE} stroke={s.color} strokeWidth={isH ? 3 : 2} />
+                      <circle cx={p.x} cy={p.y} r={isH ? 6 : 5} fill={WHITE} stroke={s.color} strokeWidth={2}
+                        style={{ transition: "r 0.15s" }} />
                       <text x={p.x} y={ly} textAnchor="middle" dominantBaseline="auto"
                         style={{ fontSize: isH ? 16 : 14, fontWeight: 700, fill: lblColor, fontFamily: FF }}>
                         {p.val}
@@ -1393,15 +1401,11 @@ export function QuadrantChart({
                       <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: q.labelColor || T.gray990, textAlign: "center" }}>
                         {q.value}<span style={{ fontSize: 18, fontWeight: 400 }}>%</span>
                       </div>
-                      {/* 호버 시 사분면 상단(네모 위에 붙음)에 툴팁 표시 — 중앙 글자 안 가림 */}
+                      {/* 호버 팝업 툴팁: 사분면 우측 상단 코너에 고정 */}
                       {isHovered && (
                         <div style={{
                           position: "absolute",
-                          // 상단 행(i<2)은 아래로, 하단 행(i>=2)은 위로 붙임
-                          ...(i < 2
-                            ? { top: "100%", marginTop: 8 }
-                            : { bottom: "100%", marginBottom: 8 }),
-                          left: "50%", transform: "translateX(-50%)",
+                          top: 12, right: 12,
                           zIndex: 9999, pointerEvents: "none",
                         }}>
                           <div style={{ ...tooltipBox, padding: "8px 14px", alignItems: "flex-start", gap: 4, whiteSpace: "nowrap" }}>
@@ -1869,7 +1873,7 @@ export function FunnelChart({
   title,
   steps = [],
   height: chartHeight = 440,
-  groupLabel = "모든 사용자",
+  groupLabel = "전환",
   style,
 }) {
   const FF = "Pretendard, sans-serif";
@@ -1965,23 +1969,15 @@ export function FunnelChart({
 
             return (
               <g key={`bar-${i}`}>
-                {/* 빗금 이탈 영역 */}
+                {/* 빗금 이탈 영역 (호버 시 바 툴팁과 통합) */}
                 {hatchH > 2 && (
-                  <>
-                    <rect x={x} y={hatchY} width={barW} height={hatchH}
-                      fill={`url(#${hatchId})`}
-                      onMouseEnter={(e) => { setHoveredHatch(i); setHoveredStep(null); updateTooltipPos(e); }}
-                      onMouseMove={updateTooltipPos}
-                      onMouseLeave={() => setHoveredHatch(null)}
-                      style={{ cursor: "pointer", transition: "opacity 0.2s", opacity: isHatchHovered ? 0.75 : 1 }}
-                    />
-                    {isHatchHovered && (
-                      <rect x={x} y={hatchY} width={barW} height={hatchH}
-                        fill="none" stroke={RED500} strokeWidth={1.5} strokeDasharray="4 3"
-                        style={{ pointerEvents: "none" }}
-                      />
-                    )}
-                  </>
+                  <rect x={x} y={hatchY} width={barW} height={hatchH}
+                    fill={`url(#${hatchId})`}
+                    onMouseEnter={(e) => { setHoveredStep(i); setHoveredHatch(null); updateTooltipPos(e); }}
+                    onMouseMove={updateTooltipPos}
+                    onMouseLeave={() => setHoveredStep(null)}
+                    style={{ cursor: "default", transition: "opacity 0.2s", opacity: isH ? 0.85 : 1 }}
+                  />
                 )}
                 {/* 솔리드 바 (실값) */}
                 <rect x={x} y={y} width={barW} height={barH}
@@ -2008,109 +2004,61 @@ export function FunnelChart({
                   </text>
                 </g>
 
-                {/* 하단: 번호 원 + 단계명 */}
-                <g>
-                  <circle cx={cx - Math.min(60, barW / 2 - 4)} cy={margin.top + plotH + 22} r={10}
-                    fill={GRAY990}
-                  />
-                  <text x={cx - Math.min(60, barW / 2 - 4)} y={margin.top + plotH + 26} textAnchor="middle"
-                    style={{ fontSize: 11, fontWeight: 600, fill: "#FFFFFF", fontFamily: FF }}>
-                    {i + 1}
-                  </text>
-                  <text x={cx - Math.min(60, barW / 2 - 4) + 16} y={margin.top + plotH + 26} textAnchor="start"
-                    style={{ fontSize: 13, fontWeight: isH ? 600 : 500, fill: isH ? GRAY990 : GRAY800, fontFamily: FF }}>
-                    {s.label}
-                  </text>
-                </g>
+                {/* 하단: 번호 + 단계명 (모두 플레인 텍스트) */}
+                <text x={cx} y={margin.top + plotH + 26} textAnchor="middle"
+                  style={{ fontSize: 13, fontWeight: isH ? 600 : 500, fill: isH ? GRAY990 : GRAY800, fontFamily: FF }}>
+                  {i + 1}. {s.label}
+                </text>
               </g>
             );
           })}
         </svg>
 
-        {/* 범례 */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 8, fontFamily: FF }}>
-          <span style={{ width: 10, height: 10, borderRadius: "50%", background: blueColor, display: "inline-block" }} />
-          <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>{groupLabel}</span>
+        {/* 범례: 전환(솔리드) + 이탈(빗금) */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, marginTop: 8, fontFamily: FF }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: blueColor, display: "inline-block" }} />
+            <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>{groupLabel}</span>
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: "50%",
+              background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 3.5px)`,
+              display: "inline-block",
+              border: `1px solid ${GRAY200}`,
+            }} />
+            <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>이탈</span>
+          </span>
         </div>
 
-        {/* 호버 툴팁 (바) */}
+        {/* 호버 툴팁 (바 + 빗금 통합, 컬러 강조 없음) */}
         {hoveredStep !== null && (() => {
           const s = stepsData[hoveredStep];
+          const Row = ({ label, value, color }) => (
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+              <span style={{ fontSize: 13, color: GRAY800 }}>{label}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: color || GRAY990 }}>{value}</span>
+            </div>
+          );
           return (
             <div style={{
               position: "absolute",
               left: Math.min(tooltipPos.x + 16, containerW - 220),
               top: tooltipPos.y - 80,
               ...tooltipBox,
-              padding: "10px 16px",
+              padding: "10px 14px",
               zIndex: 10,
               pointerEvents: "none",
-              minWidth: 160,
+              whiteSpace: "nowrap",
             }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>
                 Step {s.index + 1}: {s.label}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 13, color: GRAY800 }}>유저 수</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{s.value.toLocaleString()}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 13, color: GRAY800 }}>전체 대비</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: T.blue500 }}>{s.pct.toFixed(1)}%</span>
-                </div>
+                <Row label="유저 수" value={s.value.toLocaleString()} />
+                <Row label="전환율" value={`${s.pct.toFixed(1)}%`} color={blueColor} />
                 {s.index > 0 && (
-                  <>
-                    <div style={{ height: 1, background: GRAY200, margin: "2px 0" }} />
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                      <span style={{ fontSize: 13, color: GRAY800 }}>전환율</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: s.convRate >= 80 ? (T.green600 || "#00A63E") : GRAY990 }}>{s.convRate.toFixed(1)}%</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                      <span style={{ fontSize: 13, color: GRAY800 }}>이탈</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.dropoffCount.toLocaleString()} ({s.dropoff.toFixed(1)}%)</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* 호버 툴팁 (빗금 이탈 영역) */}
-        {hoveredHatch !== null && (() => {
-          const s = stepsData[hoveredHatch];
-          return (
-            <div style={{
-              position: "absolute",
-              left: Math.min(tooltipPos.x + 16, containerW - 220),
-              top: tooltipPos.y - 80,
-              ...tooltipBox,
-              padding: "10px 16px",
-              zIndex: 10,
-              pointerEvents: "none",
-              minWidth: 180,
-            }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: RED500, marginBottom: 6 }}>
-                이탈 — {s.label}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 13, color: GRAY800 }}>첫 단계 대비</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.totalDropPct.toFixed(1)}%</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 13, color: GRAY800 }}>이탈 수</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.totalDropCount.toLocaleString()}</span>
-                </div>
-                {s.index > 0 && (
-                  <>
-                    <div style={{ height: 1, background: GRAY200, margin: "2px 0" }} />
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                      <span style={{ fontSize: 13, color: GRAY800 }}>직전 단계 대비</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: RED500 }}>-{s.dropoff.toFixed(1)}% ({s.dropoffCount.toLocaleString()})</span>
-                    </div>
-                  </>
+                  <Row label="직전 대비 이탈" value={`-${s.dropoffCount.toLocaleString()} (${s.dropoff.toFixed(1)}%)`} color={RED500} />
                 )}
               </div>
             </div>
@@ -2161,15 +2109,22 @@ export function ComboChart({
   }, []);
 
   const BAR = barColor || T.blue500 || "#2B7FFF";
-  const LINE = lineColor || "#FB2C36";
+  const LINE = lineColor || "#7CCF00"; // Lime 500 (CHART_COLORS[1])
 
-  // 축 범위: 깔끔한 눈금으로 올림 처리
+  // 축 범위: 깔끔한 눈금으로 올림 처리 (실제 값 범위 기반, 0에 붙지 않음)
   const barValues = data.map(d => +d[barKey]).filter(v => Number.isFinite(v));
   const lineValues = data.map(d => +d[lineKey]).filter(v => Number.isFinite(v));
-  const barMin = Math.min(...barValues, 0);
-  const barMax = Math.max(...barValues, 1);
-  const lineMin = Math.min(...lineValues, 0);
-  const lineMax = Math.max(...lineValues, 1);
+  const rawBarMin = barValues.length ? Math.min(...barValues) : 0;
+  const rawBarMax = barValues.length ? Math.max(...barValues) : 1;
+  const rawLineMin = lineValues.length ? Math.min(...lineValues) : 0;
+  const rawLineMax = lineValues.length ? Math.max(...lineValues) : 1;
+  // 여유 패딩 (데이터 범위의 10%)
+  const barPadding = Math.max((rawBarMax - rawBarMin) * 0.1, 1);
+  const linePadding = Math.max((rawLineMax - rawLineMin) * 0.1, 1);
+  const barMin = rawBarMin - barPadding;
+  const barMax = rawBarMax + barPadding;
+  const lineMin = rawLineMin - linePadding;
+  const lineMax = rawLineMax + linePadding;
 
   function niceScale(min, max, ticks = 5) {
     const range = max - min || 1;
@@ -2199,7 +2154,8 @@ export function ComboChart({
   const yLine = (v) => margin.top + plotH - ((v - lineScale.min) / (lineScale.max - lineScale.min || 1)) * plotH;
   const xCat = (i) => margin.left + i * slotW + slotW / 2;
 
-  const barBaseline = margin.top + plotH - Math.max(0, -barScale.min / (barScale.max - barScale.min || 1) * plotH);
+  // 베이스라인: 스케일 최소값 기준 (0이 아닌 실제 축 하단)
+  const barBaseline = margin.top + plotH;
 
   return (
     <div ref={containerRef} style={{ fontFamily: FF, width: "100%", ...style }}>
@@ -2222,7 +2178,7 @@ export function ComboChart({
             const y = yLine(t);
             return (
               <text key={`ly-${i}`} x={margin.left + plotW + 10} y={y + 4} textAnchor="start"
-                style={{ fontSize: 11, fill: LINE, fontFamily: FF }}>{t}</text>
+                style={{ fontSize: 11, fill: GRAY800, fontFamily: FF }}>{t}</text>
             );
           })}
 
@@ -2233,7 +2189,7 @@ export function ComboChart({
           )}
           {lineAxisLabel && (
             <text x={margin.left + plotW + 10} y={margin.top - 10} textAnchor="start"
-              style={{ fontSize: 11, fontWeight: 500, fill: LINE, fontFamily: FF }}>{lineAxisLabel}</text>
+              style={{ fontSize: 11, fontWeight: 500, fill: GRAY800, fontFamily: FF }}>{lineAxisLabel}</text>
           )}
 
           {/* 바 */}
@@ -2247,7 +2203,7 @@ export function ComboChart({
             return (
               <g key={`bar-${i}`}>
                 <rect x={x} y={Math.min(y, barBaseline)} width={barW} height={h}
-                  fill={BAR} opacity={isH ? 0.85 : 1}
+                  fill={BAR}
                   onMouseEnter={(e) => {
                     setHoveredIdx(i);
                     const r = containerRef.current?.getBoundingClientRect();
@@ -2260,6 +2216,12 @@ export function ComboChart({
                   onMouseLeave={() => setHoveredIdx(null)}
                   style={{ cursor: "default" }}
                 />
+                {/* 호버: 바 위에 블랙 오버레이 (FunnelChart와 동일) */}
+                {isH && (
+                  <rect x={x} y={Math.min(y, barBaseline)} width={barW} height={h}
+                    fill="rgba(0,0,0,0.12)" style={{ pointerEvents: "none" }}
+                  />
+                )}
               </g>
             );
           })}
@@ -2273,11 +2235,17 @@ export function ComboChart({
             const path = pts.map((p, idx) => `${idx === 0 ? "M" : "L"} ${xCat(p.i)} ${yLine(p.v)}`).join(" ");
             return (
               <g style={{ pointerEvents: "none" }}>
-                <path d={path} fill="none" stroke={LINE} strokeWidth={2} />
-                {pts.map(p => (
-                  <circle key={`lp-${p.i}`} cx={xCat(p.i)} cy={yLine(p.v)} r={4}
-                    fill="#FFC107" stroke={LINE} strokeWidth={2} />
-                ))}
+                <path d={path} fill="none" stroke={LINE} strokeWidth={2.5} />
+                {pts.map(p => {
+                  const isH = hoveredIdx === p.i;
+                  return (
+                    <circle key={`lp-${p.i}`} cx={xCat(p.i)} cy={yLine(p.v)}
+                      r={isH ? 7 : 6}
+                      fill={WHITE} stroke={LINE} strokeWidth={2.5}
+                      style={{ transition: "r 0.15s" }}
+                    />
+                  );
+                })}
               </g>
             );
           })()}
@@ -2298,9 +2266,10 @@ export function ComboChart({
             <span style={{ fontSize: 12, color: GRAY800 }}>{barLabel}</span>
           </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 14, height: 2, background: LINE, display: "inline-block", position: "relative" }}>
-              <span style={{ position: "absolute", left: 4, top: -3, width: 6, height: 6, borderRadius: "50%", background: "#FFC107", border: `2px solid ${LINE}`, boxSizing: "border-box" }} />
-            </span>
+            <svg width={22} height={12} style={{ display: "inline-block", flexShrink: 0 }}>
+              <line x1={0} y1={6} x2={22} y2={6} stroke={LINE} strokeWidth={2.5} />
+              <circle cx={11} cy={6} r={5} fill={WHITE} stroke={LINE} strokeWidth={2.5} />
+            </svg>
             <span style={{ fontSize: 12, color: GRAY800 }}>{lineLabel}</span>
           </span>
         </div>
@@ -2322,15 +2291,24 @@ export function ComboChart({
               pointerEvents: "none",
               minWidth: 160,
             }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>{d.label}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 12, color: BAR }}>● {barLabel}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: GRAY990 }}>{d[barKey]}</span>
+              <div style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>{d.label}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 12, height: 10, background: BAR, display: "inline-block", borderRadius: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: GRAY800 }}>{barLabel}</span>
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{d[barKey]}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-                  <span style={{ fontSize: 12, color: LINE }}>● {lineLabel}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: GRAY990 }}>{d[lineKey]}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <svg width={20} height={12} style={{ display: "inline-block", flexShrink: 0 }}>
+                      <line x1={0} y1={6} x2={20} y2={6} stroke={LINE} strokeWidth={2.5} />
+                      <circle cx={10} cy={6} r={5} fill={WHITE} stroke={LINE} strokeWidth={2.5} />
+                    </svg>
+                    <span style={{ fontSize: 13, color: GRAY800 }}>{lineLabel}</span>
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{d[lineKey]}</span>
                 </div>
               </div>
             </div>

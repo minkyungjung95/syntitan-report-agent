@@ -197,7 +197,7 @@ export function renderSection(section) {
         <ReportSection>
           {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <FunnelChart title={section.data.title} steps={steps} />
             </ContentCard>
           </SectionCard>
@@ -218,7 +218,7 @@ export function renderSection(section) {
         <ReportSection>
           {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <StackedHBar title={section.data.title || section.label} data={data} keys={keys} />
             </ContentCard>
           </SectionCard>
@@ -235,7 +235,7 @@ export function renderSection(section) {
             <EmptyStatePlaceholder label={section.label || "차트"} reason={section.data.emptyReason} />
           ) : (
             <SectionCard>
-              <ContentCard padding={32}>
+              <ContentCard padding={40}>
                 <DonutChart title={section.data.title} data={d} size={section.data.size || 240} />
               </ContentCard>
             </SectionCard>
@@ -253,7 +253,7 @@ export function renderSection(section) {
             <EmptyStatePlaceholder label={section.label || "차트"} reason={section.data.emptyReason} />
           ) : (
             <SectionCard>
-              <ContentCard padding={32}>
+              <ContentCard padding={40}>
                 <PieChart title={section.data.title} data={d} size={section.data.size || 240} />
               </ContentCard>
             </SectionCard>
@@ -272,7 +272,7 @@ export function renderSection(section) {
             <EmptyStatePlaceholder label={section.label || "라인 차트"} reason={section.data.emptyReason || "각 series에 최소 2개 이상의 데이터 포인트가 필요합니다."} />
           ) : (
             <SectionCard>
-              <ContentCard padding={32}>
+              <ContentCard padding={40}>
                 <LineChart
                   title={section.data.title}
                   variant={section.data.variant}
@@ -298,7 +298,7 @@ export function renderSection(section) {
             <EmptyStatePlaceholder label={section.label || "막대 차트"} reason={section.data.emptyReason || (!keysMatch ? `keys(${keys.join(", ")}) 중 일부가 data에 없습니다.` : undefined)} />
           ) : (
             <SectionCard>
-              <ContentCard padding={32}>
+              <ContentCard padding={40}>
                 <VBarChart
                   title={section.data.title}
                   data={d}
@@ -319,7 +319,7 @@ export function renderSection(section) {
         <ReportSection>
           {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <HBarChart
                 title={section.data.title}
                 data={section.data.data || []}
@@ -336,7 +336,7 @@ export function renderSection(section) {
         <ReportSection>
           {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <RadarChart
                 title={section.data.title}
                 data={section.data.data || []}
@@ -354,7 +354,7 @@ export function renderSection(section) {
         <ReportSection>
           {(section.label || section.data.description) && <SectionHeading title={section.label} description={section.data.description} />}
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <ComboChart
                 title={section.data.title}
                 data={section.data.data || []}

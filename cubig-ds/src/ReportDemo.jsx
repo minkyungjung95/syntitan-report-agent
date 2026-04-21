@@ -575,7 +575,7 @@ export default function ReportDemo() {
               <SignalCard number={2} title="total_sessions (세션 수) 저하" items={["total_sessions 평균 6.25회 (user_stats 전체 평균), 군집 평균 5.84회", "세션 증대를 위한 주기적 리마인더와 가치형 알림 필요"]} alert="원인: 재참여 유인 부족(콘텐츠·알림 미흡)" alertVariant="Cautionary" bordered={false} />
               <SignalCard number={3} title="asset_link (자산 연결) 사용 저조" items={["asset_link 이벤트 28건(6.22%)", "첫 세션 내 asset_link 필수화 또는 인센티브 제공 필요"]} alert="원인: 전환 유도 UI/CTA 부재 또는 가치 제시 미약" alertVariant="Cautionary" bordered={false} />
             </div>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <LineChart title="Projected Churn Rate" variant="red" enableArea data={[{ id: "Churn Rate", data: [
                 { x: "2024-05", y: 75 }, { x: "2024-06", y: 82 }, { x: "2024-07", y: 93 }, { x: "2024-08", y: 97 }, { x: "2024-09", y: 100 },
               ]}]} />
@@ -592,7 +592,7 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>② InsightContent + 그래프</div>
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <LineChart title="Subscription Intent Trend" variant="red" enableArea data={[{ id: "Intent", data: [
                 { x: "2024-05", y: 70 }, { x: "2024-06", y: 80 }, { x: "2024-07", y: 92 }, { x: "2024-08", y: 96 }, { x: "2024-09", y: 100 },
               ]}]} />
@@ -616,7 +616,7 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>③ 그래프 + TextBlock</div>
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <div style={{ display: "flex", gap: 32, justifyContent: "space-around" }}>
                 <DonutChart title="Response Rate by Age Group" size={200} data={[
                   { id: "Age 15-19", value: 25 }, { id: "Age 20-24", value: 10 }, { id: "Age 30-39", value: 15 },
@@ -639,7 +639,7 @@ export default function ReportDemo() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>④ 그래프 + Tables</div>
           <SectionCard>
-            <ContentCard padding={32}>
+            <ContentCard padding={40}>
               <div style={{ display: "flex", gap: 32, justifyContent: "space-around", alignItems: "flex-start" }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <DonutChart title="Cluster Distribution" size={180} legendPosition="bottom" data={[

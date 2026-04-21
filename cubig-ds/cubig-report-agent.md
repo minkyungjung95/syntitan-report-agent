@@ -108,17 +108,31 @@ border 라인으로 감싸는 영역. padding 40, borderRadius 20.
 ```
 
 #### `ContentHeader`
-콘텐츠 영역(`SectionCard`) **안쪽** 상단에 놓는 세미 타이틀. 각 차트·테이블·카드에 붙이는 "리포트 제목".
+차트·테이블·카드 위에 올라가는 "리포트 제목". 항상 **중앙 정렬**로 렌더됩니다 (`alignItems: center`, `textAlign: center` 기본).
 
-**규칙 (필수) — 항상 `SectionCard` 안에 배치합니다.** `SectionCard` 바깥(= `ReportSection` 직계)에 두지 않습니다. 즉, 리포트 제목은 항상 컨텐츠 영역(회색 8px 래핑) 안으로 들어가야 하며 ContentCard 위에 위치합니다.
+**배치 규칙 (필수)**
+- 리포트 제목은 **항상 `ContentCard`(흰 카드) 안쪽 최상단**에 배치합니다. `SectionCard` 회색 영역 위나 `ReportSection` 직계에 두지 않습니다.
+- 차트 컴포넌트(`HBarChart`/`VBarChart`/`DonutChart` 등)는 **자체 `title` prop 사용을 최우선**으로 합니다 — 차트 내부 title은 이미 중앙 정렬이고 차트 바디와 여백이 맞아서 가장 깔끔합니다.
+- `ContentHeader` 는 차트 `title` prop 으로 해결 안 되는 경우(여러 컨텐츠를 하나의 ContentCard 안에 묶을 때, 혹은 테이블 제목 등)에만 사용합니다.
 
 ```jsx
+// ✅ 권장 — 차트 자체 title prop
+<ContentCard padding={40}>
+  <HBarChart title="별점 분포" data={...} />
+</ContentCard>
+
+// ✅ 허용 — 복합 컨텐츠에만 ContentHeader
+<ContentCard padding={24}>
+  <ContentHeader title="영역별 감성 분포" description="부정 영향이 큰 순서" />
+  <VBarChart stacked data={...} keys={...} indexBy="label" />
+</ContentCard>
+
+// ❌ 금지 — SectionCard 바깥 또는 SectionCard 직계 배치
 <ReportSection>
+  <ContentHeader title="..." />   {/* 금지 */}
   <SectionCard>
-    <ContentHeader title="콘텐츠 제목" description="설명" />
-    <ContentCard padding={40}>
-      <Chart ... />
-    </ContentCard>
+    <ContentHeader title="..." /> {/* 금지 */}
+    <ContentCard>...</ContentCard>
   </SectionCard>
 </ReportSection>
 ```

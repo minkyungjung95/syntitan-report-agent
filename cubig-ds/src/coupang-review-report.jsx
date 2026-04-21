@@ -79,9 +79,8 @@ export default function CoupangReviewReport() {
           />
           <ReportSection>
             <SectionCard>
-              <ContentHeader title="별점 분포" />
               <ContentCard padding={40}>
-                <HBarChart data={ratingDistribution} maxValue={100} />
+                <HBarChart title="별점 분포" data={ratingDistribution} maxValue={100} />
               </ContentCard>
             </SectionCard>
           </ReportSection>
@@ -127,9 +126,9 @@ export default function CoupangReviewReport() {
           />
           <ReportSection>
             <SectionCard>
-              <ContentHeader title="영역별 감성 분포 (부정 영향이 큰 순서)" />
               <ContentCard padding={40}>
                 <VBarChart
+                  title="영역별 감성 분포 (부정 영향이 큰 순서)"
                   stacked={true}
                   data={topicImpactData}
                   keys={["긍정", "중립", "부정"]}

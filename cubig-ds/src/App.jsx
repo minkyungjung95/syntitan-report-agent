@@ -4,7 +4,6 @@ import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusI
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
-const ReportBuilder = lazy(() => import("./ReportBuilder"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -64,7 +63,6 @@ const th = { padding:"8px 14px", textAlign:"left", fontSize:12, fontWeight:600, 
 const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlign:"middle" };
 
 export default function App() {
-  const [topTab, setTopTab] = useState("ds"); // "ds" | "builder"
   const [page, setPage] = useState("charts");
 
   // button
@@ -116,35 +114,13 @@ export default function App() {
   return (
     <div style={{ minHeight:"100vh", background:T.gray50, fontFamily:"Pretendard, sans-serif", boxSizing:"border-box" }}>
 
-      {/* Level 1: Top Tabs (DS / Report Builder) */}
+      {/* Header */}
       <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:0, zIndex:11 }}>
-        <span style={{ fontSize:14, fontWeight:700, color:T.gray990, marginRight:32, padding:"14px 0", flexShrink:0 }}>CUBIG</span>
-        {[
-          { key: "ds", label: "디자인 시스템" },
-          { key: "builder", label: "리포트 빌더" },
-        ].map(t => (
-          <button key={t.key} onClick={()=>setTopTab(t.key)} style={{
-            height: 52, padding: "0 20px", border: "none", background: "none", cursor: "pointer",
-            fontFamily: "Pretendard, sans-serif", fontWeight: 600, fontSize: 15,
-            color: topTab === t.key ? T.gray990 : T.gray800,
-            borderBottom: topTab === t.key ? `2px solid ${T.gray990}` : "2px solid transparent",
-            transition: "all .15s",
-          }}>{t.label}</button>
-        ))}
+        <span style={{ fontSize:14, fontWeight:700, color:T.gray990, padding:"14px 0", flexShrink:0 }}>CUBIG</span>
       </div>
 
-      {/* ═══ Report Builder (Level 1 Tab 2) ═══ */}
-      {topTab === "builder" && (
-        <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}>
-          <ReportBuilder />
-        </Suspense>
-      )}
-
-      {/* ═══ Design System (Level 1 Tab 1) ═══ */}
-      {topTab === "ds" && <>
-
-      {/* Level 2: DS Sub Nav */}
-      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:52, zIndex:10, overflowX:"auto" }}>
+      {/* DS Sub Nav */}
+      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:45, zIndex:10, overflowX:"auto" }}>
         {PAGES.map(p => (
           <button key={p} onClick={()=>setPage(p)} style={{ height:44, padding:"0 16px", border:"none", background:"none", cursor:"pointer", fontFamily:"Pretendard, sans-serif", fontWeight:500, fontSize:14, color:page===p?T.gray990:T.gray800, borderBottom:page===p?`2px solid ${T.gray990}`:"2px solid transparent", transition:"all .15s", whiteSpace:"nowrap", flexShrink:0 }}>
             {PAGE_LABELS[p]}
@@ -665,7 +641,7 @@ export default function App() {
           {/* Color Palette */}
           <Card title="Chart 색상 팔레트" subtitle="데이터 시리즈에 순서대로 적용">
             <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
-              {["Blue 500","Lime 500","DeepPurple 400","Blue 300","Teal 500","Yellow 400"].map((name,i)=>(
+              {["Blue 500","Lime 500","DeepPurple 400","Blue 300","Teal 500","Yellow 400","Purple 400","Pink 300"].map((name,i)=>(
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:8 }}>
                   <div style={{ width:16, height:16, borderRadius:4, background:CHART_COLORS[i] }}/>
                   <span style={{ fontSize:12, color:T.gray990, fontWeight:500 }}>{i+1}번</span>
@@ -1076,8 +1052,6 @@ export default function App() {
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
       </div>
-
-      </>}
     </div>
   );
 }

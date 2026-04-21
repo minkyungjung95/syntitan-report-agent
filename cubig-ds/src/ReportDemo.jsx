@@ -72,7 +72,7 @@ export default function ReportDemo() {
         {/* Variant A: Overline + Title + Description + Content Area */}
         <div style={{ marginBottom: 40 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Content Area</div>
-          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
           <SectionCard>
             <ContentCard>
               <div style={{ padding: 24, height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: T.gray400, fontSize: 14, fontFamily: F }}>
@@ -85,7 +85,7 @@ export default function ReportDemo() {
         {/* Variant B: Overline + Title + Description (Content Area 없음) */}
         <div>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Header Only</div>
-          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
         </div>
       </Section>
 
@@ -369,7 +369,7 @@ export default function ReportDemo() {
         {/* Variant A: summaryItems 있는 케이스 */}
         <div style={{ marginBottom: 40 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>With Summary Items</div>
-          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
           <ExecutiveSummaryCard
             title={null}
             summaryItems={[
@@ -391,7 +391,7 @@ export default function ReportDemo() {
         {/* Variant B: summaryItems 없는 케이스 (findings 만, Executive Summary 타이틀 제거) */}
         <div>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Findings Only (데이터에 지표 없을 때)</div>
-          <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+          <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
           <ExecutiveSummaryCard
             title={null}
             findings={{
@@ -409,7 +409,7 @@ export default function ReportDemo() {
 
       <Section>
         <Label>8. ExecutionRoadmap</Label>
-        <ContentHeader overline="Overline" title="Content Title" description="Content description appears inside the border, above the gray area." />
+        <ContentHeader overline="Executive Summary" title="전체 만족도는 높지만, 소수 부정 리뷰가 배송/CS와 지퍼/잠금장치에 집중되어 있어 이 두 영역만 개선해도 부정률을 절반 줄일 수 있습니다" description="쿠팡 캐리어 리뷰 1,000건을 별점·감성·영역별로 분석했습니다." />
         <ExecutionRoadmap
           weeks={[
             {

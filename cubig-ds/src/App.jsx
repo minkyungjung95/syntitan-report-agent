@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react";
 import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
-import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon } from "./tokens.jsx";
-import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
+import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon, StarRateFilledIcon, IdentityPlatformOutlineIcon } from "./tokens.jsx";
+import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, ModalUserCard, ModalField, ModalStat, ModalGrid, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
 
@@ -87,7 +87,7 @@ export default function App() {
   const [chipTabItems] = useState(["전체","디자인","개발","마케팅"]);
   const [activeChipTab, setActiveChipTab] = useState(0);
   const [chipTabSize, setChipTabSize] = useState("Medium");
-  const [chipTabType, setChipTabType] = useState("Solid");
+  const [segMdIdx, setSegMdIdx] = useState(0);
 
   // callout
   const [cVariant, setCVariant] = useState("Primary");
@@ -105,8 +105,20 @@ export default function App() {
   const [chipDisabled, setChipDisabled] = useState(false);
   const [chipTrailing, setChipTrailing] = useState(false);
 
-  const PAGES = ["charts","color","button","badge","callout","chip","tab","icons","report"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", icons:"Icons", report:"Report Components" };
+  // modal
+  const [modalSize, setModalSize] = useState(null); // "xs" | "sm" | "md" | "lg" | "xl" | null
+  const [modalDesc, setModalDesc] = useState(true);
+  const [modalActionType, setModalActionType] = useState("dual"); // "single" | "dual"
+  const [modalBtnLayout, setModalBtnLayout] = useState("hug"); // "hug" | "fill"
+  const [modalBtnAlign, setModalBtnAlign] = useState("end"); // "start" | "end" | "space-between"
+  const [modalActionOpen, setModalActionOpen] = useState(false);
+  const [modalDivider, setModalDivider] = useState(false);
+  const [modalDividerVariant, setModalDividerVariant] = useState(null); // "off" | "on" | null
+  const [modalContentOpen, setModalContentOpen] = useState(null); // "user" | "stats" | "4col" | null
+  const [modalContentTab, setModalContentTab] = useState(0);
+
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","icons","report","reports"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", icons:"Icons", report:"Report Components", reports:"Reports" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -179,7 +191,7 @@ export default function App() {
             ]},
             { name:"Cyan", colors:[
               {k:"50",v:T.cyan50},{k:"100",v:T.cyan100},{k:"200",v:T.cyan200},{k:"300",v:T.cyan300},{k:"400",v:T.cyan400},
-              {k:"600",v:T.cyan600},{k:"700",v:T.cyan700},{k:"800",v:T.cyan800},{k:"900",v:T.cyan900},{k:"950",v:T.cyan950},
+              {k:"500",v:T.cyan500},{k:"600",v:T.cyan600},{k:"700",v:T.cyan700},{k:"800",v:T.cyan800},{k:"900",v:T.cyan900},{k:"950",v:T.cyan950},
             ]},
             { name:"Blue", colors:[
               {k:"50",v:T.blue50},{k:"100",v:T.blue100},{k:"200",v:T.blue200},{k:"300",v:T.blue300},{k:"400",v:T.blue400},
@@ -191,7 +203,7 @@ export default function App() {
             ]},
             { name:"Deep Purple", colors:[
               {k:"50",v:T.dp50},{k:"100",v:T.dp100},{k:"200",v:T.dp200},{k:"300",v:T.dp300},{k:"400",v:T.dp400},
-              {k:"600",v:T.dp600},{k:"700",v:T.dp700},{k:"800",v:T.dp800},{k:"900",v:T.dp900},{k:"950",v:T.dp950},
+              {k:"500",v:T.dp500},{k:"600",v:T.dp600},{k:"700",v:T.dp700},{k:"800",v:T.dp800},{k:"900",v:T.dp900},{k:"950",v:T.dp950},
             ]},
             { name:"Pink", colors:[
               {k:"50",v:T.pink50},{k:"100",v:T.pink100},{k:"200",v:T.pink200},{k:"300",v:T.pink300},{k:"400",v:T.pink400},
@@ -254,13 +266,16 @@ export default function App() {
           <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
             <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Sizing · Radius</h3>
             <div style={{ display:"flex", flexWrap:"wrap", gap:12, alignItems:"end" }}>
-              {Object.entries(Radius).map(([name, val]) => (
-                <div key={name} style={{ textAlign:"center" }}>
-                  <div style={{ width:48, height:48, borderRadius:val, background:T.blue500, border:`1px solid ${T.gray200}` }} />
-                  <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>rounded-{name}</div>
-                  <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{val}px</div>
-                </div>
-              ))}
+              {["1", "1.5", "2", "3", "4", "5", "6", "full"].map((name) => {
+                const val = Radius[name];
+                return (
+                  <div key={name} style={{ textAlign:"center" }}>
+                    <div style={{ width:48, height:48, borderRadius:val, background:T.blue500, border:`1px solid ${T.gray200}` }} />
+                    <div style={{ fontSize:10, color:T.gray800, marginTop:4 }}>rounded-{name}</div>
+                    <div style={{ fontSize:9, color:T.gray600, fontFamily:"monospace" }}>{val}px</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -268,7 +283,9 @@ export default function App() {
           <div style={{ marginBottom:24, background:T.white, borderRadius:12, border:`1px solid ${T.gray200}`, padding:20 }}>
             <h3 style={{ fontSize:14, fontWeight:700, color:T.gray990, margin:"0 0 12px" }}>Sizing · Spacing (Gap)</h3>
             <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
-              {Object.entries(Gap).map(([name, val]) => (
+              {Object.entries(Gap)
+                .sort(([a], [b]) => parseFloat(a) - parseFloat(b))
+                .map(([name, val]) => (
                 <div key={name} style={{ display:"flex", alignItems:"center", gap:8 }}>
                   <span style={{ fontSize:10, color:T.gray800, width:48, textAlign:"right" }}>gap-{name}</span>
                   <div style={{ width:val, height:12, borderRadius:2, background:T.blue500, minWidth:val === 0 ? 2 : val }} />
@@ -362,6 +379,7 @@ export default function App() {
               ))}
             </div>
           </div>
+
         </>}
 
         {/* ══ BUTTON ══ */}
@@ -389,73 +407,31 @@ export default function App() {
             <RowGroup label="Radius">
               {RADII.map(r => <PillBtn key={r} label={r} active={btnRadius===r} onClick={()=>setBtnRadius(r)}/>)}
             </RowGroup>
-            <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginBottom:16 }}>
               <Toggle label="Disabled" on={btnDisabled} onClick={()=>setBtnDisabled(p=>!p)}/>
               <Toggle label="Icon Only" on={btnIcon} onClick={()=>setBtnIcon(p=>!p)}/>
             </div>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 16px" }}>아이콘 포함</p>
+            <Row wrap>
+              <Col label="Leading"><Btn variant="solid-primary" size="lg"><PlusIcon size={20}/>추가하기</Btn></Col>
+              <Col label="Trailing"><Btn variant="solid-secondary" size="lg">다운로드<DownIcon size={20}/></Btn></Col>
+            </Row>
+            <p style={{ fontSize:12, color:T.gray800, margin:"12px 0 16px" }}>아이콘 전용</p>
+            <Row wrap>
+              <Col label="Primary LG"><Btn variant="solid-primary" size="lg" icon><PlusIcon size={24}/></Btn></Col>
+              <Col label="Secondary MD"><Btn variant="solid-secondary" size="md" icon><PlusIcon size={20}/></Btn></Col>
+            </Row>
           </Card>
 
           <Card title="Solid">
             <p style={{ fontSize:12, color:T.gray800, margin:"0 0 16px" }}>Primary</p>
             <Row wrap><Col label="Large"><Btn variant="solid-primary" size="lg">텍스트</Btn></Col><Col label="Medium"><Btn variant="solid-primary" size="md">텍스트</Btn></Col><Col label="Small"><Btn variant="solid-primary" size="sm">텍스트</Btn></Col><Col label="Disabled"><Btn variant="solid-primary" size="lg" disabled>텍스트</Btn></Col><Col label="Radius MD"><Btn variant="solid-primary" size="lg" radius="md">텍스트</Btn></Col><Col label="Radius Full"><Btn variant="solid-primary" size="lg" radius="full">텍스트</Btn></Col></Row>
             <p style={{ fontSize:12, color:T.gray800, margin:"12px 0 16px" }}>Secondary</p>
-            <Row wrap><Col label="Large"><Btn variant="solid-secondary" size="lg">텍스트</Btn></Col><Col label="Medium"><Btn variant="solid-secondary" size="md">텍스트</Btn></Col><Col label="Small"><Btn variant="solid-secondary" size="sm">텍스트</Btn></Col><Col label="Disabled"><Btn variant="solid-secondary" size="lg" disabled>텍스트</Btn></Col><Col label="Radius Full"><Btn variant="solid-secondary" size="lg" radius="full">텍스트</Btn></Col></Row>
-            <p style={{ fontSize:12, color:T.gray800, margin:"12px 0 16px" }}>Brand / Positive / Negative / Tertiary</p>
-            <Row wrap><Col label="Brand"><Btn variant="solid-brand" size="lg">텍스트</Btn></Col><Col label="Positive"><Btn variant="solid-positive" size="lg">텍스트</Btn></Col><Col label="Negative"><Btn variant="solid-negative" size="lg">텍스트</Btn></Col><Col label="Tertiary"><Btn variant="solid-tertiary" size="lg">텍스트</Btn></Col><Col label="Brand disabled"><Btn variant="solid-brand" size="lg" disabled>텍스트</Btn></Col><Col label="Positive disabled"><Btn variant="solid-positive" size="lg" disabled>텍스트</Btn></Col><Col label="Negative disabled"><Btn variant="solid-negative" size="lg" disabled>텍스트</Btn></Col></Row>
+            <Row wrap><Col label="Large"><Btn variant="solid-secondary" size="lg">텍스트</Btn></Col><Col label="Medium"><Btn variant="solid-secondary" size="md">텍스트</Btn></Col><Col label="Small"><Btn variant="solid-secondary" size="sm">텍스트</Btn></Col><Col label="Disabled"><Btn variant="solid-secondary" size="lg" disabled>텍스트</Btn></Col><Col label="Radius MD"><Btn variant="solid-secondary" size="lg" radius="md">텍스트</Btn></Col><Col label="Radius Full"><Btn variant="solid-secondary" size="lg" radius="full">텍스트</Btn></Col></Row>
+            <p style={{ fontSize:12, color:T.gray800, margin:"12px 0 16px" }}>Tertiary</p>
+            <Row wrap><Col label="Large"><Btn variant="solid-tertiary" size="lg">텍스트</Btn></Col><Col label="Medium"><Btn variant="solid-tertiary" size="md">텍스트</Btn></Col><Col label="Small"><Btn variant="solid-tertiary" size="sm">텍스트</Btn></Col><Col label="Disabled"><Btn variant="solid-tertiary" size="lg" disabled>텍스트</Btn></Col><Col label="Radius MD"><Btn variant="solid-tertiary" size="lg" radius="md">텍스트</Btn></Col><Col label="Radius Full"><Btn variant="solid-tertiary" size="lg" radius="full">텍스트</Btn></Col></Row>
           </Card>
 
-          <Card title="Outline">
-            <Row wrap>
-              <Col label="Primary"><Btn variant="outline-primary" size="lg">텍스트</Btn></Col>
-              <Col label="Brand"><Btn variant="outline-brand" size="lg">텍스트</Btn></Col>
-              <Col label="Positive"><Btn variant="outline-positive" size="lg">텍스트</Btn></Col>
-              <Col label="Negative"><Btn variant="outline-negative" size="lg">텍스트</Btn></Col>
-              <Col label="Primary disabled"><Btn variant="outline-primary" size="lg" disabled>텍스트</Btn></Col>
-              <Col label="Brand disabled"><Btn variant="outline-brand" size="lg" disabled>텍스트</Btn></Col>
-            </Row>
-            <Row wrap>
-              <Col label="MD"><Btn variant="outline-primary" size="md">텍스트</Btn></Col>
-              <Col label="SM"><Btn variant="outline-primary" size="sm">텍스트</Btn></Col>
-              <Col label="Radius MD"><Btn variant="outline-primary" size="lg" radius="md">텍스트</Btn></Col>
-              <Col label="Radius Full"><Btn variant="outline-brand" size="lg" radius="full">텍스트</Btn></Col>
-            </Row>
-          </Card>
-
-          <Card title="Text">
-            <Row wrap>
-              <Col label="Secondary LG"><Btn variant="text-secondary" size="lg">텍스트</Btn></Col>
-              <Col label="Secondary MD"><Btn variant="text-secondary" size="md">텍스트</Btn></Col>
-              <Col label="Secondary SM"><Btn variant="text-secondary" size="sm">텍스트</Btn></Col>
-              <Col label="Brand"><Btn variant="text-brand" size="lg">텍스트</Btn></Col>
-              <Col label="Disabled"><Btn variant="text-secondary" size="lg" disabled>텍스트</Btn></Col>
-            </Row>
-          </Card>
-
-          <Card title="아이콘 포함">
-            <Row wrap>
-              <Col label="Leading"><Btn variant="solid-primary" size="lg"><PlusIcon size={20}/>추가하기</Btn></Col>
-              <Col label="Trailing"><Btn variant="solid-secondary" size="lg">다운로드<DownIcon size={20}/></Btn></Col>
-              <Col label="Both"><Btn variant="solid-brand" size="lg"><PlusIcon size={20}/>예약하기<ChevronR size={16}/></Btn></Col>
-              <Col label="Outline+icon"><Btn variant="outline-primary" size="md"><PlusIcon size={16}/>추가</Btn></Col>
-            </Row>
-          </Card>
-
-          <Card title="아이콘 전용">
-            <Row wrap>
-              <Col label="Primary LG"><Btn variant="solid-primary" size="lg" icon><PlusIcon size={24}/></Btn></Col>
-              <Col label="Secondary MD"><Btn variant="solid-secondary" size="md" icon><PlusIcon size={20}/></Btn></Col>
-              <Col label="Brand SM"><Btn variant="solid-brand" size="sm" icon><PlusIcon size={16}/></Btn></Col>
-              <Col label="Outline LG"><Btn variant="outline-primary" size="lg" icon radius="md"><PlusIcon size={24}/></Btn></Col>
-              <Col label="Negative SM"><Btn variant="solid-negative" size="sm" icon><CloseIcon size={14} color={T.white}/></Btn></Col>
-            </Row>
-          </Card>
-
-          <div style={{ background:T.gray990, borderRadius:12, padding:20, display:"flex", gap:12, flexWrap:"wrap" }}>
-            <Btn variant="solid-secondary" size="lg">Secondary</Btn>
-            <Btn variant="outline-primary" size="lg" style={{ color:T.white, borderColor:T.gray800 }}>Outline</Btn>
-            <Btn variant="solid-brand" size="lg">Brand</Btn>
-            <Btn variant="text-secondary" size="lg" style={{ color:"#A2A4AA" }}>Text</Btn>
-          </div>
         </>}
 
         {/* ══ BADGE ══ */}
@@ -637,9 +613,19 @@ export default function App() {
           </Card>
           <Card title="Chip Tabs">
             <RowGroup label="Size">{CHIP_SIZE_KEYS.map(s=><PillBtn key={s} label={s} active={chipTabSize===s} onClick={()=>setChipTabSize(s)}/>)}</RowGroup>
-            <RowGroup label="Type">{CHIP_TYPES.map(t=><PillBtn key={t} label={t} active={chipTabType===t} onClick={()=>setChipTabType(t)}/>)}</RowGroup>
-            <ChipTabs tabs={chipTabItems} activeIndex={activeChipTab} onChange={setActiveChipTab} size={chipTabSize} type={chipTabType}/>
+            <ChipTabs tabs={chipTabItems} activeIndex={activeChipTab} onChange={setActiveChipTab} size={chipTabSize} type="Solid"/>
             <div style={{ marginTop:16, padding:14, background:T.gray50, borderRadius:8, fontSize:14, color:T.gray990 }}>선택된 항목: <strong>{chipTabItems[activeChipTab]}</strong></div>
+          </Card>
+
+          <Card title="Segmented Control" subtitle="md (기본) / sm · disabled 개별 지정 가능">
+            <RowGroup label="Size md">
+              <SegmentedControl
+                items={["텍스트","텍스트","텍스트","텍스트","텍스트","텍스트"]}
+                activeIndex={segMdIdx}
+                onChange={setSegMdIdx}
+                size="md"
+              />
+            </RowGroup>
           </Card>
         </>}
 
@@ -650,6 +636,97 @@ export default function App() {
             <h1 style={{ fontSize:20, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Charts (Nivo)</h1>
             <p style={{ fontSize:13, color:T.gray800 }}>리포트에 사용되는 Nivo 기반 차트 컴포넌트입니다.</p>
           </div>
+
+          {/* Tooltip Styles */}
+          <Card title="Tooltips" subtitle="차트 호버 툴팁 스타일 — 공통: 배경 #FFF · border gray200 · radius 6 · padding 10/12 · shadow 0 6 20 rgba(0,0,0,.1)">
+            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
+              {/* Style A — 상단 라벨(14/500/gray800) + 하단 값(18/600/gray990), 중앙 정렬 */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style A</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
+                  <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>-18 pt</span>
+                </div>
+              </div>
+
+              {/* Style B — Label + Value + Badge (LineChart 이탈 뱃지) */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style B</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>1,248</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", height:24, padding:"4px 6px", borderRadius:8, background:"#FEF2F2", color:T.red500, fontSize:12, fontWeight:500, lineHeight:"16px" }}>-42명 이탈</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
+              {/* Style C — Multi Series with dot (MultiLineChart) */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style C</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"flex-start", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>35~44세</span>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:10, height:10, borderRadius:"50%", background:CHART_COLORS[0], flexShrink:0 }} />
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 높음</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>28.0</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:10, height:10, borderRadius:"50%", background:"#B0B3B8", flexShrink:0 }} />
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 낮음</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>36.4</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Style D — Funnel Multi-Row (좌측 정렬 여러 항목) */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style D</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>Step 3: 결제 완료</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>유저 수</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>1,248</span>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>전환율</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.blue500, justifySelf:"end" }}>68.4%</span>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>직전 대비 이탈</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.red500, justifySelf:"end" }}>-192 (13.3%)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Style E — Combo (Bar + Line with distinct markers) */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style E</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2023</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:20, display:"inline-flex", justifyContent:"center", flexShrink:0 }}>
+                        <span style={{ width:16, height:10, background:CHART_COLORS[0], display:"inline-block", borderRadius:2 }} />
+                      </span>
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>매출액(억원)</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>956</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <svg width={20} height={12} style={{ display:"inline-block", flexShrink:0 }}>
+                        <line x1={0} y1={6} x2={20} y2={6} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
+                        <circle cx={10} cy={6} r={5} fill={T.white} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
+                      </svg>
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>직원수(명)</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>95</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+          </Card>
 
           {/* Color Palette */}
           <Card title="Chart 색상 팔레트" subtitle="데이터 시리즈에 순서대로 적용">
@@ -919,6 +996,42 @@ export default function App() {
             />
           </Card>
 
+          {/* Vertical Bar - Single (Blue) */}
+          <Card title="Vertical Bar (Single) — Blue" subtitle="Blue 500 → 400 → 300 → 200 → 100 5단계 · 값 % 표기">
+            <VBarChart
+              title="별점 분포"
+              height={280}
+              colors={["#DBEAFE", "#BEDBFF", "#8EC5FF", "#51A2FF", "#2B7FFF"]}
+              valueFormat={(v) => `${v}%`}
+              data={[
+                { label:"1점", value:28, count:5612 },
+                { label:"2점", value:42, count:8419 },
+                { label:"3점", value:54, count:10824 },
+                { label:"4점", value:68, count:13631 },
+                { label:"5점", value:82, count:16437 },
+              ]}
+              keys={["value"]}
+            />
+          </Card>
+
+          {/* Vertical Bar - Single (Red) */}
+          <Card title="Vertical Bar (Single) — Red" subtitle="Red 500 → 400 → 300 → 200 → 100 5단계 · 많은 값부터 내림차순 · 부정 지표 강조용">
+            <VBarChart
+              title="카테고리별 SLA 위반율 (24h 초과 비율)"
+              height={280}
+              colors={["#FB2C36", "#FF6467", "#FFA2A2", "#FFC9C9", "#FFE2E2"]}
+              valueFormat={(v) => `${v}%`}
+              data={[
+                { label:"기능 오류", value:55, count:160 },
+                { label:"결제/환불", value:35, count:133 },
+                { label:"사용 방법", value:15, count:36 },
+                { label:"일반 문의", value:8, count:9 },
+                { label:"계정/인증", value:5, count:9 },
+              ]}
+              keys={["value"]}
+            />
+          </Card>
+
           {/* Vertical Bar - Stacked */}
           <Card title="Vertical Bar (Stacked)" subtitle="스택형 세로 막대 - 여러 시리즈 누적">
             <VBarChart
@@ -955,11 +1068,12 @@ export default function App() {
           </Card>
 
           {/* Line / Area - Blue */}
-          <Card title="Line / Area Chart (Blue)" subtitle="블루 라인 차트 - 시계열 추이">
+          <Card title="Line / Area Chart (Blue)" subtitle="블루 라인 차트 - 시계열 추이 · metricType='count' (최소 표시 폭 자동)">
             <LineChart
               title="Monthly Revenue Trend"
               variant="blue"
               enableArea
+              metricType="count"
               data={[{
                 id: "Revenue",
                 data: [
@@ -975,11 +1089,12 @@ export default function App() {
           </Card>
 
           {/* Line / Area - Red */}
-          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이 (호버 시 이탈 수 뱃지)">
+          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이 · metricType='percent' · 호버 시 이탈 수 뱃지">
             <LineChart
               title="Churn Rate Trend"
               variant="red"
               enableArea
+              metricType="percent"
               data={[{
                 id: "Churn Rate",
                 data: [
@@ -1019,12 +1134,13 @@ export default function App() {
           </Card>
 
           {/* Line / Area Chart (Red) — No Badge */}
-          <Card title="Line / Area Chart (Red) — No Badge" subtitle="레드 라인 차트 - 툴팁은 표시하되 'x명 이탈' 뱃지만 비활성화 (disableBadge prop) · NPS 같은 일반 수치 추이용">
+          <Card title="Line / Area Chart (Red) — No Badge" subtitle="레드 라인 차트 · metricType='nps' (작은 변화 과장 방지) · disableBadge">
             <LineChart
               title="월별 NPS 추이"
               variant="red"
               enableArea
               disableBadge
+              metricType="nps"
               data={[{
                 id: "NPS",
                 data: [
@@ -1191,9 +1307,236 @@ export default function App() {
 
         </>}
 
+        {page==="modal" && <>
+          <div style={{ marginBottom:24 }}>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 2px" }}>CUBIG Design System</p>
+            <h1 style={{ fontSize:20, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Modal</h1>
+            <p style={{ fontSize:13, color:T.gray800 }}>Figma 11220:1004 · Backdrop + 중앙 정렬 다이얼로그. ESC / backdrop 클릭으로 닫힘.</p>
+          </div>
+
+          <Card title="Sizes" subtitle="xs 320 · sm 480 · md 640 · lg 960 · xl 1200 · radius 12">
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              {[
+                { key:"xs", label:"xs (320)" },
+                { key:"sm", label:"sm (480)" },
+                { key:"md", label:"md (640)" },
+                { key:"lg", label:"lg (960)" },
+                { key:"xl", label:"xl (1200)" },
+              ].map(s => (
+                <Btn key={s.key} variant="solid-secondary" size="md" onClick={()=>setModalSize(s.key)}>{s.label}</Btn>
+              ))}
+            </div>
+          </Card>
+
+          <Modal
+            open={modalSize !== null}
+            onClose={()=>setModalSize(null)}
+            onConfirm={()=>setModalSize(null)}
+            title={`제목 (${modalSize ?? ""})`}
+            description={modalDesc ? "Description 텍스트입니다. 우측 상단 토글로 껐다 켰다 할 수 있어요." : undefined}
+            size={modalSize ?? "sm"}
+            actionType={modalActionType}
+            buttonLayout={modalBtnLayout}
+            buttonAlignment={modalBtnAlign}
+            divider={modalDivider}
+          >
+            <div style={{ height:200, background:T.blue50, borderRadius:8 }} />
+          </Modal>
+
+          <Card title="Header — Description 토글" subtitle="title 아래 description 표시 여부">
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
+              <Btn variant={modalDesc ? "solid-primary" : "solid-secondary"} size="md" onClick={()=>setModalDesc(true)}>On</Btn>
+              <Btn variant={!modalDesc ? "solid-primary" : "solid-secondary"} size="md" onClick={()=>setModalDesc(false)}>Off</Btn>
+            </div>
+          </Card>
+
+          <Card title="Divider" subtitle="Header와 Body 사이 1px gray200 라인 (끈 버전 / 켠 버전)">
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalDividerVariant("off")}>Divider 없음</Btn>
+              <Btn variant="solid-primary" size="md" onClick={()=>setModalDividerVariant("on")}>Divider 있음</Btn>
+            </div>
+          </Card>
+
+          <Modal
+            open={modalDividerVariant !== null}
+            onClose={()=>setModalDividerVariant(null)}
+            onConfirm={()=>setModalDividerVariant(null)}
+            title="제목"
+            description="Description 텍스트"
+            size="sm"
+            divider={modalDividerVariant === "on"}
+          >
+            <div style={{ height:200, background:T.blue50, borderRadius:8 }} />
+          </Modal>
+
+          <Card title="Action Area" subtitle="type · buttonLayout · alignment 조합 — 열어서 확인">
+            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>Type</p>
+                <div style={{ display:"flex", gap:6 }}>
+                  {["dual","single"].map(v => (
+                    <PillBtn key={v} label={v} active={modalActionType===v} onClick={()=>setModalActionType(v)} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonLayout</p>
+                <div style={{ display:"flex", gap:6 }}>
+                  {["hug","fill"].map(v => (
+                    <PillBtn key={v} label={v} active={modalBtnLayout===v} onClick={()=>setModalBtnLayout(v)} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonAlignment</p>
+                <div style={{ display:"flex", gap:6 }}>
+                  {["start","end","space-between"].map(v => (
+                    <PillBtn key={v} label={v} active={modalBtnAlign===v} onClick={()=>setModalBtnAlign(v)} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Btn variant="solid-primary" size="md" onClick={()=>setModalActionOpen(true)}>현재 설정으로 열기</Btn>
+              </div>
+            </div>
+          </Card>
+
+          <Modal
+            open={modalActionOpen}
+            onClose={()=>setModalActionOpen(false)}
+            onConfirm={()=>setModalActionOpen(false)}
+            title="제목"
+            description={modalDesc ? `${modalActionType} · ${modalBtnLayout} · ${modalBtnAlign}` : undefined}
+            size="sm"
+            actionType={modalActionType}
+            buttonLayout={modalBtnLayout}
+            buttonAlignment={modalBtnAlign}
+            divider={modalDivider}
+          >
+            <div style={{ height:200, background:T.blue50, borderRadius:8 }} />
+          </Modal>
+
+          <Card title="Content Blocks" subtitle="모달 내부 레이아웃 — UserCard / Field / Stat / Grid (1~4단)">
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("user")}>유저 헤더 + Field 반복</Btn>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("stats")}>탭 + 2단 Stat 그리드</Btn>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("4col")}>4단 Stat 그리드</Btn>
+            </div>
+          </Card>
+
+          {/* Pattern 1: 유저 카드 + Field 반복 (Synthetic Respondent Samples) */}
+          <Modal
+            open={modalContentOpen === "user"}
+            onClose={()=>setModalContentOpen(null)}
+            title="Synthetic Respondent Samples"
+            size="md"
+            actionType="single"
+            confirmLabel="Close"
+            onConfirm={()=>setModalContentOpen(null)}
+          >
+            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+              <ModalUserCard
+                icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+                name="Kim Seoyeon"
+                subtitle="Female, Age 28, Marketing Manager"
+              />
+              <div style={{
+                display:"flex", flexDirection:"column", gap:8, padding:8,
+                borderRadius:16, background:T.gray50,
+              }}>
+                <ModalField label="Personality Traits" style={{ border: "none" }}>
+                  Early adopter highly sensitive to trends, actively exploring new services. Values efficiency and carefully analyzes price-to-quality ratios.
+                </ModalField>
+                <ModalField label="Lifestyle" style={{ border: "none" }}>
+                  Frequent overtime on weekdays leads to concentrated content consumption on weekends. Mobile viewing during 2-hour daily commute.
+                </ModalField>
+                <ModalField label="Consumption Patterns" style={{ border: "none" }}>
+                  Average monthly entertainment spending: $85. High willingness to pay for premium services. Started 3 new subscriptions in past 6 months.
+                </ModalField>
+              </div>
+            </div>
+          </Modal>
+
+          {/* Pattern 2: 탭 + 2단 Stat 그리드 (Detailed Analysis) */}
+          <Modal
+            open={modalContentOpen === "stats"}
+            onClose={()=>setModalContentOpen(null)}
+            title="Detailed Analysis"
+            size="md"
+            divider={true}
+            actionType="single"
+            confirmLabel="Close"
+            onConfirm={()=>setModalContentOpen(null)}
+          >
+            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+              <SegmentedControl
+                items={["Customer Overview","Behavior Insights","Strategic Analysis"]}
+                activeIndex={modalContentTab}
+                onChange={setModalContentTab}
+                size="md"
+              />
+              <div>
+                <div style={{ fontSize:13, fontWeight:500, color:T.gray800, marginBottom:8 }}>Persona</div>
+                <ModalUserCard name="Premium Enthusiasts" subtitle="Early adopters driven by quality and brand value." />
+              </div>
+              <div>
+                <div style={{ fontSize:13, fontWeight:500, color:T.gray800, marginBottom:8 }}>Overview</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  <ModalGrid columns={2}>
+                    <ModalStat label="Size" value="28.4K" unit="users" />
+                    <ModalStat label="Average Age" value="35 – 45" />
+                  </ModalGrid>
+                  <ModalField label="Gender Distribution">
+                    <div style={{ display:"flex", alignItems:"baseline", gap:16 }}>
+                      <div><strong style={{ fontSize:16, color:T.gray990 }}>62%</strong> <span style={{ color:T.gray800, fontSize:13 }}> female</span></div>
+                      <div style={{ width:1, height:12, background:T.gray200 }} />
+                      <div><strong style={{ fontSize:16, color:T.gray990 }}>38%</strong> <span style={{ color:T.gray800, fontSize:13 }}> male</span></div>
+                    </div>
+                  </ModalField>
+                </div>
+              </div>
+            </div>
+          </Modal>
+
+          {/* Pattern 3: 4단 그리드 */}
+          <Modal
+            open={modalContentOpen === "4col"}
+            onClose={()=>setModalContentOpen(null)}
+            title="Behavioral Metrics"
+            description="Key engagement indicators across the cohort"
+            size="lg"
+            actionType="single"
+            confirmLabel="Close"
+            onConfirm={()=>setModalContentOpen(null)}
+          >
+            <ModalGrid columns={4}>
+              <ModalStat label="Avg. Session" value="12.4" unit="min" />
+              <ModalStat label="Retention" value="78%" />
+              <ModalStat label="ARPU" value="$42" />
+              <ModalStat label="Churn" value="4.2%" />
+            </ModalGrid>
+          </Modal>
+        </>}
+
         {page==="icons" && <IconsTab />}
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
+
+        {page==="reports" && <>
+          <Card title="Reports" subtitle="각 리포트는 새 창에서 열립니다.">
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/coupang`, "_blank")}>
+                쿠팡 캐리어 리뷰 리포트
+              </Btn>
+              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/chatgpt`, "_blank")}>
+                ChatGPT 리뷰 리포트
+              </Btn>
+              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/cs`, "_blank")}>
+                고객 티켓 분석 리포트
+              </Btn>
+            </div>
+          </Card>
+        </>}
       </div>
     </div>
   );

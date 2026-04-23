@@ -299,7 +299,7 @@ export default function ReportDemo() {
         </div>
 
         {/* 컬럼 강조 — column.highlight: "red" */}
-        <div>
+        <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Column highlight — Red (column.highlight: "red") · 부정 지표 강조</div>
           <SectionCard>
             <ContentCard padding={0}>
@@ -319,6 +319,29 @@ export default function ReportDemo() {
             </ContentCard>
           </SectionCard>
         </div>
+
+        {/* 컬럼 강조 — column.highlight: "green" */}
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Column highlight — Green (column.highlight: "green") · 긍정 지표 강조</div>
+          <SectionCard>
+            <ContentCard padding={0}>
+              <DataTable
+                columns={[
+                  { key: "label", label: "Label" },
+                  { key: "col1", label: "Column 1", align: "center", highlight: "green" },
+                  { key: "col2", label: "Column 2", align: "center", highlight: "green" },
+                  { key: "col3", label: "Column 3", align: "center" },
+                ]}
+                data={[
+                  { label: "Row 1", col1: "+42", col2: "+58", col3: "+12" },
+                  { label: "Row 2", col1: "88%", col2: "92%", col3: "55%" },
+                  { label: "Row 3", col1: "4.7 / 5.0", col2: "4.9 / 5.0", col3: "4.1 / 5.0" },
+                ]}
+              />
+            </ContentCard>
+          </SectionCard>
+        </div>
+
       </Section>
 
       <Section>
@@ -761,7 +784,7 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>UserCard (4 Types)</Label>
+        <Label>UserCard (5 Types)</Label>
 
         <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Simple</div>
         <SectionCard style={{ marginBottom: 24 }}>
@@ -827,7 +850,7 @@ export default function ReportDemo() {
         </SectionCard>
 
         <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Detail + CTA</div>
-        <SectionCard>
+        <SectionCard style={{ marginBottom: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
             <UserCard type="detail" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Kang Taehoon" subtitle="Male, Age 27, Game Developer"
@@ -841,6 +864,21 @@ export default function ReportDemo() {
               name="Park Jisoo" subtitle="Female, Age 24, Student"
               description={'"학생 할인", "모바일 플랜" 관심. 광고 시청 대신 저가 플랜 제공 시 전환 가능성 높음.'}
               buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Park Jisoo")} />
+          </div>
+        </SectionCard>
+
+        <div style={{ fontSize: 12, fontWeight: 600, color: T.blue500, marginBottom: 8, fontFamily: F }}>Quote (말풍선 유저 의견) · sentiment 로 아이콘 자동 선택</div>
+        <SectionCard>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8, alignItems: "stretch" }}>
+            <UserCard type="quote" sentiment="negative"
+              name="콘텐츠 품질" subtitle="1점 · 공감 99"
+              quote="진짜 피드백도 몇번이고 드렸었는데 아예 들으시지도 않고 그대로입니다. 그냥 앱 삭제하겠습니다." />
+            <UserCard type="quote" sentiment="negative"
+              name="가격/한도" subtitle="1점 · 공감 43"
+              quote="무료 로그인 유저들 이미지 제작할때 한도 다 쓰고 풀리는 시간이 정해져있지 않아서 매우 불편하다. 개발진들이 열리는 시간 기준을 따로 해놨으면 한다." />
+            <UserCard type="quote" sentiment="negative"
+              name="기능/UX" subtitle="1점 · 공감 3"
+              quote="지난번 업데이트 때부터 블루투스 키보드 연결안 되더니 이번 업데이트때도 해결이 안됐어요. 제대로 쓰지를 못해서 유료결제까지 취소했습니다." />
           </div>
         </SectionCard>
       </Section>

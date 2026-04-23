@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
@@ -56,13 +56,13 @@ const tooltipBox = {
   background: WHITE,
   border: `1px solid ${GRAY200}`,
   borderRadius: 6,
-  padding: "4px 8px",
+  padding: "10px 12px",
   boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
   fontFamily: "Pretendard, sans-serif",
   display: "inline-flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: 4,
+  gap: 6,
   whiteSpace: "nowrap",
 };
 
@@ -238,7 +238,6 @@ export function PieChart({ data, title, size = 180, showInnerLabels = false, hid
             }}
             animate
             motionConfig="gentle"
-            theme={baseTheme}
             tooltip={({ datum }) => (
               <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(1)}%${hideValues ? "" : ` (${datum.value.toLocaleString()})`}`} />
             )}
@@ -544,42 +543,45 @@ export function SemiDonutChart({
 // Bar: height 48, borderRadius 0 8 8 0 (우측만), 색상별
 // Percent: 20px Medium #171719
 // Count: 18px Regular #7B7E85, gap 4
+// Grid 기반 HBar — 라벨 컬럼은 가장 긴 라벨에 맞춰 자동, maxWidth 200 에서 ellipsis
 function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
   const [hovered, setHovered] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const pct = maxPct > 0 ? (value / maxPct) * 100 : 0;
   const displayColor = hovered ? darken(barColor, 0.1) : barColor;
-  // 회색 배경 위 흰 글자 가독성 떨어지므로 GRAY500 으로 (StackedHBar 와 동일)
   const c = (barColor || "").toLowerCase();
   const isGrayBar = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
   const insideTextColor = isGrayBar ? GRAY500 : WHITE;
+  const hoverHandlers = {
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+    onMouseMove: (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    },
+  };
 
   return (
-    <div
-      style={{ display: "flex", alignItems: "center", gap: 24, height: 48, position: "relative" }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Label — 우측 정렬 (StackedHBar 와 동일) */}
-      <div style={{ width: 120, minWidth: 120, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", height: 40 }}>
-        <span style={{
+    <>
+      {/* 라벨 셀 (grid col 1) */}
+      <div {...hoverHandlers} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", height: 48 }}>
+        <span title={label} style={{
           fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990,
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%",
-          textAlign: "right",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          maxWidth: 200, textAlign: "right",
         }}>{label}</span>
       </div>
-      {/* Container */}
-      <div style={{
-        flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 16,
+      {/* 바 셀 (grid col 2) */}
+      <div {...hoverHandlers} style={{
+        display: "flex", alignItems: "center", gap: 16,
         borderLeft: `1px solid ${GRAY200}`, padding: "4px 12px 4px 0",
-        position: "relative",
+        position: "relative", height: 48,
       }}>
-        {/* Bar area */}
         <div style={{ flex: 1, minWidth: 0, position: "relative", height: 40 }}>
-          {/* Bar */}
           <div style={{
             width: `${Math.max(pct, 0.5)}%`, height: 40,
             background: displayColor,
-            borderRadius: "0 2px 2px 0",
+            borderRadius: "0 8px 8px 0",
             transition: "width 0.6s ease, background 0.15s ease",
             display: valueInside ? "flex" : "block",
             alignItems: valueInside ? "center" : undefined,
@@ -593,55 +595,72 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
               </span>
             )}
           </div>
-          {/* Hover overlay on bar only */}
           {hovered && pct > 0 && (
             <div style={{
               position: "absolute", top: 0, left: 0,
               width: `${Math.max(pct, 0.5)}%`, height: 40,
               background: "rgba(0,0,0,0.10)",
-              borderRadius: "0 2px 2px 0", pointerEvents: "none",
+              borderRadius: "0 8px 8px 0", pointerEvents: "none",
             }} />
           )}
         </div>
-        {/* Counter — valueInside 가 아닐 때만 우측에 표시 */}
         {!valueInside && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
             <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{value}%</span>
             {count != null && <span style={{ fontSize: 18, fontWeight: 400, lineHeight: "26px", color: GRAY800 }}>({count.toLocaleString()})</span>}
           </div>
         )}
-        {/* Tooltip: 바 중앙 위 2px */}
         {hovered && (
           <div style={{
-            position: "absolute", bottom: "calc(100% + 2px)", left: 0,
-            width: `${Math.max(pct, 0.5)}%`, minWidth: 60,
-            display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 10,
+            position: "absolute",
+            left: mousePos.x + 12,
+            top: mousePos.y - 12,
+            pointerEvents: "none",
+            zIndex: 10,
+            transform: "translateY(-100%)",
           }}>
             <Tooltip label={label} value={`${value}%${count != null ? ` (${count.toLocaleString()})` : ""}`} />
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
-export function HBarChart({ data, title, maxValue, valueInside = false }) {
-  // maxValue 미지정 시 데이터의 최댓값으로 자동 — 가장 긴 막대가 끝까지 차게
+// HBarChart variant:
+//   default → [Blue500, Lime500, Gray, Gray, ...]
+//   "blue"   → [Blue500, Blue400, Blue300, Gray, ...]
+//   "green"  → [Green500, Green400, Green300, Gray, ...]
+//   "red"    → [Red400,  Red300,  Red200,  Gray, ...]
+const HBAR_VARIANT_COLORS = {
+  default: [CHART_COLORS[0], CHART_COLORS[1]],
+  blue:    ["#2B7FFF", "#51A2FF", "#8EC5FF"], // Blue 500 → 400 → 300
+  green:   ["#00C950", "#05DF72", "#7BF1A8"], // Green 500 → 400 → 300
+  red:     ["#FF6467", "#FFA2A2", "#FFC9C9"], // Red 400 → 300 → 200
+};
+
+export function HBarChart({ data, title, maxValue, valueInside = false, minRows = 0, variant = "default" }) {
   const max = maxValue ?? Math.max(...data.map((d) => d.value), 1);
+  const emptyCount = Math.max(minRows - data.length, 0);
+  const palette = HBAR_VARIANT_COLORS[variant] || HBAR_VARIANT_COLORS.default;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      {/* Inline Value variant 일 때만 우측 여백 40 (타이틀 제외) */}
-      <div style={{ display: "flex", flexDirection: "column", paddingRight: valueInside ? 40 : 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 24, paddingRight: valueInside ? 40 : 0 }}>
         {data.map((d, i) => {
           let barColor;
           if (d.color) barColor = d.color;
-          else if (i === 0) barColor = CHART_COLORS[0]; // Blue 500 — 1번 항목
-          else if (i === 1) barColor = CHART_COLORS[1]; // Lime 500 — 2번 항목
-          else barColor = GRAY200;                      // 3번 이후 회색
+          else if (i < palette.length) barColor = palette[i];
+          else barColor = GRAY200;
           return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} />;
         })}
+        {Array.from({ length: emptyCount }).map((_, i) => (
+          <React.Fragment key={`empty-${i}`}>
+            <div style={{ height: 48 }} />
+            <div style={{ height: 48 }} />
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
@@ -650,13 +669,70 @@ export function HBarChart({ data, title, maxValue, valueInside = false }) {
 // ═══════════════════════════════════════════════════════════════════════
 // 3. VERTICAL BAR (Nivo) - 각 바에 다른 색상
 // ═══════════════════════════════════════════════════════════════════════
-export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "grouped", layout = "vertical", stacked = false, valueFormat, height = 320 }) {
+// VBar 개별 바 — 위치별 라운드(단일/그룹 → 상단만, 스택 → 맨위 세그먼트만)
+function VBarItem({ bar, isStacked, actualKeys, valueFormat, isSingleKey, setHoverActive }) {
+  const { showTooltipFromEvent, hideTooltip } = useTooltip();
+  const v = bar.data.value;
+  const isNeg = v < 0;
+  const R = Math.max(0, Math.min(8, bar.width / 2, bar.height / 2));
+  let corners;
+  if (isStacked) {
+    const isLastKey = bar.data.id === actualKeys[actualKeys.length - 1];
+    corners = isLastKey
+      ? (isNeg
+          ? { tl: 0, tr: 0, br: R, bl: R }
+          : { tl: R, tr: R, br: 0, bl: 0 })
+      : { tl: 0, tr: 0, br: 0, bl: 0 };
+  } else {
+    corners = isNeg
+      ? { tl: 0, tr: 0, br: R, bl: R }
+      : { tl: R, tr: R, br: 0, bl: 0 };
+  }
+  const showLabel = bar.width >= 24 && bar.height >= 16;
+  const labelY = isNeg ? bar.height - 14 : 14;
+  const c = (bar.color || "").toLowerCase();
+  const isGrayBar = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
+  const labelColor = isGrayBar ? GRAY500 : WHITE;
+  const showTip = (e) => {
+    showTooltipFromEvent(
+      <Tooltip
+        label={isSingleKey ? bar.data.indexValue : `${bar.data.indexValue} — ${bar.data.id}`}
+        value={`${valueFormat ? valueFormat(v) : v}${bar.data.data?.count != null ? ` (${Number(bar.data.data.count).toLocaleString()}건)` : ""}`}
+      />,
+      e
+    );
+  };
+  return (
+    <g
+      transform={`translate(${bar.x},${bar.y})`}
+      onMouseEnter={(e) => { setHoverActive?.(true); e.currentTarget.style.filter = "brightness(0.85)"; e.currentTarget.style.transition = "filter 0.15s ease"; showTip(e); }}
+      onMouseMove={showTip}
+      onMouseLeave={(e) => { setHoverActive?.(false); e.currentTarget.style.filter = "none"; hideTooltip(); }}
+      style={{ cursor: "pointer" }}
+    >
+      <path d={roundedRectPath(bar.width, bar.height, corners)} fill={bar.color} />
+      {showLabel && (
+        <text
+          x={bar.width / 2} y={labelY}
+          textAnchor="middle" dominantBaseline="central"
+          fill={labelColor}
+          style={{ fontSize: 16, fontWeight: 600, fontFamily: "Pretendard, sans-serif", pointerEvents: "none" }}
+        >
+          {valueFormat ? valueFormat(v) : v}
+        </text>
+      )}
+    </g>
+  );
+}
+
+export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "grouped", layout = "vertical", stacked = false, valueFormat, height = 320, colors, hideLegend = false }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
   const [hoverActive, setHoverActive] = useState(false);
   const isStacked = stacked || groupMode === "stacked";
   const isSingleKey = actualKeys.length === 1;
+  const palette = colors || CHART_COLORS;
   const colorMap = {};
-  actualKeys.forEach((k, i) => { colorMap[k] = CHART_COLORS[i % CHART_COLORS.length]; });
+  actualKeys.forEach((k, i) => { colorMap[k] = palette[i % palette.length]; });
 
   // 차트 너비 추적 (X축 라벨 ellipsis용)
   const containerRef = useRef(null);
@@ -672,6 +748,19 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
   const MARGIN_L = 60, MARGIN_R = 20;
   const bandW = chartWidth > 0 ? (chartWidth - MARGIN_L - MARGIN_R) / data.length : 0;
 
+  // 음수 포함 여부 + nice min/max 계산
+  const flatVals = data.flatMap(d => actualKeys.map(k => Number(d[k])).filter(v => Number.isFinite(v)));
+  const hasNegative = flatVals.some(v => v < 0) && !isStacked;
+  const rawMin = Math.min(...flatVals, 0);
+  const rawMax = Math.max(...flatVals, 0);
+  const step = niceStepValue(rawMax - rawMin || 1);
+  const niceMin = hasNegative ? Math.floor(rawMin / step) * step : undefined;
+  const niceMax = hasNegative ? Math.ceil(rawMax / step) * step : undefined;
+  const tickArr = [];
+  if (hasNegative) {
+    for (let v = niceMin; v <= niceMax + 1e-9; v += step) tickArr.push(Math.round(v * 1e6) / 1e6);
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
@@ -680,7 +769,7 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
           data={data}
           keys={actualKeys}
           indexBy={indexBy}
-          colors={isSingleKey ? (({ index }) => CHART_COLORS[index % CHART_COLORS.length]) : (({ id }) => colorMap[id] || CHART_COLORS[0])}
+          colors={isSingleKey ? (({ index }) => palette[index % palette.length]) : (({ id }) => colorMap[id] || palette[0])}
           groupMode={isStacked ? "stacked" : groupMode}
           layout={layout}
           margin={{ top: 10, right: 20, bottom: 50, left: 60 }}
@@ -695,40 +784,33 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
           motionConfig="gentle"
           theme={{ ...baseTheme, labels: { text: { fontSize: 16, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: hasNegative ? tickArr : 5, format: valueFormat }}
           enableGridX={false}
           enableGridY
-          gridYValues={5}
-          onMouseEnter={(_datum, event) => {
-            setHoverActive(true);
-            const el = event.currentTarget;
-            el.style.filter = "brightness(0.85)";
-            el.style.transition = "filter 0.15s ease";
-          }}
-          onMouseLeave={(_datum, event) => {
-            setHoverActive(false);
-            const el = event.currentTarget;
-            el.style.filter = "none";
-          }}
-          tooltip={({ id, indexValue, value }) => (
-            <Tooltip label={isSingleKey ? indexValue : `${indexValue} — ${id}`} value={valueFormat ? valueFormat(value) : value} />
+          gridYValues={hasNegative ? tickArr : 5}
+          valueScale={hasNegative ? { type: "linear", min: niceMin, max: niceMax } : { type: "linear" }}
+          markers={hasNegative ? [{ axis: "y", value: 0, lineStyle: { stroke: GRAY500, strokeWidth: 1 } }] : []}
+          barComponent={(props) => (
+            <VBarItem {...props} isStacked={isStacked} actualKeys={actualKeys} valueFormat={valueFormat} isSingleKey={isSingleKey} setHoverActive={setHoverActive} />
           )}
         />
       </div>
       {/* 범례 */}
+      {!hideLegend && (
       <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: -30 }}>
         {isSingleKey ? data.map((d, i) => (
           <div key={d[indexBy]} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: palette[i % palette.length] }} />
             <span style={{ fontSize: 12, color: GRAY990 }}>{d[indexBy]}</span>
           </div>
         )) : actualKeys.map((k, i) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: CHART_COLORS[i % CHART_COLORS.length] }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: palette[i % palette.length] }} />
             <span style={{ fontSize: 12, color: GRAY990 }}>{k}</span>
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }
@@ -737,7 +819,13 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
 // 5. STACKED HORIZONTAL BAR (100%) - 라운드 없음
 // ═══════════════════════════════════════════════════════════════════════
 // 커스텀 바 컴포넌트 — useTooltip 훅은 Nivo 컨텍스트 내부에서만 동작하므로 별도 컴포넌트로 분리
-function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
+// 부분 라운드 rect path — r: { tl, tr, br, bl }
+function roundedRectPath(w, h, r) {
+  const { tl = 0, tr = 0, br = 0, bl = 0 } = r || {};
+  return `M${tl},0 L${w - tr},0 Q${w},0 ${w},${tr} L${w},${h - br} Q${w},${h} ${w - br},${h} L${bl},${h} Q0,${h} 0,${h - bl} L0,${tl} Q0,0 ${tl},0 Z`;
+}
+
+function StackedHBarItem({ bar, hoveredId, setHoveredId, keys }) {
   const { showTooltipFromEvent, hideTooltip } = useTooltip();
   const myId = `${bar.data.indexValue}__${bar.data.id}`;
   const isThisHovered = myId === hoveredId;
@@ -747,6 +835,13 @@ function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
       e
     );
   };
+  const isFirst = keys && bar.data.id === keys[0];
+  const isLast = keys && bar.data.id === keys[keys.length - 1];
+  const R = Math.max(0, Math.min(8, bar.width / 2, bar.height / 2));
+  const corners = {
+    tl: isFirst ? R : 0, bl: isFirst ? R : 0,
+    tr: isLast ? R : 0, br: isLast ? R : 0,
+  };
   return (
     <g
       transform={`translate(${bar.x},${bar.y})`}
@@ -755,8 +850,8 @@ function StackedHBarItem({ bar, hoveredId, setHoveredId }) {
       onMouseLeave={() => { setHoveredId(null); hideTooltip(); }}
       style={{ cursor: "pointer" }}
     >
-      <rect
-        width={bar.width} height={bar.height}
+      <path
+        d={roundedRectPath(bar.width, bar.height, corners)}
         fill={bar.color}
         style={{
           filter: isThisHovered ? "brightness(0.85)" : "none",
@@ -793,7 +888,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
             if (typeof title === "string") {
               const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
               if (m) {
-                return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
+                return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY990, marginLeft: 6 }}>{m[2]}</span></>);
               }
             }
             return title;
@@ -806,7 +901,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
         {(() => {
           const mTop = 4, mBot = 4;
           return (
-            <div style={{ flex: "0 0 auto", minWidth: 140, maxWidth: 240, display: "flex", flexDirection: "column-reverse", paddingRight: 24, paddingTop: mTop, paddingBottom: mBot }}>
+            <div style={{ flex: "0 0 auto", maxWidth: 220, display: "flex", flexDirection: "column-reverse", paddingRight: 24, paddingTop: mTop, paddingBottom: mBot }}>
               {data.map((d, i) => (
                 <div key={i} style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-end",
@@ -816,7 +911,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
                     fontSize: 14, fontWeight: 500, color: GRAY990, fontFamily: "Pretendard, sans-serif",
                     textAlign: "right", whiteSpace: "nowrap",
                     overflow: "hidden", textOverflow: "ellipsis",
-                    maxWidth: "100%",
+                    maxWidth: 200,
                   }}>{d[indexBy]}</span>
                 </div>
               ))}
@@ -853,7 +948,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
           enableGridX={false}
           enableGridY={false}
           barComponent={(props) => (
-            <StackedHBarItem bar={props.bar} hoveredId={hoveredId} setHoveredId={setHoveredId} />
+            <StackedHBarItem bar={props.bar} hoveredId={hoveredId} setHoveredId={setHoveredId} keys={actualKeys} />
           )}
         />
         </div>
@@ -878,7 +973,7 @@ export function StackedHBar({ data, keys, indexBy = "label", title, colors }) {
 //    - 툴팁: 날짜 + 값 + 뱃지(옵션)
 //    - X축: 좌측 시작점/우측 끝점 정렬
 // ═══════════════════════════════════════════════════════════════════════
-function LineTooltip({ point, valueLabel, valuePrefix, badge, badgeVariant = "red" }) {
+function LineTooltip({ point, valueLabel, valuePrefix, valueSuffix = "", badge, badgeVariant = "red" }) {
   const badgeColors = badgeVariant === "red"
     ? { bg: "#FEF2F2", color: RED500 }
     : { bg: GRAY100, color: GRAY990 };
@@ -892,20 +987,21 @@ function LineTooltip({ point, valueLabel, valuePrefix, badge, badgeVariant = "re
       fontFamily: "Pretendard, sans-serif",
       display: "inline-flex",
       flexDirection: "column",
+      alignItems: "center",
       gap: 6,
       whiteSpace: "nowrap",
     }}>
       <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{point.data.x}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990 }}>
-          {valuePrefix}{valueLabel || point.data.yFormatted}
+        <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>
+          {valuePrefix}{valueLabel || point.data.yFormatted}{valueSuffix}
         </span>
         {badge && (
           <span style={{
             display: "inline-flex", alignItems: "center",
-            height: 28, padding: "4px 8px", borderRadius: 8,
+            height: 24, padding: "4px 6px", borderRadius: 8,
             background: badgeColors.bg, color: badgeColors.color,
-            fontSize: 14, fontWeight: 500, lineHeight: "20px",
+            fontSize: 12, fontWeight: 500, lineHeight: "16px",
           }}>
             {badge}
           </span>
@@ -915,19 +1011,63 @@ function LineTooltip({ point, valueLabel, valuePrefix, badge, badgeVariant = "re
   );
 }
 
-export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", badgeFormatter, badgeLabel, disableTooltip = false, disableBadge = false }) {
+// ─── Y축 스케일 규칙 (chart-yscale-spec.md 기반) ─────────────────────────────
+// 메트릭별 최소 표시 폭 + 15% 패딩 + nice step 반올림
+// 작은 변화가 과장되지 않고, 큰 변화는 그대로 보이게
+const METRIC_CONFIG = {
+  nps:     { minDisplayRange: 10,  bounds: [-100, 100] },
+  csat:    { minDisplayRange: 0.5, bounds: [1, 5] },
+  time:    { minDisplayRange: (m) => Math.max(2, m * 0.2), bounds: [0, Infinity] },
+  percent: { minDisplayRange: 5,   bounds: [0, 100] },
+  count:   { minDisplayRange: (m) => Math.max(m * 0.2, 1), bounds: [0, Infinity] },
+};
+// ~5 ticks 가 되도록 1/2/5 × 10^n 중 선택
+function niceStepValue(range) {
+  if (range <= 0) return 1;
+  const target = range / 5;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(target)));
+  const normalized = target / magnitude;
+  if (normalized <= 1) return magnitude;
+  if (normalized <= 2) return magnitude * 2;
+  if (normalized <= 5) return magnitude * 5;
+  return magnitude * 10;
+}
+export function computeYScale(values, metricType) {
+  const cfg = METRIC_CONFIG[metricType];
+  if (!cfg || !values?.length) return null;
+  const dataMin = Math.min(...values);
+  const dataMax = Math.max(...values);
+  const minRange = typeof cfg.minDisplayRange === "function" ? cfg.minDisplayRange(dataMax) : cfg.minDisplayRange;
+  const effectiveRange = Math.max(dataMax - dataMin, minRange);
+  const center = (dataMin + dataMax) / 2;
+  const padding = effectiveRange * 0.15;
+  const rawMin = center - effectiveRange / 2 - padding;
+  const rawMax = center + effectiveRange / 2 + padding;
+  const step = niceStepValue(rawMax - rawMin);
+  const yMin = Math.max(Math.floor(rawMin / step) * step, cfg.bounds[0]);
+  const yMax = Math.min(Math.ceil(rawMax / step) * step, cfg.bounds[1]);
+  return { yMin, yMax, tickStep: step };
+}
+
+export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", valueSuffix = "", badgeFormatter, badgeLabel, disableTooltip = false, disableBadge = false, yMin: yMinOverride, yMax: yMaxOverride, tickStep, metricType }) {
   const isRed = variant === "red";
   const lineColor = isRed ? RED500 : CHART_COLORS[0];
 
-  // Y축: 5단계 통일
+  // metricType 있으면 자동 계산 (명시적 yMin/yMax 있으면 그쪽 우선)
+  const autoScale = metricType ? computeYScale(data.flatMap(s => s.data.map(d => d.y)), metricType) : null;
+  const resolvedYMin = yMinOverride != null ? yMinOverride : autoScale?.yMin;
+  const resolvedYMax = yMaxOverride != null ? yMaxOverride : autoScale?.yMax;
+  const resolvedStep = tickStep != null ? tickStep : autoScale?.tickStep;
+
   const allY = data.flatMap(s => s.data.map(d => d.y));
   const yMin = Math.min(...allY);
-  // red variant 라고 무조건 % / 이탈률 처리하지 않음 — 일반 수치 데이터(NPS, 시간 등)에도 사용 가능
   const yFormat = undefined;
 
-  // areaBaselineValue를 yScale min과 일치시켜 넘침 방지
-  // isRed 라도 데이터에 음수 있으면 그대로 사용 (NPS 같은 음수 지표 잘림 방지)
-  const scaleMin = isRed && yMin >= 0 ? 0 : yMin;
+  const scaleMin = resolvedYMin != null ? resolvedYMin : (isRed && yMin >= 0 ? 0 : yMin);
+  const scaleMax = resolvedYMax != null ? resolvedYMax : "auto";
+  const gridValues = resolvedStep != null && resolvedYMin != null && resolvedYMax != null
+    ? (() => { const a = []; for (let v = resolvedYMin; v <= resolvedYMax; v += resolvedStep) a.push(v); return a; })()
+    : 5;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
@@ -942,7 +1082,7 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           areaOpacity={isRed ? 0.08 : 0.12}
           areaBaselineValue={scaleMin}
           margin={{ top: 20, right: 40, bottom: 50, left: 60 }}
-          yScale={{ type: "linear", min: scaleMin, max: "auto" }}
+          yScale={{ type: "linear", min: scaleMin, max: scaleMax }}
           enablePoints
           pointSize={10}
           pointBorderWidth={2}
@@ -950,18 +1090,37 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
           pointColor={WHITE}
           enableGridX={false}
           enableGridY
-          gridYValues={5}
+          gridYValues={gridValues}
           animate
           motionConfig="gentle"
-          theme={{
-            ...baseTheme,
-            crosshair: { line: { stroke: isRed ? RED500 : GRAY800, strokeWidth: 1, strokeOpacity: 0.8 } },
-          }}
+          theme={{ ...baseTheme }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5, format: yFormat }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: gridValues, format: yFormat }}
           useMesh
-          enableCrosshair
-          crosshairType="x"
+          enableCrosshair={false}
+          layers={[
+            "grid",
+            "markers",
+            "axes",
+            "areas",
+            ({ currentPoint, innerWidth, innerHeight }) => {
+              if (!currentPoint) return null;
+              return (
+                <svg x={0} y={0} width={innerWidth} height={innerHeight} style={{ overflow: "hidden" }}>
+                  <line
+                    x1={currentPoint.x} y1={0}
+                    x2={currentPoint.x} y2={innerHeight}
+                    stroke={GRAY800} strokeWidth={1} strokeOpacity={0.8} strokeDasharray="4 4"
+                  />
+                </svg>
+              );
+            },
+            "lines",
+            "points",
+            "slices",
+            "mesh",
+            "legends",
+          ]}
           tooltip={disableTooltip ? () => null : ({ point }) => {
             let badge = null;
             // badge 는 disableBadge 가 false 일 때만, 명시적으로 전달된 경우 표시
@@ -978,6 +1137,7 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
               <LineTooltip
                 point={point}
                 valuePrefix={valuePrefix || ""}
+                valueSuffix={valueSuffix || ""}
                 valueLabel={undefined}
                 badge={badge}
                 badgeVariant={isRed ? "red" : undefined}
@@ -1044,13 +1204,19 @@ export function MultiLineChart({ data, title, curve = "linear" }) {
               boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
               fontFamily: "Pretendard, sans-serif",
               display: "inline-flex",
-              alignItems: "center",
-              gap: 12,
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: 6,
               whiteSpace: "nowrap",
-              fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990,
             }}>
-              <span>X: <strong style={{ fontWeight: 600 }}>{point.data.xFormatted}</strong></span>
-              <span>Y: <strong style={{ fontWeight: 600 }}>{point.data.yFormatted}</strong></span>
+              <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{point.data.xFormatted}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: point.seriesColor || point.serieColor, flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{point.seriesId || point.serieId}</span>
+                </span>
+                <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{point.data.yFormatted}</span>
+              </div>
             </div>
           )}
         />
@@ -1296,19 +1462,16 @@ export function LabeledLineChart({
             left: tooltipPos.x + 12,
             top: tooltipPos.y - 10,
             background: WHITE,
-            color: GRAY990,
             border: `1px solid ${GRAY200}`,
-            borderRadius: 8,
-            padding: "10px 14px",
-            fontSize: 13,
-            fontWeight: 500,
+            borderRadius: 6,
+            padding: "10px 12px",
             fontFamily: FF,
             zIndex: 10,
             pointerEvents: "none",
             whiteSpace: "nowrap",
             boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
           }}>
-            <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13, color: GRAY990 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800, marginBottom: 6 }}>
               {categories[hoveredCol]?.label}
               {categories[hoveredCol]?.count != null && (
                 <span style={{ fontWeight: 400, color: GRAY800, marginLeft: 4 }}>
@@ -1316,13 +1479,17 @@ export function LabeledLineChart({
                 </span>
               )}
             </div>
-            {series.map((s, si) => (
-              <div key={si} style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
-                <span style={{ color: GRAY800 }}>{s.id}</span>
-                <span style={{ marginLeft: "auto", fontWeight: 700, paddingLeft: 12, color: GRAY990 }}>{s.data[hoveredCol]?.y}</span>
-              </div>
-            ))}
+            <div style={{ display: "grid", gridTemplateColumns: "max-content max-content", columnGap: 16, rowGap: 4, alignItems: "center" }}>
+              {series.map((s, si) => (
+                <React.Fragment key={si}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{s.id}</span>
+                  </span>
+                  <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990, justifySelf: "end" }}>{s.data[hoveredCol]?.y}</span>
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -1332,7 +1499,7 @@ export function LabeledLineChart({
         <div style={{ borderTop: `1px solid #CACCCF`, marginTop: 8, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
           <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "10px 0 8px" }}>
             {categories.map((c, i) => (
-              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 14, fontWeight: 500, color: GRAY990 }}>{c.label}</span>
+              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 14, fontWeight: 500, color: GRAY800 }}>{c.label}</span>
             ))}
           </div>
         </div>
@@ -1392,7 +1559,7 @@ export function FlowTable({
         return (
           <>
             {/* 헤더 */}
-            <div style={{ display: "grid", gridTemplateColumns: COL, gap: 0, alignItems: "end", padding: "10px 0", borderBottom: `2px solid ${GRAY990}` }}>
+            <div style={{ display: "grid", gridTemplateColumns: COL, gap: 0, alignItems: "end", padding: "10px 0", borderBottom: `1px solid ${GRAY800}` }}>
               <div />
               <div />
               <div style={{ fontSize: 13, fontWeight: 700, color: GRAY990, textAlign: "center", whiteSpace: "nowrap" }}>{columns.left}</div>
@@ -1458,6 +1625,7 @@ export function QuadrantChart({
   style,
 }) {
   const [hovered, setHovered] = useState(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   // 값 기반 행/열 비율 계산 (quadrants: [topLeft, topRight, bottomLeft, bottomRight])
   const vals = quadrants.map(q => Math.max(parseFloat(q.value) || 1, 0.5));
@@ -1519,7 +1687,15 @@ export function QuadrantChart({
                   return (
                     <div
                       key={i}
-                      onMouseEnter={() => setHovered(i)}
+                      onMouseEnter={(e) => {
+                        setHovered(i);
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                      }}
+                      onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                      }}
                       onMouseLeave={() => setHovered(null)}
                       style={{
                         background: q.color || T.gray100,
@@ -1537,23 +1713,22 @@ export function QuadrantChart({
                       <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: q.labelColor || T.gray990, textAlign: "center" }}>
                         {q.value}<span style={{ fontSize: 18, fontWeight: 400 }}>%</span>
                       </div>
-                      {/* 호버 팝업 툴팁: 사분면 우측 상단 코너에 고정 */}
+                      {/* 호버 팝업 툴팁: 마우스 따라다님 */}
                       {isHovered && (
                         <div style={{
                           position: "absolute",
-                          top: 12, right: 12,
+                          left: mousePos.x + 12,
+                          top: mousePos.y - 12,
+                          transform: "translateY(-100%)",
                           zIndex: 9999, pointerEvents: "none",
                         }}>
-                          <div style={{ ...tooltipBox, padding: "8px 14px", alignItems: "flex-start", gap: 4, whiteSpace: "nowrap" }}>
-                            {q.tag && (
-                              <span style={{ fontSize: 12, fontWeight: 500, color: GRAY800 }}>{q.tag}</span>
-                            )}
-                            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                              <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990 }}>{q.label}</span>
-                              <span style={{ fontSize: 16, fontWeight: 700, color: GRAY990 }}>
-                                {q.value}<span style={{ fontSize: 12, fontWeight: 400 }}>%</span>
-                              </span>
-                            </div>
+                          <div style={{ ...tooltipBox, whiteSpace: "nowrap" }}>
+                            <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>
+                              {q.tag ? `${q.tag} · ${q.label}` : q.label}
+                            </span>
+                            <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>
+                              {q.value}%
+                            </span>
                           </div>
                         </div>
                       )}
@@ -1606,10 +1781,57 @@ export function QuadrantChart({
 // ═══════════════════════════════════════════════════════════════════════
 // GROUPED BAR (Nivo - 세로 그룹/스택 막대)
 // ═══════════════════════════════════════════════════════════════════════
-export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked = false, layout = "vertical", colors, showValueLabels = true }) {
+// GroupedBarChart 개별 바 — 라운드 + 툴팁
+function GroupedBarItem({ bar, isStacked, actualKeys, valueSuffix }) {
+  const { showTooltipFromEvent, hideTooltip } = useTooltip();
+  const v = bar.data.value;
+  const isNeg = v < 0;
+  const R = Math.max(0, Math.min(8, bar.width / 2, bar.height / 2));
+  let corners;
+  if (isStacked) {
+    const isLastKey = bar.data.id === actualKeys[actualKeys.length - 1];
+    corners = isLastKey
+      ? (isNeg ? { tl: 0, tr: 0, br: R, bl: R } : { tl: R, tr: R, br: 0, bl: 0 })
+      : { tl: 0, tr: 0, br: 0, bl: 0 };
+  } else {
+    corners = isNeg
+      ? { tl: 0, tr: 0, br: R, bl: R }
+      : { tl: R, tr: R, br: 0, bl: 0 };
+  }
+  const showTip = (e) => {
+    showTooltipFromEvent(
+      <Tooltip label={`${bar.data.indexValue} — ${bar.data.id}`} value={`${Number(v).toLocaleString()}${valueSuffix || ""}`} />,
+      e
+    );
+  };
+  return (
+    <g
+      transform={`translate(${bar.x},${bar.y})`}
+      onMouseEnter={(e) => { e.currentTarget.style.filter = "brightness(0.85)"; e.currentTarget.style.transition = "filter 0.15s ease"; showTip(e); }}
+      onMouseMove={showTip}
+      onMouseLeave={(e) => { e.currentTarget.style.filter = "none"; hideTooltip(); }}
+      style={{ cursor: "pointer" }}
+    >
+      <path d={roundedRectPath(bar.width, bar.height, corners)} fill={bar.color} />
+    </g>
+  );
+}
+
+export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle, stacked = false, layout = "vertical", colors, showValueLabels = true, valueSuffix = "" }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
   const isStacked = stacked;
   const paletteColors = colors || CHART_COLORS;
+  // 차트 폭 추적 — X축 라벨 ellipsis 폭 계산용
+  const containerRef = useRef(null);
+  const [chartW, setChartW] = useState(0);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) setChartW(e.contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
   // 음수 데이터 자동 지원 — 데이터 min/max 계산해서 명시적으로 전달
   const allValues = data.flatMap((d) => actualKeys.map((k) => Number(d[k]) || 0));
   const rawMin = Math.min(...allValues, 0);
@@ -1688,6 +1910,27 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
   // 값 라벨 — 막대가 충분히 크면 안쪽(흰/그레이), 작으면 외부(어두운 색)
   // 스택 모드는 위/아래가 다른 세그먼트이므로 작을 땐 외부 표시 대신 숨김
   // 그레이 배경에는 흰 글자 가독성 떨어지므로 GRAY500 으로 (HBar/StackedHBar 일관성)
+  // 외부 표시 라벨 — 호버 시 툴팁 디스패치
+  const ExternalLabel = ({ bar, v, x, y, isNeg }) => {
+    const { showTooltipFromEvent, hideTooltip } = useTooltip();
+    const showTip = (e) => {
+      showTooltipFromEvent(
+        <Tooltip label={`${bar.data.indexValue} — ${bar.data.id}`} value={`${Number(v).toLocaleString()}${valueSuffix || ""}`} />,
+        e
+      );
+    };
+    return (
+      <text
+        x={x} y={y} textAnchor="middle" dominantBaseline={isNeg ? "hanging" : "auto"}
+        onMouseEnter={showTip}
+        onMouseMove={showTip}
+        onMouseLeave={hideTooltip}
+        style={{ fontSize: 12, fontWeight: 600, fill: GRAY990, fontFamily: "Pretendard, sans-serif", cursor: "pointer", pointerEvents: "auto" }}
+      >
+        {v.toLocaleString()}{valueSuffix}
+      </text>
+    );
+  };
   const ValueLabelsLayer = ({ bars }) => (
     <g>
       {bars.map((bar) => {
@@ -1701,21 +1944,16 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
         const insideTextColor = isGrayBar ? GRAY500 : WHITE;
         if (tooSmall) {
           if (isStacked) return null;
-          // grouped 모드: 막대 외부 표시
+          // grouped 모드: 막대 외부 표시 — 호버 시 툴팁 가능
           const y = isNeg ? bar.y + bar.height + 14 : bar.y - 6;
-          return (
-            <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline={isNeg ? "hanging" : "auto"}
-              style={{ fontSize: 12, fontWeight: 600, fill: GRAY990, fontFamily: "Pretendard, sans-serif" }}>
-              {v.toLocaleString()}
-            </text>
-          );
+          return <ExternalLabel key={bar.key} bar={bar} v={v} x={x} y={y} isNeg={isNeg} />;
         }
         // 안쪽
         const y = isNeg ? bar.y + bar.height - 8 : bar.y + 14;
         return (
           <text key={bar.key} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-            style={{ fontSize: 12, fontWeight: 600, fill: insideTextColor, fontFamily: "Pretendard, sans-serif" }}>
-            {v.toLocaleString()}
+            style={{ fontSize: 12, fontWeight: 600, fill: insideTextColor, fontFamily: "Pretendard, sans-serif", pointerEvents: "none" }}>
+            {v.toLocaleString()}{valueSuffix}
           </text>
         );
       })}
@@ -1724,20 +1962,29 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
-      {title && (
-        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>
-          {(() => {
-            if (typeof title === "string") {
-              const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
-              if (m) {
-                return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY800, marginLeft: 6 }}>{m[2]}</span></>);
-              }
-            }
-            return title;
-          })()}
+      {(title || subtitle) && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+          {title && (
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>
+              {(() => {
+                if (typeof title === "string") {
+                  const m = title.match(/^(.*?)\s*(\(.+\))\s*$/);
+                  if (m) {
+                    return (<>{m[1]}<span style={{ fontWeight: 400, color: GRAY990, marginLeft: 6 }}>{m[2]}</span></>);
+                  }
+                }
+                return title;
+              })()}
+            </div>
+          )}
+          {subtitle && (
+            <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: GRAY800, textAlign: "center", fontFamily: "Pretendard, sans-serif" }}>
+              {subtitle}
+            </div>
+          )}
         </div>
       )}
-      <div style={{ width: "100%", height: 380 }}>
+      <div ref={containerRef} style={{ width: "100%", height: 380 }}>
         <ResponsiveBar
           data={data}
           keys={actualKeys}
@@ -1749,6 +1996,9 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
           padding={0.25}
           innerPadding={isStacked ? 0 : 4}
           borderRadius={0}
+          barComponent={(props) => (
+            <GroupedBarItem {...props} isStacked={isStacked} actualKeys={actualKeys} valueSuffix={valueSuffix} />
+          )}
           enableLabel={false}
           animate
           motionConfig="gentle"
@@ -1756,8 +2006,41 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
           minValue={dataMin}
           maxValue={dataMax}
           markers={hasNegative ? [{ axis: "y", value: 0, lineStyle: { stroke: "#CACCCF", strokeWidth: 1 } }] : []}
-          axisBottom={hasNegative ? null : { tickSize: 0, tickPadding: 16 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: tickValues || 5, format: (v) => v.toLocaleString() }}
+          axisBottom={hasNegative ? null : {
+            tickSize: 0,
+            tickPadding: 16,
+            renderTick: (tick) => {
+              const MARGIN_L = 72, MARGIN_R = 20;
+              const PADDING = 0.25;
+              const plotW = Math.max(chartW - MARGIN_L - MARGIN_R, 0);
+              // d3 scaleBand: step = plotW / (n + padding), bandwidth = step × (1 - padding)
+              const step = plotW > 0 ? plotW / (data.length + PADDING) : 80;
+              const barW = step * (1 - PADDING);
+              // 라벨은 bar 폭보다 약간 넓게 (+ 2px) 해서 내부 텍스트가 동일하게 보이도록
+              const boxW = Math.max(barW + 2, 40);
+              return (
+                <g transform={`translate(${tick.x},${tick.y})`}>
+                  <foreignObject x={-boxW / 2} y={10} width={boxW} height={40}>
+                    <div style={{
+                      width: "100%",
+                      textAlign: "center",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: GRAY800,
+                      fontFamily: "Pretendard, sans-serif",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    title={String(tick.value)}>
+                      {tick.value}
+                    </div>
+                  </foreignObject>
+                </g>
+              );
+            },
+          }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: tickValues || 5, format: (v) => `${v.toLocaleString()}${valueSuffix}` }}
           layers={(() => {
             const baseLayers = ["grid", "axes", "bars", "markers"];
             if (showValueLabels) baseLayers.push(ValueLabelsLayer);
@@ -1778,7 +2061,7 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, stacked 
             el.style.filter = "none";
           }}
           tooltip={({ id, value, indexValue }) => (
-            <Tooltip label={`${indexValue} — ${id}`} value={value} />
+            <Tooltip label={`${indexValue} — ${id}`} value={`${value.toLocaleString()}${valueSuffix}`} />
           )}
         />
       </div>
@@ -1857,7 +2140,22 @@ function PSMIntersectionDots({ intersections, xScale, yScale }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   return (
     <g>
-      {/* 1단계: 모든 dot 원 먼저 렌더 */}
+      {/* 1단계: 호버된 dot 의 X/Y 점선 가이드 (다른 요소 위에 올 수 있도록 먼저 렌더) */}
+      {hoveredIdx !== null && (() => {
+        const pt = intersections[hoveredIdx];
+        const cx = xScale(pt.x), cy = yScale(pt.y);
+        const yBase = yScale(0);
+        const xBase = xScale.range ? xScale.range()[0] : 0;
+        return (
+          <g style={{ pointerEvents: "none" }}>
+            <line x1={cx} y1={cy} x2={cx} y2={yBase}
+              stroke={GRAY500} strokeDasharray="3 4" strokeWidth={1} />
+            <line x1={xBase} y1={cy} x2={cx} y2={cy}
+              stroke={GRAY500} strokeDasharray="3 4" strokeWidth={1} />
+          </g>
+        );
+      })()}
+      {/* 2단계: 모든 dot 원 */}
       {intersections.map((pt, i) => {
         const cx = xScale(pt.x), cy = yScale(pt.y);
         const isH = hoveredIdx === i;
@@ -1871,14 +2169,14 @@ function PSMIntersectionDots({ intersections, xScale, yScale }) {
           </g>
         );
       })}
-      {/* 2단계: 호버된 tooltip만 모든 dot 위에 렌더 */}
+      {/* 3단계: 호버된 tooltip */}
       {hoveredIdx !== null && (() => {
         const pt = intersections[hoveredIdx];
         const cx = xScale(pt.x), cy = yScale(pt.y);
         return (
           <foreignObject x={cx - 140} y={cy - 75} width={280} height={66} style={{ overflow: "visible", pointerEvents: "none" }}>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ ...tooltipBox, padding: "6px 12px" }}>
+              <div style={{ ...tooltipBox, padding: "10px 12px" }}>
                 <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{pt.fullLabel || pt.label}</span>
                 <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{pt.price}</span>
               </div>
@@ -2089,11 +2387,18 @@ export function FunnelChart({
             const pillY = y - pillH / 2; // 바 상단 y를 중심으로 배지가 반쯤 위에, 반쯤 아래에 겹침
             const pillX = cx - pillW / 2;
 
+            // 상단 라운드: 빗금 영역이 보이면 빗금에, 100%면 솔리드 블루에
+            const hatchVisible = hatchH > 2;
+            const hatchR = hatchVisible ? Math.max(0, Math.min(8, barW / 2, hatchH / 2)) : 0;
+            const solidR = !hatchVisible ? Math.max(0, Math.min(8, barW / 2, barH / 2)) : 0;
+            const hatchCorners = { tl: hatchR, tr: hatchR, br: 0, bl: 0 };
+            const solidCorners = { tl: solidR, tr: solidR, br: 0, bl: 0 };
             return (
               <g key={`bar-${i}`}>
                 {/* 빗금 이탈 영역 (호버 시 바 툴팁과 통합) */}
-                {hatchH > 2 && (
-                  <rect x={x} y={hatchY} width={barW} height={hatchH}
+                {hatchVisible && (
+                  <path d={roundedRectPath(barW, hatchH, hatchCorners)}
+                    transform={`translate(${x},${hatchY})`}
                     fill={`url(#${hatchId})`}
                     onMouseEnter={(e) => { setHoveredStep(i); setHoveredHatch(null); updateTooltipPos(e); }}
                     onMouseMove={updateTooltipPos}
@@ -2102,7 +2407,8 @@ export function FunnelChart({
                   />
                 )}
                 {/* 솔리드 바 (실값) */}
-                <rect x={x} y={y} width={barW} height={barH}
+                <path d={roundedRectPath(barW, barH, solidCorners)}
+                  transform={`translate(${x},${y})`}
                   fill={blueColor}
                   onMouseEnter={(e) => { setHoveredStep(i); setHoveredHatch(null); updateTooltipPos(e); }}
                   onMouseMove={updateTooltipPos}
@@ -2110,7 +2416,8 @@ export function FunnelChart({
                   style={{ transition: "height 0.4s ease, y 0.4s ease", cursor: "default" }}
                 />
                 {isH && (
-                  <rect x={x} y={y} width={barW} height={barH}
+                  <path d={roundedRectPath(barW, barH, solidCorners)}
+                    transform={`translate(${x},${y})`}
                     fill="rgba(0,0,0,0.08)" style={{ pointerEvents: "none" }}
                   />
                 )}
@@ -2156,32 +2463,33 @@ export function FunnelChart({
         {/* 호버 툴팁 (바 + 빗금 통합, 컬러 강조 없음) */}
         {hoveredStep !== null && (() => {
           const s = stepsData[hoveredStep];
-          const Row = ({ label, value, color }) => (
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-              <span style={{ fontSize: 13, color: GRAY800 }}>{label}</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: color || GRAY990 }}>{value}</span>
-            </div>
-          );
+          const rows = [
+            { label: "유저 수", value: s.value.toLocaleString() },
+            { label: "전환율", value: `${s.pct.toFixed(1)}%`, color: blueColor },
+            ...(s.index > 0 ? [{ label: "직전 대비 이탈", value: `-${s.dropoffCount.toLocaleString()} (${s.dropoff.toFixed(1)}%)`, color: RED500 }] : []),
+          ];
           return (
             <div style={{
               position: "absolute",
               left: Math.min(tooltipPos.x + 16, containerW - 220),
               top: tooltipPos.y - 80,
               ...tooltipBox,
-              padding: "10px 14px",
+              padding: "10px 12px",
+              alignItems: "stretch",
               zIndex: 10,
               pointerEvents: "none",
               whiteSpace: "nowrap",
             }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>
                 Step {s.index + 1}: {s.label}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <Row label="유저 수" value={s.value.toLocaleString()} />
-                <Row label="전환율" value={`${s.pct.toFixed(1)}%`} color={blueColor} />
-                {s.index > 0 && (
-                  <Row label="직전 대비 이탈" value={`-${s.dropoffCount.toLocaleString()} (${s.dropoff.toFixed(1)}%)`} color={RED500} />
-                )}
+              <div style={{ display: "grid", gridTemplateColumns: "max-content max-content", columnGap: 16, rowGap: 4 }}>
+                {rows.map((r, i) => (
+                  <React.Fragment key={i}>
+                    <span style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: GRAY800 }}>{r.label}</span>
+                    <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: r.color || GRAY990, justifySelf: "end" }}>{r.value}</span>
+                  </React.Fragment>
+                ))}
               </div>
             </div>
           );
@@ -2306,11 +2614,11 @@ export function ComboChart({
 
           {/* 축 라벨 */}
           {barAxisLabel && (
-            <text x={margin.left - 48} y={margin.top - 10} textAnchor="start"
+            <text x={margin.left - 48} y={margin.top - 14} textAnchor="start"
               style={{ fontSize: 11, fontWeight: 500, fill: GRAY800, fontFamily: FF }}>{barAxisLabel}</text>
           )}
           {lineAxisLabel && (
-            <text x={margin.left + plotW + 10} y={margin.top - 10} textAnchor="start"
+            <text x={margin.left + plotW + 10} y={margin.top - 14} textAnchor="start"
               style={{ fontSize: 11, fontWeight: 500, fill: GRAY800, fontFamily: FF }}>{lineAxisLabel}</text>
           )}
 
@@ -2322,9 +2630,15 @@ export function ComboChart({
             const h = Math.abs(barBaseline - y);
             const x = xCat(i) - barW / 2;
             const isH = hoveredIdx === i;
+            const isNegBar = y > barBaseline;
+            const barR = Math.max(0, Math.min(8, barW / 2, h / 2));
+            const barCorners = isNegBar
+              ? { tl: 0, tr: 0, br: barR, bl: barR }
+              : { tl: barR, tr: barR, br: 0, bl: 0 };
             return (
               <g key={`bar-${i}`}>
-                <rect x={x} y={Math.min(y, barBaseline)} width={barW} height={h}
+                <path d={roundedRectPath(barW, h, barCorners)}
+                  transform={`translate(${x},${Math.min(y, barBaseline)})`}
                   fill={BAR}
                   onMouseEnter={(e) => {
                     setHoveredIdx(i);
@@ -2421,32 +2735,30 @@ export function ComboChart({
               top: tooltipPos.y - 60,
               background: WHITE,
               border: `1px solid ${GRAY200}`,
-              borderRadius: 8,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              padding: "10px 14px",
+              borderRadius: 6,
+              boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+              padding: "10px 12px",
               zIndex: 10,
               pointerEvents: "none",
-              minWidth: 160,
+              fontFamily: "Pretendard, sans-serif",
             }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: GRAY990, marginBottom: 6 }}>{d.label}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 12, height: 10, background: BAR, display: "inline-block", borderRadius: 2, flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, color: GRAY800 }}>{barLabel}</span>
+              <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800, marginBottom: 6 }}>{d.label}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "max-content max-content", columnGap: 16, rowGap: 4, alignItems: "center" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 20, display: "inline-flex", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ width: 16, height: 10, background: BAR, display: "inline-block", borderRadius: 2 }} />
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{d[barKey]}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <svg width={20} height={12} style={{ display: "inline-block", flexShrink: 0 }}>
-                      <line x1={0} y1={6} x2={20} y2={6} stroke={LINE} strokeWidth={2.5} />
-                      <circle cx={10} cy={6} r={5} fill={WHITE} stroke={LINE} strokeWidth={2.5} />
-                    </svg>
-                    <span style={{ fontSize: 13, color: GRAY800 }}>{lineLabel}</span>
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: GRAY990 }}>{d[lineKey]}</span>
-                </div>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{barLabel}</span>
+                </span>
+                <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990, justifySelf: "end" }}>{d[barKey]}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <svg width={20} height={12} style={{ display: "inline-block", flexShrink: 0 }}>
+                    <line x1={0} y1={6} x2={20} y2={6} stroke={LINE} strokeWidth={2.5} />
+                    <circle cx={10} cy={6} r={5} fill={WHITE} stroke={LINE} strokeWidth={2.5} />
+                  </svg>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{lineLabel}</span>
+                </span>
+                <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990, justifySelf: "end" }}>{d[lineKey]}</span>
               </div>
             </div>
           );

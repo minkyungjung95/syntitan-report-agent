@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon } from "./tokens.jsx";
+import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon, SentimentSatisfiedIcon, SentimentNeutralIcon, SentimentDissatisfiedIcon, FaceIcon } from "./tokens.jsx";
 import { Badge, Btn, Chip, ChipTabs, Callout } from "./ui-components.jsx";
 import { CHART_COLORS } from "./charts";
 
@@ -18,7 +18,7 @@ export const LAYOUT = {
 export function PageWrapper({ children, style }) {
   return (
     <div style={{
-      padding: "32px clamp(16px, 4vw, 32px)",
+      padding: "32px clamp(16px, 4vw, 32px) 100px",
       background: T.white,
       fontFamily: F,
       maxWidth: LAYOUT.maxWidth,
@@ -51,7 +51,7 @@ export function SectionHeading({ overline, title, description, style }) {
       )}
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
       {description && (
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray990 }}>{description}</div>
+        <div style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>
       )}
     </div>
   );
@@ -74,15 +74,28 @@ export function ReportSection({ children, gap = 24, style }) {
 
 // ── ContentHeader: 콘텐츠 제목 (기본 좌측 정렬) ──
 // overline: 타이틀 위에 노출되는 작은 회색 라벨 (14px gray800)
-export function ContentHeader({ overline, title, description, style }) {
+// actions: 우측 영역에 들어갈 버튼/요소 (예: [Download PDF, Create Discussion])
+export function ContentHeader({ overline, title, description, actions, badges, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24, fontFamily: F, ...style }}>
-      {overline && (
-        <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, marginBottom: 4 }}>{overline}</div>
-      )}
-      <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
-      {description && (
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray990 }}>{description}</div>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 24, marginBottom: 24, fontFamily: F, ...style }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
+        {overline && (
+          <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, marginBottom: 4 }}>{overline}</div>
+        )}
+        <div style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>{title}</div>
+        {description && (
+          <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray900 }}>{description}</div>
+        )}
+        {badges && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
+            {badges}
+          </div>
+        )}
+      </div>
+      {actions && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {actions}
+        </div>
       )}
     </div>
   );
@@ -180,7 +193,7 @@ export function InsightContent({
       {/* Body */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>}
-        {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800 }}>{description}</div>}
+        {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray900 }}>{description}</div>}
       </div>
     </div>
   );
@@ -240,7 +253,7 @@ export function SectionTitle({ title, description, titleSize = 28, style }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: F, ...style }}>
       <div style={{ fontSize: titleSize, fontWeight: 700, lineHeight: "36px", color: T.gray990 }}>{title}</div>
       {description && (
-        <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800 }}>{description}</div>
+        <div style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray900 }}>{description}</div>
       )}
     </div>
   );
@@ -295,7 +308,7 @@ export function InfoCard({ label, value, suffix, description, variant = "solid",
         {suffix && <span style={{ fontSize: suffixSize, fontWeight: 400, color: T.gray400 }}>{suffix}</span>}
         {icon}
       </div>
-      {description && <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800, marginTop: 4 }}>{description}</div>}
+      {description && <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray900, marginTop: 4 }}>{description}</div>}
     </div>
   );
 }
@@ -383,21 +396,72 @@ export function UserCard({
   subtitleColor, // 있으면 subtitle 을 컬러 dot + chip 으로 렌더 (Section 3 badgeColor 같은 케이스)
   badge,
   description,
+  quote, // quote 타입 — 말풍선에 들어갈 유저 의견
+  sentiment, // quote 타입용: "positive" | "neutral" | "negative" → sentiment 아이콘 자동 선택
+  reverse = false, // quote 타입용: 아바타를 우측에 배치 (말풍선은 좌측)
   details = [],
   stats = [],
   buttonLabel = "View Detail",
   onButtonClick,
   style,
 }) {
-  const Icon = icon || <IdentityPlatformIcon size={24} color={T.gray800} />;
+  const isQuote = type === "quote";
+  // quote 타입: 사람 얼굴 아이콘 (Material face) — 공통 사용
+  const Icon = icon || (isQuote
+    ? <FaceIcon size={24} color={T.gray700} />
+    : <IdentityPlatformIcon size={24} color={T.gray800} />);
+  // quote 타입 아바타 배경 — 통일 (gray25 + 테두리)
+  const avatarBg = isQuote ? T.gray25 : T.gray50;
   const IconContainer = (
     <div style={{
-      width: 48, height: 48, borderRadius: 12,
-      background: T.gray50, border: `1px solid ${T.gray200}`,
+      width: isQuote ? 40 : 48, height: isQuote ? 40 : 48,
+      borderRadius: 12,
+      background: avatarBg,
+      border: `1px solid ${isQuote ? T.gray100 : T.gray200}`,
       display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
     }}>{Icon}</div>
   );
   const Divider = <div style={{ height: 1, background: T.gray200, width: "100%" }} />;
+
+  if (type === "quote") {
+    const AvatarBlock = IconContainer;
+    const BubbleBlock = (
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{
+          background: T.gray50,
+          borderRadius: reverse ? "20px 6px 20px 20px" : "6px 20px 20px 20px",
+          padding: "14px 20px",
+          fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray990,
+        }}>
+          {quote}
+        </div>
+        {(name || subtitle) && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 4, justifyContent: reverse ? "flex-end" : "flex-start" }}>
+            {name && (
+              <span style={{
+                display: "inline-flex", alignItems: "center",
+                padding: "3px 8px", borderRadius: 6,
+                background: T.gray100,
+                fontSize: 13, fontWeight: 500, lineHeight: "18px", color: T.gray990,
+              }}>{name}</span>
+            )}
+            {subtitle && <span style={{ fontSize: 14, fontWeight: 400, color: T.gray800 }}>{subtitle}</span>}
+          </div>
+        )}
+      </div>
+    );
+    return (
+      <div style={{
+        width: "100%", height: "100%", background: T.white,
+        borderRadius: 16,
+        padding: 24, fontFamily: F, boxSizing: "border-box",
+        display: "flex", alignItems: "flex-start", gap: 16,
+        ...style,
+      }}>
+        {reverse ? <>{BubbleBlock}{AvatarBlock}</> : <>{AvatarBlock}{BubbleBlock}</>}
+      </div>
+    );
+  }
 
   if (type === "stats") {
     return (
@@ -480,7 +544,7 @@ export function UserCard({
           </div>
         </div>
         {Divider}
-        {description && <div style={{ flex: 1, fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
+        {description && <div style={{ flex: 1, fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray900 }}>{description}</div>}
         <Btn variant="solid-secondary" size="lg" radius="sm" style={{ width: "100%" }} onClick={onButtonClick}>
           {buttonLabel}
         </Btn>
@@ -505,7 +569,7 @@ export function UserCard({
         </div>
       </div>
       {Divider}
-      {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990 }}>{description}</div>}
+      {description && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray900 }}>{description}</div>}
     </div>
   );
 }
@@ -603,12 +667,17 @@ export function Interpretation(props) { return <TextBlock {...props} />; }
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function DataTable({ columns = [], data = [], style }) {
-  // 컬럼별 highlight — col.highlight: true|"blue" → 블루, "red" → 레드
+  // 컬럼별 highlight — col.highlight: true|"blue" → 블루, "red" → 레드, "green" → 그린
   const blue500 = "#2B7FFF";
   const red500 = T.red500 || "#FB2C36";
-  const hlColor = (col) => col.highlight === "red" ? red500 : blue500;
+  const green500 = T.green500 || "#00C950";
+  const hlColor = (col) => col.highlight === "red" ? red500
+    : col.highlight === "green" ? green500
+    : blue500;
   const hlBg = (col) => col.highlight === "red"
     ? "rgba(254, 242, 242, 0.7)"   // red50 70%
+    : col.highlight === "green"
+    ? "rgba(240, 253, 244, 0.7)"   // green50 70%
     : "rgba(239, 246, 255, 0.7)";  // blue50 70%
   return (
     <div style={{ width: "100%", overflowX: "auto", fontFamily: F, ...style }}>
@@ -634,20 +703,27 @@ export function DataTable({ columns = [], data = [], style }) {
         <tbody>
           {data.map((row, ri) => (
             <tr key={ri}>
-              {columns.map((col, ci) => (
-                <td key={ci} style={{
-                  padding: "16px 16px",
-                  fontSize: 14,
-                  fontWeight: col.highlight ? 700 : (ci === 0 ? 500 : 400),
-                  lineHeight: "20px",
-                  color: col.highlight ? hlColor(col) : T.gray990,
-                  background: col.highlight ? hlBg(col) : "transparent",
-                  textAlign: col.align || "left",
-                  borderBottom: ri < data.length - 1 ? `1px solid ${T.gray100}` : "none",
-                }}>
-                  {row[col.key]}
-                </td>
-              ))}
+              {columns.map((col, ci) => {
+                // col.highlight → 컬럼 전체 강조 (기본)
+                // col.highlightWhen(row) → 해당 row 에만 강조 (col.highlight 없이도 동작)
+                const active = col.highlight && (typeof col.highlightWhen === "function" ? col.highlightWhen(row) : true);
+                return (
+                  <td key={ci} style={{
+                    padding: "16px 16px",
+                    fontSize: 14,
+                    fontWeight: active ? 700 : (ci === 0 ? 500 : 400),
+                    lineHeight: "20px",
+                    color: active ? hlColor(col) : T.gray990,
+                    background: active ? hlBg(col) : "transparent",
+                    textAlign: col.align || "left",
+                    width: col.width,
+                    borderBottom: ri < data.length - 1 ? `1px solid ${T.gray100}` : "none",
+                    borderLeft: col.divider ? `1px solid ${T.gray100}` : undefined,
+                  }}>
+                    {row[col.key]}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -763,7 +839,7 @@ export function DefinitionTable({ items = [], style }) {
             <tr key={i}>
               <td style={{ padding: "16px 16px", borderBottom: i < items.length - 1 ? `1px solid ${T.gray100}` : "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 12, height: 12, borderRadius: 2, background: item.color, flexShrink: 0 }} />
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, lineHeight: "20px", color: T.gray990 }}>{item.abbr}</div>
                     <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: T.gray800 }}>{item.fullName}</div>
@@ -882,7 +958,7 @@ export function ClusterHeader({ badge, name, description, icon, style }) {
         {icon && <div style={{ width: 40, height: 40, borderRadius: 8, background: T.gray100, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>}
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, lineHeight: "26px", color: T.gray990 }}>{name}</div>
-          {description && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: T.gray800, marginTop: 4 }}>{description}</div>}
+          {description && <div style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray900, marginTop: 4 }}>{description}</div>}
         </div>
       </div>
     </div>
@@ -927,12 +1003,12 @@ export function StatRow({ label, value, items = [], style }) {
   );
 }
 
-export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", variant, bordered = true, style }) {
-  // alert 있음 → Secondary(기본). alert 없음 → variant prop 사용 (default Info, 부정적이면 Negative 등)
-  const badgeVariant = alert ? "Secondary" : (variant || "Info");
+export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", variant, badgePrefix = "Insight", badgeVariant: badgeVariantOverride, bordered = true, style }) {
+  // alert 있음 → Secondary(기본). alert 없음 → variant prop 사용. badgeVariant override 가 있으면 최우선
+  const badgeVariant = badgeVariantOverride || (alert ? "Secondary" : (variant || "Primary"));
   return (
     <div style={{
-      flex: 1, minWidth: 0,
+      flex: "1 1 320px", minWidth: 320,
       border: bordered ? `1px solid ${T.gray200}` : "none",
       borderRadius: 16,
       fontFamily: F,
@@ -942,9 +1018,9 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
       background: T.white,
       ...style,
     }}>
-      {/* Badge — alert 있으면 Secondary, 없으면 variant prop (default Info, 부정 내용이면 Negative 등) */}
+      {/* Badge — badgePrefix prop (default "Insight", "Signal" 등 context 에 따라 override) */}
       <div style={{ display: "flex" }}>
-        <Badge type="Solid" variant={badgeVariant} size="Medium" text={`Signal ${number}`} />
+        <Badge type="Solid" variant={badgeVariant} size="Medium" text={`${badgePrefix} ${number}`} />
       </div>
       {/* Badge → Title gap 24 */}
       <div style={{ marginTop: 24 }}>
@@ -1115,8 +1191,30 @@ export function StrategyRoadmapTable({ periods = [], style }) {
     ...colStyle, display: "flex", alignItems: "center", justifyContent: "center",
     padding: "18px 16px", borderRight: border,
   };
+  const bulletCellStyle = {
+    ...colStyle, display: "flex", alignItems: "flex-start", justifyContent: "flex-start",
+    padding: "18px 16px", borderRight: border,
+  };
   const textStyle = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990, textAlign: "center", fontFamily: F };
-  const formatCell = (v) => (typeof v === "string" ? v.replace(/\n+/g, " · ") : v);
+  const bulletTextStyle = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990, textAlign: "left", fontFamily: F };
+
+  const renderBulletCell = (v) => {
+    if (typeof v !== "string") return <span style={bulletTextStyle}>{v}</span>;
+    const items = v.split(/\n+/).map((s) => s.trim()).filter(Boolean);
+    if (items.length <= 1) {
+      return <span style={bulletTextStyle}>{items[0] ?? ""}</span>;
+    }
+    return (
+      <ul style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6, listStyle: "none" }}>
+        {items.map((it, i) => (
+          <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <span style={{ width: 4, height: 4, borderRadius: "50%", background: T.gray990, flexShrink: 0, marginTop: 8 }} />
+            <span style={bulletTextStyle}>{it}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
@@ -1153,10 +1251,10 @@ export function StrategyRoadmapTable({ periods = [], style }) {
                 const isLastRow = ri === period.rows.length - 1;
                 return (
                   <div key={ri} style={{ display: "flex", borderBottom: isLastRow ? "none" : border }}>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.strategy)}</span></div>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.objective)}</span></div>
-                    <div style={{ ...cellStyle }}><span style={textStyle}>{formatCell(row.actionPlan)}</span></div>
-                    <div style={{ ...cellStyle, borderRight: "none" }}><span style={textStyle}>{formatCell(row.expectedImpact)}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.strategy}</span></div>
+                    <div style={{ ...cellStyle }}><span style={textStyle}>{row.objective}</span></div>
+                    <div style={{ ...bulletCellStyle }}>{renderBulletCell(row.actionPlan)}</div>
+                    <div style={{ ...bulletCellStyle, borderRight: "none" }}>{renderBulletCell(row.expectedImpact)}</div>
                   </div>
                 );
               })}

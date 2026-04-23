@@ -1178,9 +1178,9 @@ export function MultiLineChart({ data, title, curve = "linear" }) {
           yScale={{ type: "linear", min: scaleMin, max: "auto" }}
           enablePoints
           pointSize={10}
-          pointBorderWidth={2}
-          pointBorderColor="#CACCCF"
-          pointColor={WHITE}
+          pointSymbol={({ size, color }) => (
+            <circle r={size / 2} fill={WHITE} stroke={color} strokeWidth={2} />
+          )}
           enableGridX={false}
           enableGridY
           gridYValues={5}
@@ -2073,6 +2073,425 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle
             <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, fontFamily: "Pretendard, sans-serif" }}>{k}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DIVERGING STACKED BAR — NPS 분포 (비추천자/중립/추천자)
+//   data: [{ label, 추천자, 중립, 비추천자 }] — 각 값은 %
+//   0을 중심으로: 비추천자 = 좌측(음수), 추천자 = 우측(양수), 중립은 좌우 반씩 나눠 0을 감쌈
+// ═══════════════════════════════════════════════════════════════════════
+export function DivergingBarChart({
+  data,
+  title,
+  valueSuffix = "%",
+  colors = { detractor: "#FF6467", neutral: "#E6E7E9", promoter: "#7CCF00" },
+  height = 380,
+}) {
+  const transformed = useMemo(() => data.map((d) => {
+    const p = Number(d.추천자) || 0;
+    const n = Number(d.중립) || 0;
+    const dr = Number(d.비추천자) || 0;
+    return {
+      label: d.label,
+      비추천자: -dr,
+      중립_left: -(n / 2),
+      중립_right: n / 2,
+      추천자: p,
+      _detractor: dr,
+      _neutral: n,
+      _promoter: p,
+    };
+  }), [data]);
+
+  // keys 순서 = 스택 순서. 0에 가까운 쪽부터 바깥쪽으로:
+  //   좌측: 중립_left(0에 붙음) → 비추천자(바깥)
+  //   우측: 중립_right(0에 붙음) → 추천자(바깥)
+  const keys = ["중립_left", "비추천자", "중립_right", "추천자"];
+
+  // 축 범위 계산 — 좌/우 최대 막대 길이를 기준으로 대칭 범위
+  const maxMag = Math.max(
+    ...transformed.flatMap((d) => [Math.abs(d.비추천자 + d.중립_left), d.중립_right + d.추천자]),
+    10
+  );
+  const tickStep = 20;
+  const bound = Math.ceil(maxMag / tickStep) * tickStep;
+  const tickValues = [];
+  for (let v = -bound; v <= bound; v += tickStep) tickValues.push(v);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, fontFamily: "Pretendard, sans-serif" }}>
+      {title && (
+        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>
+          {title}
+        </div>
+      )}
+      <div style={{ width: "100%", height }}>
+        <ResponsiveBar
+          data={transformed}
+          keys={keys}
+          indexBy="label"
+          colors={({ id }) => {
+            if (id === "비추천자") return colors.detractor;
+            if (id === "추천자") return colors.promoter;
+            return colors.neutral;
+          }}
+          groupMode="stacked"
+          layout="horizontal"
+          margin={{ top: 10, right: 40, bottom: 48, left: 96 }}
+          padding={0.3}
+          borderRadius={2}
+          minValue={-bound}
+          maxValue={bound}
+          enableLabel={false}
+          animate
+          motionConfig="gentle"
+          theme={baseTheme}
+          markers={[{ axis: "x", value: 0, lineStyle: { stroke: GRAY300, strokeWidth: 1 } }]}
+          axisBottom={{
+            tickSize: 0, tickPadding: 10,
+            tickValues,
+            format: (v) => `${Math.abs(v)}${valueSuffix}`,
+          }}
+          axisLeft={{ tickSize: 0, tickPadding: 12 }}
+          enableGridX
+          gridXValues={tickValues}
+          enableGridY={false}
+          tooltip={({ id, indexValue, data: datum }) => {
+            let origVal; let label;
+            if (id === "비추천자") { origVal = datum._detractor; label = "비추천자"; }
+            else if (id === "추천자") { origVal = datum._promoter; label = "추천자"; }
+            else { origVal = datum._neutral; label = "중립"; }
+            return <Tooltip label={`${indexValue} — ${label}`} value={`${origVal}${valueSuffix}`} />;
+          }}
+        />
+      </div>
+      {/* 범례 */}
+      <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
+        {[
+          { label: "비추천자", color: colors.detractor },
+          { label: "중립", color: colors.neutral },
+          { label: "추천자", color: colors.promoter },
+        ].map((l) => (
+          <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: l.color }} />
+            <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{l.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// KPI TREND CARD — 좌측 KPI 텍스트 블록 + 우측 미니 추이 라인/영역 차트
+//   title/subtitle, value(big), delta({ value, positive }), data=[{x,y}]
+//   variant: "blue"(상승 긍정) | "red"(하락 부정)
+// ═══════════════════════════════════════════════════════════════════════
+export function KPITrendCard({
+  title,
+  subtitle,
+  value,
+  delta,
+  data,
+  variant = "blue",
+  suffix = "",
+  style,
+}) {
+  const isRed = variant === "red";
+  const BLUE500 = "#2B7FFF";
+  const lineColor = isRed ? RED500 : BLUE500;
+  const gradFromOpacity = 0.22;
+  const gradId = useMemo(() => `kpi-trend-grad-${Math.random().toString(36).slice(2, 9)}`, []);
+  const ys = (data || []).map((d) => Number(d.y) || 0);
+  const yMax = Math.max(...ys, 0);
+  const yNiceMax = Math.ceil(yMax * 1.1);
+  const deltaColor = delta?.positive ? BLUE500 : RED500;
+  const [hoverPoint, setHoverPoint] = useState(null);
+
+  return (
+    <div style={{
+      display: "flex",
+      gap: 0,
+      alignItems: "stretch",
+      background: "#fff",
+      border: `1px solid ${GRAY200}`,
+      borderRadius: 16,
+      padding: 24,
+      fontFamily: "Pretendard, sans-serif",
+      ...style,
+    }}>
+      {/* Left: KPI text */}
+      <div style={{ flex: "4 4 0", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 24 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {title && <div style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{title}</div>}
+          {subtitle && <div style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: GRAY800 }}>{subtitle}</div>}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, lineHeight: "26px", color: GRAY990 }}>{value}</div>
+          {delta && (
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800 }}>이전 기간 대비 </span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: deltaColor }}>{delta.value}</span>
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Right: mini trend chart */}
+      <div style={{ flex: "6 6 0", minWidth: 0, height: 180 }}>
+        <ResponsiveLine
+          data={[{ id: "series", data: (data || []).map((d) => ({ x: d.x, y: d.y })) }]}
+          colors={[lineColor]}
+          margin={{ top: 16, right: 48, bottom: 28, left: 24 }}
+          xScale={{ type: "point" }}
+          yScale={{ type: "linear", min: 0, max: yNiceMax }}
+          curve="monotoneX"
+          enableArea
+          areaOpacity={1}
+          defs={[{
+            id: gradId,
+            type: "linearGradient",
+            colors: [
+              { offset: 0, color: lineColor, opacity: gradFromOpacity },
+              { offset: 100, color: lineColor, opacity: 0 },
+            ],
+          }]}
+          fill={[{ match: "*", id: gradId }]}
+          axisLeft={null}
+          axisRight={{
+            tickSize: 0,
+            tickPadding: 8,
+            tickValues: 3,
+            format: (v) => `${v}${suffix}`,
+          }}
+          axisBottom={{
+            tickSize: 0,
+            tickPadding: 10,
+            // 라벨 수 최대 4개로 제한 — 첫/마지막 포함해서 균등 샘플링
+            tickValues: (() => {
+              const labels = (data || []).map((d) => d.x);
+              const n = labels.length;
+              if (n <= 4) return labels;
+              const targetCount = 4;
+              const stepIdx = (n - 1) / (targetCount - 1);
+              const picked = [];
+              for (let i = 0; i < targetCount; i++) {
+                picked.push(labels[Math.round(i * stepIdx)]);
+              }
+              return [...new Set(picked)];
+            })(),
+          }}
+          axisTop={null}
+          enableGridX={false}
+          enableGridY={false}
+          enablePoints={false}
+          useMesh
+          onMouseMove={(point) => setHoverPoint(point)}
+          onMouseLeave={() => setHoverPoint(null)}
+          theme={{
+            ...baseTheme,
+            axis: {
+              ...baseTheme.axis,
+              ticks: {
+                ...baseTheme.axis.ticks,
+                text: { fontSize: 12, fill: GRAY800, fontFamily: "Pretendard, sans-serif" },
+              },
+            },
+          }}
+          lineWidth={1}
+          layers={[
+            "grid", "markers", "axes", "areas", "crosshair", "lines",
+            ({ xScale, yScale }) => {
+              if (!hoverPoint) return null;
+              const cx = xScale(hoverPoint.data.x);
+              const cy = yScale(hoverPoint.data.y);
+              return (
+                <circle
+                  cx={cx} cy={cy} r={5}
+                  fill={lineColor}
+                  stroke="#fff"
+                  strokeWidth={2}
+                  style={{ pointerEvents: "none" }}
+                />
+              );
+            },
+            "slices", "mesh", "legends",
+          ]}
+          tooltip={({ point }) => (
+            <Tooltip label={String(point.data.xFormatted)} value={`${point.data.yFormatted}${suffix}`} />
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TIMELINE BAR CHART — 시계열 지표 (이탈율 등)
+//   data: [{ label, value, type }] — type: "past"(회색) | "current"(파랑+배경) | "forecast"(빨강+배경)
+//   current/forecast 막대는 연한 배경 패널로 강조 + 상단에 타입 라벨 노출
+//   VBarChart 와 동일한 라운드 탑 막대 + 그리드 스타일
+// ═══════════════════════════════════════════════════════════════════════
+export function TimelineBarChart({
+  data,
+  title,
+  valueSuffix = "",
+  height = 340,
+  colors = {
+    past:     { bar: "#E6E7E9", bg: "transparent",            tagText: "" },
+    current:  { bar: "#2B7FFF", bg: "rgba(43,127,255,0.08)",  tagText: "현재이탈률" },
+    forecast: { bar: "#FF6467", bg: "rgba(255,100,103,0.10)", tagText: "예상이탈률" },
+  },
+}) {
+  const values = data.map((d) => Number(d.value) || 0);
+  const maxV = Math.max(...values, 0);
+  const tickStep = maxV > 40 ? 10 : 5;
+  // 최대값 이상으로는 tick·그리드 라인 생성 안 함 (빈 여백에 선만 뜨는 현상 방지)
+  const yMax = Math.ceil(maxV / tickStep) * tickStep;
+  const tickValues = [];
+  for (let v = 0; v <= yMax; v += tickStep) tickValues.push(v);
+
+  // 배경 패널 레이어 — current/forecast 막대 뒤에 항상 연한 색 패널 렌더 (플롯 전체 높이)
+  const HighlightBgLayer = ({ bars, innerHeight, xScale }) => {
+    const band = xScale.bandwidth ? xScale.bandwidth() : 0;
+    const step = xScale.step ? xScale.step() : band * 1.3;
+    const padSide = (step - band) / 2;
+    return (
+      <g>
+        {bars.map((bar) => {
+          const type = bar.data.data.type || "past";
+          const spec = colors[type];
+          if (!spec || spec.bg === "transparent") return null;
+          const x = bar.x - padSide;
+          const w = band + padSide * 2;
+          return (
+            <rect
+              key={`bg-${bar.key}`}
+              x={x}
+              y={0}
+              width={w}
+              height={innerHeight}
+              fill={spec.bg}
+              rx={0}
+            />
+          );
+        })}
+      </g>
+    );
+  };
+
+  // 라벨 레이어 — 값은 막대 내부 상단에 표시 (HBarChart Inline Value 와 동일한 규칙: 회색 막대 GRAY500, 컬러 막대 WHITE)
+  //                타입 라벨(현재이탈률/예상이탈률)은 막대 위 외부에 색상 텍스트로
+  const LabelLayer = ({ bars }) => (
+    <g>
+      {bars.map((bar) => {
+        const type = bar.data.data.type || "past";
+        const spec = colors[type] || colors.past;
+        const v = bar.data.value;
+        const cx = bar.x + bar.width / 2;
+        const valueY = bar.y + 14;
+        const tagY = bar.y - 12;
+        const barC = (spec.bar || "").toLowerCase();
+        const isGrayBar = barC === "#e6e7e9" || barC === "#e0e0e2" || barC === GRAY200.toLowerCase() || barC === GRAY100.toLowerCase();
+        const valueColor = isGrayBar ? GRAY500 : WHITE;
+        return (
+          <g key={`lbl-${bar.key}`}>
+            {spec.tagText && (
+              <text
+                x={cx} y={tagY}
+                textAnchor="middle"
+                style={{ fontSize: 12, fontWeight: 600, fill: spec.bar, fontFamily: "Pretendard, sans-serif" }}
+              >
+                {spec.tagText}
+              </text>
+            )}
+            <text
+              x={cx} y={valueY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                fill: valueColor,
+                fontFamily: "Pretendard, sans-serif",
+                pointerEvents: "none",
+              }}
+            >
+              {`${v}${valueSuffix}`}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
+
+  // VBarChart 와 같은 라운드 탑 막대 + 호버 인덱스 업데이트
+  const TimelineBarItem = ({ bar }) => {
+    const { showTooltipFromEvent, hideTooltip } = useTooltip();
+    const type = bar.data.data.type || "past";
+    const spec = colors[type] || colors.past;
+    const R = Math.max(0, Math.min(8, bar.width / 2, bar.height / 2));
+    const corners = { tl: R, tr: R, br: 0, bl: 0 };
+    const showTip = (e) => {
+      showTooltipFromEvent(
+        <Tooltip
+          label={`${bar.data.indexValue}${spec.tagText ? ` · ${spec.tagText}` : ""}`}
+          value={`${bar.data.value}${valueSuffix}`}
+        />,
+        e
+      );
+    };
+    return (
+      <g
+        transform={`translate(${bar.x},${bar.y})`}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.filter = "brightness(0.88)";
+          e.currentTarget.style.transition = "filter 0.15s ease";
+          showTip(e);
+        }}
+        onMouseMove={showTip}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.filter = "none";
+          hideTooltip();
+        }}
+        style={{ cursor: "pointer" }}
+      >
+        <path d={roundedRectPath(bar.width, bar.height, corners)} fill={bar.color} />
+      </g>
+    );
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, fontFamily: "Pretendard, sans-serif" }}>
+      {title && (
+        <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>
+          {title}
+        </div>
+      )}
+      <div style={{ width: "100%", height }}>
+        <ResponsiveBar
+          data={data}
+          keys={["value"]}
+          indexBy="label"
+          colors={({ data: d }) => (colors[d.type || "past"] || colors.past).bar}
+          padding={0.35}
+          margin={{ top: 48, right: 24, bottom: 50, left: 60 }}
+          minValue={0}
+          maxValue={yMax}
+          enableLabel={false}
+          animate
+          motionConfig="gentle"
+          theme={baseTheme}
+          axisBottom={{ tickSize: 0, tickPadding: 12 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues }}
+          enableGridX={false}
+          enableGridY
+          gridYValues={tickValues}
+          barComponent={TimelineBarItem}
+          layers={["grid", HighlightBgLayer, "axes", "bars", LabelLayer]}
+        />
       </div>
     </div>
   );

@@ -176,20 +176,20 @@ export function InsightContent({
     );
   }
   const inner = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", fontFamily: F }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", fontFamily: F }}>
       {/* Header */}
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div style={{
-          background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 8,
-          padding: 6, display: "flex", alignItems: "center", justifyContent: "center",
-          width: 32, height: 32, boxSizing: "border-box", flexShrink: 0,
-        }}>
-          {icon}
-        </div>
-        <div style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: T.gray990 }}>{header}</div>
+        {icon && (
+          <div style={{
+            background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 8,
+            padding: 6, display: "flex", alignItems: "center", justifyContent: "center",
+            width: 32, height: 32, boxSizing: "border-box", flexShrink: 0,
+          }}>
+            {icon}
+          </div>
+        )}
+        <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800 }}>{header}</div>
       </div>
-      {/* Divider */}
-      <div style={{ height: 1, background: T.gray200, width: "100%" }} />
       {/* Body */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>}
@@ -746,7 +746,7 @@ export function QATable({ columns = ["Question", "Answer"], rows = [], bordered 
           <div key={i} style={{
             flex: 1, minWidth: 0, display: "flex", alignItems: "center",
             padding: "0 16px",
-            fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800,
+            fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800,
           }}>{c}</div>
         ))}
       </div>
@@ -829,9 +829,9 @@ export function DefinitionTable({ items = [], style }) {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ height: 48, background: T.gray25 }}>
-            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 500, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}`, borderTopLeftRadius: 16 }}>Intersection</th>
-            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 500, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}` }}>Definition</th>
-            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 500, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}`, borderTopRightRadius: 16 }}>Price</th>
+            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 400, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}`, borderTopLeftRadius: 16 }}>Intersection</th>
+            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 400, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}` }}>Definition</th>
+            <th style={{ padding: "12px 16px", fontSize: 14, fontWeight: 400, color: T.gray800, textAlign: "left", borderBottom: `1px solid ${T.gray200}`, borderTopRightRadius: 16 }}>Price</th>
           </tr>
         </thead>
         <tbody>
@@ -1219,11 +1219,11 @@ export function StrategyRoadmapTable({ periods = [], style }) {
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", fontFamily: F, ...style }}>
       {/* 헤더 — 세로 선 없음 */}
-      <div style={{ display: "flex", height: 56, background: T.gray25, borderBottom: border }}>
+      <div style={{ display: "flex", height: 48, background: T.gray25, borderBottom: border }}>
         <div style={{ width: PERIOD_W, flexShrink: 0 }} />
         {COLS.map((col) => (
           <div key={col} style={{ ...colStyle, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
-            <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, fontFamily: F }}>{col}</span>
+            <span style={{ fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800, fontFamily: F }}>{col}</span>
           </div>
         ))}
       </div>
@@ -1494,11 +1494,12 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               {(current.items || []).map((it, idx) => {
+                const isLastItem = idx === (current.items || []).length - 1;
                 return (
                   <div
                     key={idx}
                     style={{
-                      padding: "16px 0",
+                      padding: isLastItem ? "16px 0 0" : "16px 0",
                       borderTop: `1px solid ${T.gray200}`,
                       borderBottom: "none",
                       display: "flex",
@@ -1513,9 +1514,12 @@ export function ExecutionRoadmap({ title, subtitle, weeks = [], style }) {
                       )}
                     </div>
                     {it.bullets && it.bullets.length > 0 && (
-                      <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+                      <ul style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8, listStyle: "none" }}>
                         {it.bullets.map((b, bi) => (
-                          <li key={bi} style={{ fontSize: 16, fontWeight: 400, color: T.gray800, lineHeight: "24px" }}>{b}</li>
+                          <li key={bi} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <span style={{ width: 4, height: 4, borderRadius: "50%", background: T.gray990, flexShrink: 0, marginTop: 10 }} />
+                            <span style={{ fontSize: 16, fontWeight: 400, color: T.gray990, lineHeight: "24px" }}>{b}</span>
+                          </li>
                         ))}
                       </ul>
                     )}
@@ -1537,7 +1541,7 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
   const WEEK_W = 232;
   const border = `1px solid ${T.gray200}`;
   const cellPad = "16px";
-  const headText = { fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800, fontFamily: F, textAlign: "center" };
+  const headText = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800, fontFamily: F, textAlign: "center" };
   const bodyText = { fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray990, fontFamily: F, textAlign: "center" };
 
   const priorityBadge = (p) => (
@@ -1547,13 +1551,13 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
   return (
     <div style={{ borderRadius: 16, overflow: "hidden", background: T.white, fontFamily: F, ...style }}>
       {/* 헤더 — 세로 선 없음 */}
-      <div style={{ display: "flex", background: T.gray25, borderBottom: border }}>
-        <div style={{ width: WEEK_W, flexShrink: 0, padding: cellPad }} />
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad }}>
+      <div style={{ display: "flex", height: 48, background: T.gray25, borderBottom: border }}>
+        <div style={{ width: WEEK_W, flexShrink: 0 }} />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
           <span style={headText}>Task</span>
         </div>
         {columns.map((col) => (
-          <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: cellPad }}>
+          <div key={col} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
             <span style={headText}>{col}</span>
           </div>
         ))}
@@ -1571,8 +1575,8 @@ export function WeeklyPlanTable({ weeks = [], columns = ["Owner", "Define", "Out
               display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center",
               padding: "18px 16px", gap: 4,
             }}>
-              <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: "#0F0F10", fontFamily: F }}>{week.weekLabel || `Week ${wi + 1}`}</div>
-              {week.subtitle && <div style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray990, fontFamily: F }}>{week.subtitle}</div>}
+              <div style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: "#0F0F10", fontFamily: F }}>{week.weekLabel || `Week ${wi + 1}`}</div>
+              {week.subtitle && <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990, fontFamily: F }}>{week.subtitle}</div>}
             </div>
 
             {/* 행들 */}
@@ -1615,14 +1619,14 @@ export function ClusterProfileTable({ title, data }) {
   const blue50 = T.blue50 || "#EFF6FF";
   const blue500 = "#2B7FFF";
 
-  // 표준: 헤더 14/500/gray800, 본문 14/400/gray990, highlight 14/700/blue500
+  // 표준: 헤더 14/400/gray800, 본문 14/400/gray990, highlight 14/700/blue500
   const cellBase = {
     fontFamily: F, fontSize: 14, fontWeight: 400, lineHeight: "20px",
     color: T.gray990, textAlign: "center", padding: "12px 16px",
   };
   const highlightCell = { ...cellBase, fontWeight: 700, color: blue500, background: "rgba(239, 246, 255, 0.7)" };
   const headerCell = {
-    fontFamily: F, fontSize: 14, fontWeight: 500, lineHeight: "20px",
+    fontFamily: F, fontSize: 14, fontWeight: 400, lineHeight: "20px",
     color: T.gray800, textAlign: "center",
     padding: "12px 16px", background: T.gray25 || "#FAFAFA",
   };
@@ -1652,15 +1656,18 @@ export function ClusterProfileTable({ title, data }) {
         display: "grid", gridTemplateColumns: gridCols,
         borderRadius: 12, overflow: "hidden", background: T.white,
       }}>
-        <div style={{ ...labelCellBase, color: T.gray800, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", flexDirection: "column", justifyContent: "center", whiteSpace: "normal" }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: T.gray800 }}>이미지</div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: T.gray800 }}>Keyword</div>
+        <div style={{ ...labelCellBase, color: T.gray800, background: T.gray25, borderBottom: `1px solid ${T.gray200}`, display: "flex", alignItems: "center" }}>
+          <span style={{ fontSize: 14, fontWeight: 400, color: T.gray800 }}>Keyword</span>
         </div>
         <div style={{ background: T.gray25, borderBottom: `1px solid ${T.gray200}` }} />
         {clusters.map((c, ci) => (
-          <div key={ci} style={{ ...headerCell, color: T.gray990, borderBottom: `1px solid ${T.gray200}`, borderLeft: `1px solid ${T.gray200}` }}>
+          <div key={ci} style={{
+            ...headerCell, color: T.gray990,
+            borderBottom: `1px solid ${T.gray200}`,
+            display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap",
+          }}>
             {c.keywords.map((kw, ki) => (
-              <div key={ki} style={{ fontWeight: ki === 0 ? 700 : 500, fontSize: 14 }}>{kw}</div>
+              <span key={ki} style={{ fontWeight: ki === 0 ? 700 : 500, fontSize: 14 }}>{ki > 0 ? " " : ""}{kw}</span>
             ))}
           </div>
         ))}

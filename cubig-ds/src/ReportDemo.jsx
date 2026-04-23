@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, InfoFillIcon, CheckCircleIcon, CheckCircleOutlineIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
+import { T, InfoFillIcon, CheckCircleIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, PersonIcon } from "./tokens.jsx";
 import { CHART_COLORS, DonutChart, LineChart, VBarChart, FunnelChart } from "./charts";
 import {
   PageWrapper, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
@@ -20,6 +20,7 @@ import {
   WeeklyPlanTable,
   ClusterProfileTable,
 } from "./report-components";
+import { Modal, ModalUserCard, ModalField, ModalStat, ModalGrid } from "./ui-components.jsx";
 
 const F = "Pretendard, sans-serif";
 const Section = ({ children }) => <div style={{ marginBottom: 60 }}>{children}</div>;
@@ -57,6 +58,7 @@ const Toggle = ({ value, onChange, label }) => (
 
 export default function ReportDemo() {
   const [contentCount, setContentCount] = useState(1);
+  const [detailUser, setDetailUser] = useState(null);
   return (
     <PageWrapper>
       <div style={{ marginBottom: 48 }}>
@@ -192,9 +194,9 @@ export default function ReportDemo() {
         <Label>2-2. InsightContent (Content Area) — Vertical</Label>
         <ContentArea wrap={true}>
           {[
-            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
-            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
-            { icon: <CheckCircleOutlineIcon size={20} color={T.gray800} />, header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
+            { header: "Current Price Position", title: "가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요", description: "만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면, 이는 '프리미엄이지만 과도하지 않은' 포지션에 해당하며, 상위 소득군의 Expensive 평균보다도 충분히 낮아 상단 수요층에는 매력적으로 보일 가능성이 큽니다." },
+            { header: "Strategic Direction", title: "메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션·번들·할부조건 강화로 대응", description: "PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점은 이 제품이 '본질적으로 프리미엄 전략에 더 적합한 상품'임을 시사합니다." },
+            { header: "Price Resistance Zone", title: "$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전", description: "실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고, 카드 할인/포인트/캐시백/오프라인 협상 가격 등을 통해 실결제가 $1,500 안팎으로 떨어지도록 설계하면, 표면상 프리미엄 이미지는 유지하면서도 소비자 체감 저항을 효과적으로 흡수할 수 있습니다." },
           ].map((it, i) => (
             <InsightContent
               key={i}
@@ -384,7 +386,7 @@ export default function ReportDemo() {
               {
                 badge: "Immediate", period: "within 1 week",
                 rows: [
-                  { strategy: "긴급 윈백 캠페인", objective: "이탈 경과일 180일 미만 고객 대상 자산 연결 기능 체험 인센티브 제공", actionPlan: "개인화 푸시 알림 및 리마인더 발송, 체험 가이드 제공", expectedImpact: "복귀율 20% 이상 증가" },
+                  { strategy: "긴급 윈백 캠페인", objective: "이탈 경과일 180일 미만 고객 대상 자산 연결 기능 체험 인센티브 제공", actionPlan: "개인화 푸시 알림 및 리마인더 발송\n체험 가이드 제공", expectedImpact: "복귀율 20% 이상 증가" },
                 ],
               },
               {
@@ -663,15 +665,15 @@ export default function ReportDemo() {
               ]}]} />
             </ContentCard>
             <InsightContent layout="vertical" wrap={true}
-              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Current Price Position"
+              header="Current Price Position"
               title="가격 설정 시 OLED·게이밍·AI 업스케일링을 묶은 '하이엔드 경험'이라는 포지셔닝을 지키는지의 기준 필요"
               description="만약 내부적으로 $1,500 전후를 목표 가격으로 논의 중이라면..." />
             <InsightContent layout="vertical" wrap={true}
-              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Strategic Direction"
+              header="Strategic Direction"
               title="메인 가격 전략은 프리미엄 중심으로 두되, 단기 침투는 가격 인하가 아닌 한시적 프로모션"
               description="PSM 구조상 OPP가 허용 범위의 상단부에, IPP가 그보다 약 9% 낮은 지점에 위치한다는 점..." />
             <InsightContent layout="vertical" wrap={true}
-              icon={<CheckCircleOutlineIcon size={20} color={T.gray800} />} header="Price Resistance Zone"
+              header="Price Resistance Zone"
               title="$1,675(PME) 구간은 정가를 두더라도 실제 결제 체감가로는 피해야 할 가격 저항 벨트로 보는 것이 안전"
               description="실무적으로는 권장소비자가를 $1,599~$1,649 수준에 두고..." />
           </SectionCard>
@@ -807,15 +809,15 @@ export default function ReportDemo() {
             <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Premium Enthusiasts"
               stats={[{ value: "54.2K", label: "users" }, { value: "45.2%", label: "of total" }]}
-              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Premium Enthusiasts")} />
+              buttonLabel="View Detail" onButtonClick={() => setDetailUser({ name: "Premium Enthusiasts", stats: [{ label: "Users", value: "54.2K" }, { label: "Share", value: "45.2%" }] })} />
             <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Value Optimizers"
               stats={[{ value: "32.1K", label: "users" }, { value: "26.8%", label: "of total" }]}
-              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Value Optimizers")} />
+              buttonLabel="View Detail" onButtonClick={() => setDetailUser({ name: "Value Optimizers", stats: [{ label: "Users", value: "32.1K" }, { label: "Share", value: "26.8%" }] })} />
             <UserCard type="compact" icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
               name="Occasional Buyers"
               stats={[{ value: "31.1K", label: "users" }, { value: "25.9%", label: "of total" }]}
-              buttonLabel="View Detail" onButtonClick={() => alert("View Detail: Occasional Buyers")} />
+              buttonLabel="View Detail" onButtonClick={() => setDetailUser({ name: "Occasional Buyers", stats: [{ label: "Users", value: "31.1K" }, { label: "Share", value: "25.9%" }] })} />
           </div>
         </SectionCard>
 

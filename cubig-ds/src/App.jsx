@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, TimelineBarChart, KPITrendCard, CHART_COLORS } from "./charts";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon, StarRateFilledIcon, IdentityPlatformOutlineIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, ModalUserCard, ModalField, ModalStat, ModalGrid, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
@@ -978,6 +978,81 @@ export default function App() {
                 { label: "편의성",        부정: 15, 중립: 10, 긍정: 75 },
               ]}
               keys={["부정", "중립", "긍정"]}
+            />
+          </Card>
+
+          {/* Multi Line — PSM 동일 팔레트 (3 series) */}
+          <Card title="Multi Line — PSM Colors" subtitle="3개 시리즈 · PSMChart 와 동일한 CHART_COLORS 팔레트 (Blue500 / Lime500 / DeepPurple400)">
+            <MultiLineChart
+              title="2017-2020 지표 추이"
+              curve="monotoneX"
+              data={[
+                { id: "A", data: [
+                  { x: "2017", y: 10 }, { x: "2018", y: 50 }, { x: "2019", y: 80 }, { x: "2020", y: 100 },
+                ]},
+                { id: "B", data: [
+                  { x: "2017", y: 5 }, { x: "2018", y: 10 }, { x: "2019", y: 12 }, { x: "2020", y: 16 },
+                ]},
+                { id: "C", data: [
+                  { x: "2017", y: -10 }, { x: "2018", y: -20 }, { x: "2019", y: -30 }, { x: "2020", y: -32 },
+                ]},
+              ]}
+            />
+          </Card>
+
+          {/* KPI Trend Card — 텍스트 + 추이 차트 */}
+          <Card title="KPI Trend Card — 텍스트 + 추이 라인" subtitle="좌측 KPI 블록 + 우측 미니 추이 차트 · 상승(blue) / 하락(red)">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+              <KPITrendCard
+                title="UX 패턴 북마크 수"
+                subtitle="관심을 갖고 저장해둔 UX 패턴 수예요."
+                value="24건"
+                delta={{ value: "+ 112%", positive: true }}
+                variant="blue"
+                suffix="건"
+                data={[
+                  { x: "11일", y: 12 },
+                  { x: "12일", y: 18 },
+                  { x: "13일", y: 20 },
+                  { x: "14일", y: 19 },
+                  { x: "15일", y: 22 },
+                  { x: "16일", y: 25 },
+                  { x: "17일", y: 30 },
+                ]}
+              />
+              <KPITrendCard
+                title="사용자 평균 체류시간"
+                subtitle="페이지에 머문 평균 시간이에요."
+                value="3분 12초"
+                delta={{ value: "- 82%", positive: false }}
+                variant="red"
+                suffix="초"
+                data={[
+                  { x: "11일", y: 115 },
+                  { x: "12일", y: 100 },
+                  { x: "13일", y: 92 },
+                  { x: "14일", y: 78 },
+                  { x: "15일", y: 70 },
+                  { x: "16일", y: 45 },
+                  { x: "17일", y: 20 },
+                ]}
+              />
+            </div>
+          </Card>
+
+          {/* Timeline Bar — Past/Current/Forecast */}
+          <Card title="Timeline Bar — Past / Current / Forecast" subtitle="시계열 지표 · 과거(회색) · 현재(파랑+배경) · 미래 예측(빨강+배경)">
+            <TimelineBarChart
+              title="월별 이탈율 추이"
+              data={[
+                { label: "2021-10", value: 30.3, type: "past" },
+                { label: "2021-11", value: 24,   type: "past" },
+                { label: "2021-12", value: 18.4, type: "past" },
+                { label: "2022-01", value: 25.1, type: "past" },
+                { label: "2022-02", value: 26.3, type: "past" },
+                { label: "2022-03", value: 23.1, type: "current" },
+                { label: "2022-04", value: 24.8, type: "forecast" },
+              ]}
             />
           </Card>
 

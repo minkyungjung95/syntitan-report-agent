@@ -1,10 +1,10 @@
 import {
   PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
-  ExecutiveSummaryCard,
-  TextBlock,
-  DataTable,
-  UserCard,
-  StrategyRoadmapTable,
+    ExecutiveSummaryCard,
+    TextBlock,
+    DataTable,
+    UserCard,
+    StrategyRoadmapTable,
 } from "./report-components";
 import { VBarChart, HBarChart, GroupedBarChart } from "./charts";
 import { StarRateFilledIcon, DownloadIcon, DatabaseIcon } from "./tokens.jsx";
@@ -36,19 +36,19 @@ const topicImpactData = [
 
 // 부정 리뷰 중 각 영역 언급률 (기타는 맨 아래 hatched)
 const negativeBreakdown = [
-  { id: "배송/CS", value: 44.3, count: 35 },
-  { id: "파손/내구성", value: 39.2, count: 31 },
-  { id: "지퍼/잠금장치", value: 35.4, count: 28 },
-  { id: "기타", value: 16.5, count: 13, hatched: true },
+  { label: "배송/CS", value: 44.3, count: 35 },
+  { label: "파손/내구성", value: 39.2, count: 31 },
+  { label: "지퍼/잠금장치", value: 35.4, count: 28 },
+  { label: "기타", value: 16.5, count: 13, hatched: true },
 ];
 
 // 긍정 리뷰 중 각 영역 언급률
 const positiveBreakdown = [
-  { id: "가성비", value: 57.2, count: 494 },
-  { id: "바퀴/이동성", value: 56.0, count: 484 },
-  { id: "디자인/색상", value: 48.4, count: 418 },
-  { id: "내구성", value: 45.6, count: 394 },
-  { id: "기타", value: 20.8, count: 180, hatched: true },
+  { label: "가성비", value: 57.2, count: 494 },
+  { label: "바퀴/이동성", value: 56.0, count: 484 },
+  { label: "디자인/색상", value: 48.4, count: 418 },
+  { label: "내구성", value: 45.6, count: 394 },
+  { label: "기타", value: 20.8, count: 180, hatched: true },
 ];
 
 export default function CoupangReviewReport() {
@@ -93,12 +93,14 @@ export default function CoupangReviewReport() {
             title={null}
             summaryItems={[
               { label: "총 리뷰", value: "1,000건" },
-              { label: "평균 별점", value: (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <StarRateFilledIcon size={24} color="#2B7FFF" />
-                  4.5<span style={{ fontWeight: 400, color: "#7B7E85" }}> / 5.0</span>
-                </span>
-              ) },
+              {
+                label: "평균 별점", value: (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <StarRateFilledIcon size={24} color="#2B7FFF" />
+                    4.5<span style={{ fontWeight: 400, color: "#7B7E85" }}> / 5.0</span>
+                  </span>
+                )
+              },
             ]}
             findings={{
               title: "Key Findings",
@@ -162,15 +164,19 @@ export default function CoupangReviewReport() {
                   columns={[
                     { key: "area", label: "영역", align: "center" },
                     { key: "share", label: "전체 리뷰 비중", align: "center", divider: true, width: "18%" },
-                    { key: "positive", label: "긍정", align: "center", width: "18%", divider: true, highlight: "green", highlightWhen: (row) => {
-                      const top2 = [...topicImpactData].sort((a,b) => b.긍정 - a.긍정).slice(0, 2).map(x => x.긍정);
-                      return top2.includes(row.posRaw);
-                    } },
-                    { key: "neutral",  label: "중립", align: "center", width: "18%", divider: true },
-                    { key: "negative", label: "부정", align: "center", width: "18%", divider: true, highlight: "red", highlightWhen: (row) => {
-                      const top2 = [...topicImpactData].sort((a,b) => b.부정 - a.부정).slice(0, 2).map(x => x.부정);
-                      return top2.includes(row.negRaw);
-                    } },
+                    {
+                      key: "positive", label: "긍정", align: "center", width: "18%", divider: true, highlight: "green", highlightWhen: (row) => {
+                        const top2 = [...topicImpactData].sort((a, b) => b.긍정 - a.긍정).slice(0, 2).map(x => x.긍정);
+                        return top2.includes(row.posRaw);
+                      }
+                    },
+                    { key: "neutral", label: "중립", align: "center", width: "18%", divider: true },
+                    {
+                      key: "negative", label: "부정", align: "center", width: "18%", divider: true, highlight: "red", highlightWhen: (row) => {
+                        const top2 = [...topicImpactData].sort((a, b) => b.부정 - a.부정).slice(0, 2).map(x => x.부정);
+                        return top2.includes(row.negRaw);
+                      }
+                    },
                   ]}
                   data={topicImpactData.map((d) => {
                     const m = d.label.match(/^(.*?)\s*\(([\d.]+)%\)\s*$/);
@@ -215,7 +221,7 @@ export default function CoupangReviewReport() {
                     title="부정 리뷰 중 각 영역 언급률"
                     valueInside
                     minRows={positiveBreakdown.length}
-                    data={negativeBreakdown.map((d) => ({ label: d.id, value: d.value, count: d.count, color: d.hatched ? "#E6E7E9" : undefined }))}
+                    data={negativeBreakdown.map((d) => ({ label: d.label, value: d.value, count: d.count, color: d.hatched ? "#E6E7E9" : undefined }))}
                   />
                 </ContentCard>
                 <ContentCard style={{ flex: 1 }}>
@@ -264,7 +270,7 @@ export default function CoupangReviewReport() {
                   <HBarChart
                     title="긍정 리뷰 중 각 영역 언급률"
                     valueInside
-                    data={positiveBreakdown.map((d) => ({ label: d.id, value: d.value, count: d.count, color: d.hatched ? "#E6E7E9" : undefined }))}
+                    data={positiveBreakdown.map((d) => ({ label: d.label, value: d.value, count: d.count, color: d.hatched ? "#E6E7E9" : undefined }))}
                   />
                 </ContentCard>
                 <ContentCard style={{ flex: 1 }}>

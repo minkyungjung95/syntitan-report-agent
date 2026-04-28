@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { T, InfoIcon, WarnIcon, InfoFillIcon, ErrorFillIcon, WarnFillIcon, StarAiFillIcon, CloseIcon, StarIcon, IdentityPlatformIcon } from "./tokens.jsx";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -530,5 +530,252 @@ export function ModalGrid({ columns = 2, gap = 8, children, style }) {
     }}>
       {children}
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOOLTIP (Figma 11235:164)
+//   - variant: "dark" (T.strong 배경 + white 텍스트) | "light" (white + border + shadow)
+//   - placement: 12종 — top/bottom/left/right × start/center/end
+//   - content: 간단 문자열 또는 ReactNode
+//   - title + description: 카드형 툴팁 (2단 구성)
+//   - shortcut: 단일 라인 툴팁 오른쪽에 키힌트 (예: "⌘V")
+//   - trigger: children (hover 시 노출)
+// ═══════════════════════════════════════════════════════════════════════════
+const ARROW = 6;                      // 삼각형 반변
+const TOOLTIP_GAP = 4;                 // 단일 툴팁: 트리거 ↔ 툴팁 간격
+const TOOLTIP_ARROW_TIP_GAP = 4;      // 화살표 툴팁: 트리거 ↔ 화살표 tip 간격
+const TOOLTIP_ALIGN_OFFSET = 14;       // start/end 기준점 (꼭지가 트리거 쪽에서 살짝 들어간 위치)
+
+function getTooltipPos(placement, hasArrow = false) {
+  const [dir, align = "center"] = placement.split("-");
+  // hasArrow 시: 트리거↔arrow tip 간격 = TOOLTIP_ARROW_TIP_GAP (2px)
+  // → tooltip 본체까지 거리 = ARROW(6) + TOOLTIP_ARROW_TIP_GAP(2) = 8px
+  const gap = hasArrow ? ARROW + TOOLTIP_ARROW_TIP_GAP : TOOLTIP_GAP;
+  const s = {}; // container 기준 absolute
+  if (dir === "top") {
+    s.bottom = `calc(100% + ${gap}px)`;
+    if (align === "start") s.left = 0;
+    else if (align === "end") s.right = 0;
+    else { s.left = "50%"; s.transform = "translateX(-50%)"; }
+  } else if (dir === "bottom") {
+    s.top = `calc(100% + ${gap}px)`;
+    if (align === "start") s.left = 0;
+    else if (align === "end") s.right = 0;
+    else { s.left = "50%"; s.transform = "translateX(-50%)"; }
+  } else if (dir === "left") {
+    s.right = `calc(100% + ${gap}px)`;
+    if (align === "start") s.top = 0;
+    else if (align === "end") s.bottom = 0;
+    else { s.top = "50%"; s.transform = "translateY(-50%)"; }
+  } else if (dir === "right") {
+    s.left = `calc(100% + ${gap}px)`;
+    if (align === "start") s.top = 0;
+    else if (align === "end") s.bottom = 0;
+    else { s.top = "50%"; s.transform = "translateY(-50%)"; }
+  }
+  return { dir, align, style: s };
+}
+
+function getArrowStyle(dir, align, bg, borderColor) {
+  // 삼각형 절반 크기 base. 트리거 방향으로 나감.
+  const common = {
+    position: "absolute",
+    width: 0, height: 0,
+    borderStyle: "solid",
+  };
+  if (dir === "top") {
+    // tooltip 아래쪽 변에서 아래로 삼각형
+    Object.assign(common, {
+      bottom: -ARROW, borderWidth: `${ARROW}px ${ARROW}px 0 ${ARROW}px`,
+      borderColor: `${bg} transparent transparent transparent`,
+    });
+    if (align === "start") common.left = TOOLTIP_ALIGN_OFFSET;
+    else if (align === "end") common.right = TOOLTIP_ALIGN_OFFSET;
+    else { common.left = "50%"; common.transform = "translateX(-50%)"; }
+  } else if (dir === "bottom") {
+    Object.assign(common, {
+      top: -ARROW, borderWidth: `0 ${ARROW}px ${ARROW}px ${ARROW}px`,
+      borderColor: `transparent transparent ${bg} transparent`,
+    });
+    if (align === "start") common.left = TOOLTIP_ALIGN_OFFSET;
+    else if (align === "end") common.right = TOOLTIP_ALIGN_OFFSET;
+    else { common.left = "50%"; common.transform = "translateX(-50%)"; }
+  } else if (dir === "left") {
+    Object.assign(common, {
+      right: -ARROW, borderWidth: `${ARROW}px 0 ${ARROW}px ${ARROW}px`,
+      borderColor: `transparent transparent transparent ${bg}`,
+    });
+    if (align === "start") common.top = TOOLTIP_ALIGN_OFFSET;
+    else if (align === "end") common.bottom = TOOLTIP_ALIGN_OFFSET;
+    else { common.top = "50%"; common.transform = "translateY(-50%)"; }
+  } else if (dir === "right") {
+    Object.assign(common, {
+      left: -ARROW, borderWidth: `${ARROW}px ${ARROW}px ${ARROW}px 0`,
+      borderColor: `transparent ${bg} transparent transparent`,
+    });
+    if (align === "start") common.top = TOOLTIP_ALIGN_OFFSET;
+    else if (align === "end") common.bottom = TOOLTIP_ALIGN_OFFSET;
+    else { common.top = "50%"; common.transform = "translateY(-50%)"; }
+  }
+  return common;
+}
+
+export function Tooltip({
+  children,
+  content,
+  title,
+  description,
+  shortcut,
+  image,                     // Visual Tooltip: 이미지 URL 또는 true(placeholder)
+  imageHeight = 126,
+  placement,                 // 미지정 시: 카드형은 "top", 단일형은 "bottom" + 자동 좌우 정렬
+  variant = "dark",
+  open: controlledOpen,
+  style,
+}) {
+  const [hover, setHover] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : hover;
+
+  const isDark = variant === "dark";
+  const bg = isDark ? T.strong : T.white;
+  const fg = isDark ? T.white : T.gray990;
+  const subFg = isDark ? "#B6B8BD" : T.gray800;
+  const border = isDark ? "none" : `1px solid ${T.gray200}`;
+  const shadow = isDark ? "0 4px 14px rgba(0,0,0,0.12)" : "0 6px 20px rgba(0,0,0,0.1)";
+  const isVisual = !!image;
+  const isCard = !isVisual && !!(title || description);
+
+  /* ── 자동 placement ───────────────────────────────────────────
+     - placement 명시: 그대로 사용
+     - 카드형 (title/desc): 기본 "top"
+     - 단일형: 기본 "bottom" + 트리거 X 위치로 start / center / end 자동 결정
+        · 뷰포트 좌측 1/3 → "bottom-start"
+        · 우측 1/3        → "bottom-end"
+        · 그 외           → "bottom"
+  ─────────────────────────────────────────────────────────────── */
+  const triggerRef = useRef(null);
+  const [autoAlign, setAutoAlign] = useState("");
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    if (placement) return;           // 명시된 경우 스킵
+    if (isCard || isVisual) return;  // 카드/비주얼형은 top 기본
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const centerX = rect.left + rect.width / 2;
+    if (centerX < vw / 3) setAutoAlign("-start");
+    else if (centerX > (vw * 2) / 3) setAutoAlign("-end");
+    else setAutoAlign("");
+  }, [open, placement, isCard, isVisual]);
+
+  const resolvedPlacement =
+    placement || ((isCard || isVisual) ? "top" : `bottom${autoAlign}`);
+
+  const hasArrow = isCard || isVisual;
+  const { dir, align, style: posStyle } = getTooltipPos(resolvedPlacement, hasArrow);
+  const arrowStyle = getArrowStyle(dir, align, bg);
+
+  return (
+    <span
+      ref={triggerRef}
+      style={{ position: "relative", display: "inline-flex", ...style }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+      {open && (
+        <div
+          role="tooltip"
+          style={{
+            position: "absolute",
+            zIndex: 100,
+            padding: isVisual ? "8px 8px 10px" : isCard ? "10px 12px" : "4px 8px",
+            background: bg,
+            color: fg,
+            border,
+            borderRadius: (isCard || isVisual) ? 8 : 6,
+            boxShadow: shadow,
+            fontFamily: "Pretendard, sans-serif",
+            fontSize: 14, fontWeight: 500, lineHeight: "20px",
+            whiteSpace: (isCard || isVisual) ? "normal" : "nowrap",
+            width: isVisual ? 240 : undefined,
+            minWidth: isCard ? 180 : undefined,
+            maxWidth: isCard ? 260 : undefined,
+            pointerEvents: "none",
+            ...posStyle,
+          }}
+        >
+          {isVisual ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+              {/* 이미지 (boolean=true 이면 placeholder, URL이면 실제 이미지) */}
+              <div style={{
+                width: "100%",
+                height: imageHeight,
+                background: T.gray200,
+                borderRadius: 4,
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}>
+                {typeof image === "string" ? (
+                  <img src={image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  // Placeholder icon (산/이미지 아이콘)
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <rect x="5" y="7" width="30" height="26" rx="2" stroke="#8F9298" strokeWidth="1.5" />
+                    <circle cx="14" cy="16" r="2.5" stroke="#8F9298" strokeWidth="1.5" />
+                    <path d="M8 28 L16 20 L22 26 L28 20 L32 24 V31 H8 Z" stroke="#8F9298" strokeWidth="1.5" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              {/* 라벨 영역 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+                {title && (
+                  <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: fg }}>{title}</div>
+                )}
+                {description && (
+                  <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: isDark ? T.gray700 : T.gray800 }}>
+                    {description}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : isCard ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {title && (
+                <div style={{ fontSize: 14, fontWeight: 600, lineHeight: "20px", color: fg }}>{title}</div>
+              )}
+              {description && (
+                <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: subFg }}>{description}</div>
+              )}
+            </div>
+          ) : (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span>{content}</span>
+              {shortcut && (
+                <span style={{ color: subFg, fontSize: 12, fontWeight: 500 }}>{shortcut}</span>
+              )}
+            </span>
+          )}
+          {/* Arrow — Card / Visual 타입만 표시 */}
+          {(isCard || isVisual) && (
+            <>
+              <span style={arrowStyle} />
+              {!isDark && (
+                <span style={{
+                  ...arrowStyle,
+                  filter: "drop-shadow(0 0 0 transparent)",
+                }} />
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </span>
   );
 }

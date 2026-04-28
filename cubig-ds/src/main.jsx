@@ -6,6 +6,8 @@ import App from './App.jsx'
 const CoupangReviewReport = lazy(() => import('./coupang-review-report'))
 const ChatgptReviewReport = lazy(() => import('./chatgpt-review-report'))
 const CsTicketReport = lazy(() => import('./cs-ticket-report'))
+const AdPerformanceReport = lazy(() => import('./ad-performance-report'))
+const AuditLog = lazy(() => import('./syntitan-UI/audit-log.jsx'))
 
 function Root() {
   const route = window.location.hash.replace(/^#\/?/, '')
@@ -30,6 +32,22 @@ function Root() {
     return (
       <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
         <CsTicketReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'ad') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <AdPerformanceReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'audit') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <AuditLog />
       </Suspense>
     )
   }

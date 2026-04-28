@@ -668,26 +668,30 @@ export function Interpretation(props) { return <TextBlock {...props} />; }
 
 export function DataTable({ columns = [], data = [], style }) {
   // 컬럼별 highlight — col.highlight: true|"blue" → 블루, "red" → 레드, "green" → 그린
+  // 행 단위 강조 — col.highlightWhen(row):
+  //   - true: col.highlight 색을 해당 row 에만 적용
+  //   - "red"|"green"|"blue": 반환 색상으로 해당 row 강조 (col.highlight 없이도 동작)
+  //   - false/undefined: 강조 없음
   const blue500 = "#2B7FFF";
   const red500 = T.red500 || "#FB2C36";
   const green500 = T.green500 || "#00C950";
-  const hlColor = (col) => col.highlight === "red" ? red500
-    : col.highlight === "green" ? green500
+  const hlColor = (key) => key === "red" ? red500
+    : key === "green" ? green500
     : blue500;
-  const hlBg = (col) => col.highlight === "red"
+  const hlBg = (key) => key === "red"
     ? "rgba(254, 242, 242, 0.7)"   // red50 70%
-    : col.highlight === "green"
+    : key === "green"
     ? "rgba(240, 253, 244, 0.7)"   // green50 70%
     : "rgba(239, 246, 255, 0.7)";  // blue50 70%
   return (
-    <div style={{ width: "100%", overflowX: "auto", fontFamily: F, ...style }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <div style={{ width: "100%", height: "100%", overflowX: "auto", fontFamily: F, ...style }}>
+      <table style={{ width: "100%", height: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ height: 48, background: T.gray25 }}>
             {columns.map((col, i) => (
               <th key={i} style={{
                 padding: "12px 16px",
-                fontSize: 14, fontWeight: 500, lineHeight: "20px",
+                fontSize: 14, fontWeight: 400, lineHeight: "20px",
                 color: col.highlight ? T.gray990 : T.gray800,
                 textAlign: col.align || "left",
                 width: col.width, whiteSpace: "nowrap",
@@ -704,17 +708,17 @@ export function DataTable({ columns = [], data = [], style }) {
           {data.map((row, ri) => (
             <tr key={ri}>
               {columns.map((col, ci) => {
-                // col.highlight → 컬럼 전체 강조 (기본)
-                // col.highlightWhen(row) → 해당 row 에만 강조 (col.highlight 없이도 동작)
-                const active = col.highlight && (typeof col.highlightWhen === "function" ? col.highlightWhen(row) : true);
+                const whenResult = typeof col.highlightWhen === "function" ? col.highlightWhen(row) : undefined;
+                const active = whenResult !== undefined ? Boolean(whenResult) : Boolean(col.highlight);
+                const colorKey = typeof whenResult === "string" ? whenResult : col.highlight;
                 return (
                   <td key={ci} style={{
                     padding: "16px 16px",
                     fontSize: 14,
                     fontWeight: active ? 700 : (ci === 0 ? 500 : 400),
                     lineHeight: "20px",
-                    color: active ? hlColor(col) : T.gray990,
-                    background: active ? hlBg(col) : "transparent",
+                    color: active ? hlColor(colorKey) : T.gray990,
+                    background: active ? hlBg(colorKey) : "transparent",
                     textAlign: col.align || "left",
                     width: col.width,
                     borderBottom: ri < data.length - 1 ? `1px solid ${T.gray100}` : "none",
@@ -783,7 +787,7 @@ export function GroupedTable({ columns = [], groups = [], style }) {
             {columns.map((col, i) => (
               <th key={i} style={{
                 padding: "12px 16px",
-                fontSize: 14, fontWeight: 500, lineHeight: "20px",
+                fontSize: 14, fontWeight: 400, lineHeight: "20px",
                 color: T.gray800, textAlign: col.align || "center",
                 width: col.width,
               }}>

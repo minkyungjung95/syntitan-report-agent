@@ -1,7 +1,7 @@
 // ─── Design Tokens (Figma Variables → Color 컬렉션 163색 전체) ───────────
 export const T = {
   // common
-  white:"#FFFFFF", black:"#000000", strong:"#0F0F10",
+  white:"#FFFFFF", black:"#000000", strong:"#171719",
   // palette/gray (18단계)
   gray25:"#FBFBFB", gray50:"#F7F7F8", gray100:"#F0F0F2",
   gray200:"#E6E7E9", gray300:"#DCDDDF", gray400:"#CACCCF",

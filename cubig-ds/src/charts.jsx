@@ -146,7 +146,10 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
             motionConfig="gentle"
             theme={{ ...baseTheme, labels: { text: { fontSize: 14, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
             tooltip={({ datum }) => (
-              <Tooltip label={datum.id} value={`${((datum.value / total) * 100).toFixed(0)}% (${datum.value.toLocaleString()})`} />
+              <Tooltip
+                label={datum.id}
+                value={`${((datum.value / total) * 100).toFixed(1)}%${datum.data.count != null ? ` (${datum.data.count.toLocaleString()}원)` : ""}`}
+              />
             )}
           />
         </div>
@@ -159,13 +162,18 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
           minWidth: 0,
         }}>
           {data.map((d, i) => (
-            <div key={d.id} style={{ display: "flex", alignItems: "center", fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
+            <div key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
               {d.hatched ? (
                 <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` }} />
               ) : (
                 <LegendDot color={donutColors[i]} />
               )}
-              <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, marginLeft: 8 }}>{d.id}</span>
+              <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800 }}>{d.id}</span>
+              {d.count != null && (
+                <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>
+                  ({d.count.toLocaleString()}원)
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -544,7 +552,8 @@ export function SemiDonutChart({
 // Percent: 20px Medium #171719
 // Count: 18px Regular #7B7E85, gap 4
 // Grid 기반 HBar — 라벨 컬럼은 가장 긴 라벨에 맞춰 자동, maxWidth 200 에서 ellipsis
-function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
+function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuffix = "%", valueFormat }) {
+  const displayValue = valueFormat ? valueFormat(value) : value;
   const [hovered, setHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const pct = maxPct > 0 ? (value / maxPct) * 100 : 0;
@@ -591,7 +600,7 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
           }}>
             {valueInside && pct > 5 && (
               <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: insideTextColor, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
-                {value}%{count != null ? ` (${count.toLocaleString()})` : ""}
+                {displayValue}{valueSuffix}{count != null ? ` (${count.toLocaleString()})` : ""}
               </span>
             )}
           </div>
@@ -606,7 +615,7 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
         </div>
         {!valueInside && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap" }}>
-            <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{value}%</span>
+            <span style={{ fontSize: 18, fontWeight: 500, lineHeight: "26px", color: GRAY990 }}>{displayValue}{valueSuffix}</span>
             {count != null && <span style={{ fontSize: 18, fontWeight: 400, lineHeight: "26px", color: GRAY800 }}>({count.toLocaleString()})</span>}
           </div>
         )}
@@ -619,7 +628,7 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside }) {
             zIndex: 10,
             transform: "translateY(-100%)",
           }}>
-            <Tooltip label={label} value={`${value}%${count != null ? ` (${count.toLocaleString()})` : ""}`} />
+            <Tooltip label={label} value={`${displayValue}${valueSuffix}${count != null ? ` (${count.toLocaleString()})` : ""}`} />
           </div>
         )}
       </div>
@@ -639,7 +648,7 @@ const HBAR_VARIANT_COLORS = {
   red:     ["#FF6467", "#FFA2A2", "#FFC9C9"], // Red 400 → 300 → 200
 };
 
-export function HBarChart({ data, title, maxValue, valueInside = false, minRows = 0, variant = "default" }) {
+export function HBarChart({ data, title, maxValue, valueInside = false, minRows = 0, variant = "default", valueSuffix = "%", valueFormat }) {
   const max = maxValue ?? Math.max(...data.map((d) => d.value), 1);
   const emptyCount = Math.max(minRows - data.length, 0);
   const palette = HBAR_VARIANT_COLORS[variant] || HBAR_VARIANT_COLORS.default;
@@ -653,7 +662,7 @@ export function HBarChart({ data, title, maxValue, valueInside = false, minRows 
           if (d.color) barColor = d.color;
           else if (i < palette.length) barColor = palette[i];
           else barColor = GRAY200;
-          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} />;
+          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} valueSuffix={valueSuffix} valueFormat={valueFormat} />;
         })}
         {Array.from({ length: emptyCount }).map((_, i) => (
           <React.Fragment key={`empty-${i}`}>
@@ -688,7 +697,8 @@ function VBarItem({ bar, isStacked, actualKeys, valueFormat, isSingleKey, setHov
       ? { tl: 0, tr: 0, br: R, bl: R }
       : { tl: R, tr: R, br: 0, bl: 0 };
   }
-  const showLabel = bar.width >= 24 && bar.height >= 16;
+  // 라벨이 막대 밖으로 잘리지 않도록 — 폰트 16 + labelY 14 기준 텍스트 하단이 ~25 → 28 이상 확보
+  const showLabel = bar.width >= 24 && bar.height >= 28;
   const labelY = isNeg ? bar.height - 14 : 14;
   const c = (bar.color || "").toLowerCase();
   const isGrayBar = c === "#e6e7e9" || c === "#e0e0e2" || c === GRAY200.toLowerCase() || c === GRAY100.toLowerCase();
@@ -783,7 +793,38 @@ export function VBarChart({ data, keys, indexBy = "label", title, groupMode = "g
           animate
           motionConfig="gentle"
           theme={{ ...baseTheme, labels: { text: { fontSize: 16, fontWeight: 600, fontFamily: "Pretendard, sans-serif" } } }}
-          axisBottom={{ tickSize: 0, tickPadding: 12 }}
+          axisBottom={{
+            tickSize: 0,
+            tickPadding: 12,
+            // 각 슬롯 가로 너비(bandW)에 맞춰 라벨 ellipsis 처리 — 반응형
+            renderTick: (tick) => {
+              const maxW = bandW > 0 ? Math.max(bandW - 8, 24) : 100;
+              const text = String(tick.value);
+              return (
+                <g transform={`translate(${tick.x},${tick.y})`}>
+                  <foreignObject x={-maxW / 2} y={12} width={maxW} height={28} style={{ overflow: "visible" }}>
+                    <div
+                      xmlns="http://www.w3.org/1999/xhtml"
+                      title={text}
+                      style={{
+                        fontSize: 12,
+                        color: GRAY800,
+                        fontFamily: "Pretendard, sans-serif",
+                        textAlign: "center",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        width: "100%",
+                        lineHeight: "16px",
+                      }}
+                    >
+                      {text}
+                    </div>
+                  </foreignObject>
+                </g>
+              );
+            },
+          }}
           axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: hasNegative ? tickArr : 5, format: valueFormat }}
           enableGridX={false}
           enableGridY
@@ -1156,7 +1197,7 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
 
 // ─── MultiLineChart: 다중 시리즈 전용 — CHART_COLORS 자동 매핑, cross 점선 크로스헤어,
 //                   x/y 키-값 툴팁, PSM 차트 스타일의 하단 가로 선형 범례 (직선 연결)
-export function MultiLineChart({ data, title, curve = "linear" }) {
+export function MultiLineChart({ data, title, curve = "linear", height = 280 }) {
   const palette = CHART_COLORS;
 
   const allY = data.flatMap(s => s.data.map(d => d.y));
@@ -1166,7 +1207,7 @@ export function MultiLineChart({ data, title, curve = "linear" }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ width: "100%", height: 280 }}>
+      <div style={{ width: "100%", height }}>
         <ResponsiveLine
           data={data}
           colors={palette}
@@ -1192,31 +1233,36 @@ export function MultiLineChart({ data, title, curve = "linear" }) {
           }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
           axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
-          useMesh
-          enableCrosshair
-          crosshairType="cross"
-          tooltip={({ point }) => (
+          enableSlices="x"
+          enableCrosshair={false}
+          sliceTooltip={({ slice }) => (
             <div style={{
               background: WHITE,
               border: `1px solid ${GRAY200}`,
-              borderRadius: 6,
+              borderRadius: 8,
               padding: "10px 12px",
               boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
               fontFamily: "Pretendard, sans-serif",
-              display: "inline-flex",
+              display: "flex",
               flexDirection: "column",
-              alignItems: "flex-start",
               gap: 6,
               whiteSpace: "nowrap",
+              minWidth: 140,
             }}>
-              <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800 }}>{point.data.xFormatted}</span>
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: point.seriesColor || point.serieColor, flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800 }}>{point.seriesId || point.serieId}</span>
-                </span>
-                <span style={{ fontSize: 16, fontWeight: 600, lineHeight: "24px", color: GRAY990 }}>{point.data.yFormatted}</span>
-              </div>
+              <span style={{ fontSize: 13, fontWeight: 500, lineHeight: "18px", color: GRAY800, paddingBottom: 4, borderBottom: `1px solid ${GRAY200}` }}>
+                {slice.points[0]?.data.xFormatted}
+              </span>
+              {[...slice.points]
+                .sort((a, b) => Number(b.data.y) - Number(a.data.y))
+                .map((p) => (
+                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.seriesColor || p.serieColor, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{p.seriesId || p.serieId}</span>
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990 }}>{p.data.yFormatted}</span>
+                </div>
+              ))}
             </div>
           )}
         />

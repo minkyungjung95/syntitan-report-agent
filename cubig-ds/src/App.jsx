@@ -1,9 +1,10 @@
 import { useState, lazy, Suspense } from "react";
 import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, TimelineBarChart, KPITrendCard, CHART_COLORS } from "./charts";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon, StarRateFilledIcon, IdentityPlatformOutlineIcon } from "./tokens.jsx";
-import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, ModalUserCard, ModalField, ModalStat, ModalGrid, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
+import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, ModalUserCard, ModalField, ModalStat, ModalGrid, Tooltip, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
+const AuditLog = lazy(() => import("./syntitan-UI/audit-log.jsx"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -44,6 +45,49 @@ function Col({ label, children }) {
       {label && <span style={{ fontSize:11, color:T.gray800, fontWeight:400 }}>{label}</span>}
       {children}
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UI PAGE (각 화면을 새 창으로 열기)
+// ═══════════════════════════════════════════════════════════════════════════
+const UI_ITEMS = [
+  { key: "audit", label: "감사 로그", description: "Owner / Admin 전용. 인증·데이터셋·전처리·릴리즈·Agent·Report·권한 활동 추적." },
+];
+
+function UIPage() {
+  return (
+    <Card title="UI" subtitle="각 화면은 새 창에서 열립니다.">
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {UI_ITEMS.map((it) => (
+          <div
+            key={it.key}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              padding: 16,
+              border: `1px solid ${T.gray200}`,
+              borderRadius: 12,
+              background: T.white,
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: T.gray990, marginBottom: 4 }}>{it.label}</div>
+              <div style={{ fontSize: 12, color: T.gray800 }}>{it.description}</div>
+            </div>
+            <Btn
+              variant="solid-primary"
+              size="sm"
+              onClick={() => window.open(`${window.location.origin}/#/${it.key}`, "_blank")}
+            >
+              새 창으로 열기
+            </Btn>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -89,6 +133,9 @@ export default function App() {
   const [chipTabSize, setChipTabSize] = useState("Medium");
   const [segMdIdx, setSegMdIdx] = useState(0);
 
+  // visual tooltip
+  const [vtDesc, setVtDesc] = useState(true);
+
   // callout
   const [cVariant, setCVariant] = useState("Primary");
   const [cSize, setCSize] = useState("Medium");
@@ -117,8 +164,8 @@ export default function App() {
   const [modalContentOpen, setModalContentOpen] = useState(null); // "user" | "stats" | "4col" | null
   const [modalContentTab, setModalContentTab] = useState(0);
 
-  const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","icons","report","reports"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", icons:"Icons", report:"Report Components", reports:"Reports" };
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","tooltip","icons","report","reports","ui"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", tooltip:"Tooltip", icons:"Icons", report:"Report Components", reports:"Reports", ui:"UI" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -140,7 +187,7 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding:"28px 24px", maxWidth: page === "report" ? "none" : 960, margin:"0 auto" }}>
+      <div style={{ padding:"28px 24px", maxWidth: (page === "report" || page === "ui") ? "none" : 960, margin:"0 auto" }}>
 
         {/* ══ COLOR ══ */}
         {page==="color" && <>
@@ -637,96 +684,6 @@ export default function App() {
             <p style={{ fontSize:13, color:T.gray800 }}>리포트에 사용되는 Nivo 기반 차트 컴포넌트입니다.</p>
           </div>
 
-          {/* Tooltip Styles */}
-          <Card title="Tooltips" subtitle="차트 호버 툴팁 스타일 — 공통: 배경 #FFF · border gray200 · radius 6 · padding 10/12 · shadow 0 6 20 rgba(0,0,0,.1)">
-            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
-            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
-              {/* Style A — 상단 라벨(14/500/gray800) + 하단 값(18/600/gray990), 중앙 정렬 */}
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style A</p>
-                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
-                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
-                  <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>-18 pt</span>
-                </div>
-              </div>
-
-              {/* Style B — Label + Value + Badge (LineChart 이탈 뱃지) */}
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style B</p>
-                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
-                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
-                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>1,248</span>
-                    <span style={{ display:"inline-flex", alignItems:"center", height:24, padding:"4px 6px", borderRadius:8, background:"#FEF2F2", color:T.red500, fontSize:12, fontWeight:500, lineHeight:"16px" }}>-42명 이탈</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
-              {/* Style C — Multi Series with dot (MultiLineChart) */}
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style C</p>
-                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"flex-start", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
-                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>35~44세</span>
-                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
-                      <span style={{ width:10, height:10, borderRadius:"50%", background:CHART_COLORS[0], flexShrink:0 }} />
-                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 높음</span>
-                    </span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>28.0</span>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
-                      <span style={{ width:10, height:10, borderRadius:"50%", background:"#B0B3B8", flexShrink:0 }} />
-                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 낮음</span>
-                    </span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>36.4</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Style D — Funnel Multi-Row (좌측 정렬 여러 항목) */}
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style D</p>
-                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
-                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>Step 3: 결제 완료</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
-                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>유저 수</span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>1,248</span>
-                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>전환율</span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.blue500, justifySelf:"end" }}>68.4%</span>
-                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>직전 대비 이탈</span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.red500, justifySelf:"end" }}>-192 (13.3%)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Style E — Combo (Bar + Line with distinct markers) */}
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style E</p>
-                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
-                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2023</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
-                      <span style={{ width:20, display:"inline-flex", justifyContent:"center", flexShrink:0 }}>
-                        <span style={{ width:16, height:10, background:CHART_COLORS[0], display:"inline-block", borderRadius:2 }} />
-                      </span>
-                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>매출액(억원)</span>
-                    </span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>956</span>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
-                      <svg width={20} height={12} style={{ display:"inline-block", flexShrink:0 }}>
-                        <line x1={0} y1={6} x2={20} y2={6} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
-                        <circle cx={10} cy={6} r={5} fill={T.white} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
-                      </svg>
-                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>직원수(명)</span>
-                    </span>
-                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>95</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-          </Card>
 
           {/* Color Palette */}
           <Card title="Chart 색상 팔레트" subtitle="데이터 시리즈에 순서대로 적용">
@@ -981,25 +938,6 @@ export default function App() {
             />
           </Card>
 
-          {/* Multi Line — PSM 동일 팔레트 (3 series) */}
-          <Card title="Multi Line — PSM Colors" subtitle="3개 시리즈 · PSMChart 와 동일한 CHART_COLORS 팔레트 (Blue500 / Lime500 / DeepPurple400)">
-            <MultiLineChart
-              title="2017-2020 지표 추이"
-              curve="monotoneX"
-              data={[
-                { id: "A", data: [
-                  { x: "2017", y: 10 }, { x: "2018", y: 50 }, { x: "2019", y: 80 }, { x: "2020", y: 100 },
-                ]},
-                { id: "B", data: [
-                  { x: "2017", y: 5 }, { x: "2018", y: 10 }, { x: "2019", y: 12 }, { x: "2020", y: 16 },
-                ]},
-                { id: "C", data: [
-                  { x: "2017", y: -10 }, { x: "2018", y: -20 }, { x: "2019", y: -30 }, { x: "2020", y: -32 },
-                ]},
-              ]}
-            />
-          </Card>
-
           {/* KPI Trend Card — 텍스트 + 추이 차트 */}
           <Card title="KPI Trend Card — 텍스트 + 추이 라인" subtitle="좌측 KPI 블록 + 우측 미니 추이 차트 · 상승(blue) / 하락(red)">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
@@ -1164,7 +1102,7 @@ export default function App() {
           </Card>
 
           {/* Line / Area - Red */}
-          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이 · metricType='percent' · 호버 시 이탈 수 뱃지">
+          <Card title="Line / Area Chart (Red)" subtitle="레드 라인 차트 - 위험 지표 추이 · metricType='percent' · 호버 시 이탈 수 뱃지 · disableBadge 옵션 사용 시 x/y 기본 툴팁으로 대체 표시">
             <LineChart
               title="Churn Rate Trend"
               variant="red"
@@ -1183,47 +1121,22 @@ export default function App() {
             />
           </Card>
 
-          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 매핑 · 점선 크로스헤어 · x/y 키-값 툴팁) */}
-          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례">
+          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 · 점선 크로스헤어 · x/y 키-값 툴팁 · curve=monotoneX · 음수 스케일 지원) */}
+          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / monotoneX 곡선 / 음수 스케일 지원 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례">
             <MultiLineChart
-              title="국가별 × 교통수단별 이용 수"
+              title="지표 추이 (음수 스케일 포함)"
+              curve="monotoneX"
               data={[
-                { id: "한국", data: [
-                  { x: "비행기", y: 540 }, { x: "기차", y: 820 }, { x: "지하철", y: 1050 },
-                  { x: "버스", y: 910 }, { x: "자동차", y: 760 }, { x: "자전거", y: 260 },
+                { id: "A", data: [
+                  { x: "2017", y: 10 }, { x: "2018", y: 50 }, { x: "2019", y: 80 }, { x: "2020", y: 100 },
                 ]},
-                { id: "일본", data: [
-                  { x: "비행기", y: 480 }, { x: "기차", y: 1080 }, { x: "지하철", y: 920 },
-                  { x: "버스", y: 780 }, { x: "자동차", y: 620 }, { x: "자전거", y: 520 },
+                { id: "B", data: [
+                  { x: "2017", y: 5 }, { x: "2018", y: 10 }, { x: "2019", y: 12 }, { x: "2020", y: 16 },
                 ]},
-                { id: "미국", data: [
-                  { x: "비행기", y: 820 }, { x: "기차", y: 430 }, { x: "지하철", y: 560 },
-                  { x: "버스", y: 610 }, { x: "자동차", y: 1140 }, { x: "자전거", y: 180 },
-                ]},
-                { id: "독일", data: [
-                  { x: "비행기", y: 410 }, { x: "기차", y: 680 }, { x: "지하철", y: 470 },
-                  { x: "버스", y: 520 }, { x: "자동차", y: 790 }, { x: "자전거", y: 620 },
+                { id: "C", data: [
+                  { x: "2017", y: -10 }, { x: "2018", y: -20 }, { x: "2019", y: -30 }, { x: "2020", y: -32 },
                 ]},
               ]}
-            />
-          </Card>
-
-          {/* Line / Area Chart (Red) — No Badge */}
-          <Card title="Line / Area Chart (Red) — No Badge" subtitle="레드 라인 차트 · metricType='nps' (작은 변화 과장 방지) · disableBadge">
-            <LineChart
-              title="월별 NPS 추이"
-              variant="red"
-              enableArea
-              disableBadge
-              metricType="nps"
-              data={[{
-                id: "NPS",
-                data: [
-                  { x:"1월", y:-20 },
-                  { x:"2월", y:-18 },
-                  { x:"3월", y:-16 },
-                ],
-              }]}
             />
           </Card>
 
@@ -1426,9 +1339,28 @@ export default function App() {
           </Card>
 
           <Card title="Divider" subtitle="Header와 Body 사이 1px gray200 라인 (끈 버전 / 켠 버전)">
+            {/* 카드 안 미니 프리뷰 — 두 상태를 즉시 비교 */}
+            <div style={{ display:"flex", gap:16, flexWrap:"wrap", marginBottom: 16 }}>
+              {/* Divider Off */}
+              <div style={{ flex:"1 1 240px", minWidth:240, border:`1px solid ${T.gray200}`, borderRadius:12, padding:16, background:T.white }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Divider Off</div>
+                <div style={{ fontSize:16, fontWeight:600, color:T.gray990, marginBottom:2 }}>제목</div>
+                <div style={{ fontSize:13, color:T.gray800, marginBottom:12 }}>Description 텍스트</div>
+                <div style={{ height:60, background:T.blue50, borderRadius:8 }} />
+              </div>
+              {/* Divider On */}
+              <div style={{ flex:"1 1 240px", minWidth:240, border:`1px solid ${T.gray200}`, borderRadius:12, padding:16, background:T.white }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Divider On</div>
+                <div style={{ fontSize:16, fontWeight:600, color:T.gray990, marginBottom:2 }}>제목</div>
+                <div style={{ fontSize:13, color:T.gray800, marginBottom:12 }}>Description 텍스트</div>
+                <div style={{ height:1, background:T.gray200, marginBottom:12 }} />
+                <div style={{ height:60, background:T.blue50, borderRadius:8 }} />
+              </div>
+            </div>
+            {/* 모달 풀 사이즈로 보기 */}
             <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalDividerVariant("off")}>Divider 없음</Btn>
-              <Btn variant="solid-primary" size="md" onClick={()=>setModalDividerVariant("on")}>Divider 있음</Btn>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalDividerVariant("off")}>모달로 보기 (Off)</Btn>
+              <Btn variant="solid-primary" size="md" onClick={()=>setModalDividerVariant("on")}>모달로 보기 (On)</Btn>
             </div>
           </Card>
 
@@ -1593,9 +1525,266 @@ export default function App() {
           </Modal>
         </>}
 
+        {page==="tooltip" && <>
+          <div style={{ marginBottom:24 }}>
+            <p style={{ fontSize:12, color:T.gray800, margin:"0 0 2px" }}>CUBIG Design System</p>
+            <h1 style={{ fontSize:20, fontWeight:700, color:T.gray990, margin:"0 0 4px" }}>Tooltip</h1>
+            <p style={{ fontSize:13, color:T.gray800 }}>Figma 11235:164 · Dark / Light variant · 12 placement · hover trigger.</p>
+          </div>
+
+          {/* Hover 상호작용 */}
+          <Card title="Hover 상호작용" subtitle="마우스를 올리면 노출됩니다">
+            <div style={{ display:"flex", gap:24, flexWrap:"wrap", padding:"30px 24px" }}>
+              <Tooltip variant="dark" content="Copy" shortcut="⌘C">
+                <Btn variant="solid-secondary" size="md">Copy</Btn>
+              </Tooltip>
+              <Tooltip variant="light" content="Paste" shortcut="⌘V">
+                <Btn variant="solid-secondary" size="md">Paste</Btn>
+              </Tooltip>
+              <Tooltip variant="dark" title="Delete item" description="이 항목을 영구적으로 삭제합니다." placement="right">
+                <Btn variant="solid-secondary" size="md">Delete</Btn>
+              </Tooltip>
+            </div>
+          </Card>
+
+          {/* Figma 376:126408 — Requirement 케이스 (Dark + Light × Label + Icon × Left + Right) */}
+          <Card
+            title="Requirement 케이스 (Figma 376:126408)"
+            subtitle="아래로 나오는 단일 툴팁. 트리거가 왼쪽이면 좌측정렬(bottom-start), 오른쪽이면 우측정렬(bottom-end)."
+          >
+            <div style={{ display:"flex", flexDirection:"column", gap:40, padding:"32px 24px" }}>
+
+              {/* Row 1: Dark + Label */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:4 }}>
+                  <span style={{ fontSize:12, color:T.gray800 }}>Requirement</span>
+                  <Tooltip variant="dark" content="Required columns are essential for running Agent Analysis." placement="bottom-start" open>
+                    <span style={{ width:0, height:0 }} />
+                  </Tooltip>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+                  <span style={{ fontSize:12, color:T.gray800 }}>Requirement</span>
+                  <Tooltip variant="dark" content="Required columns are essential for running Agent Analysis." placement="bottom-end" open>
+                    <span style={{ width:0, height:0 }} />
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Row 2: Dark + Icon */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"flex", justifyContent:"flex-start" }}>
+                  <Tooltip variant="dark" content="Required columns are essential for running Agent Analysis." placement="bottom-start" open>
+                    <span style={{ display:"inline-flex", alignItems:"center", cursor:"help" }}>
+                      <InfoIcon size={16} color={T.gray800} />
+                    </span>
+                  </Tooltip>
+                </div>
+                <div style={{ display:"flex", justifyContent:"flex-end" }}>
+                  <Tooltip variant="dark" content="Required columns are essential for running Agent Analysis." placement="bottom-end" open>
+                    <span style={{ display:"inline-flex", alignItems:"center", cursor:"help" }}>
+                      <InfoIcon size={16} color={T.gray800} />
+                    </span>
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Row 3: Light + Label */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:4 }}>
+                  <span style={{ fontSize:12, color:T.gray800 }}>Requirement</span>
+                  <Tooltip variant="light" content="Required columns are essential for running Agent Analysis." placement="bottom-start" open>
+                    <span style={{ width:0, height:0 }} />
+                  </Tooltip>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+                  <span style={{ fontSize:12, color:T.gray800 }}>Requirement</span>
+                  <Tooltip variant="light" content="Required columns are essential for running Agent Analysis." placement="bottom-end" open>
+                    <span style={{ width:0, height:0 }} />
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Row 4: Light + Icon */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"flex", justifyContent:"flex-start" }}>
+                  <Tooltip variant="light" content="Required columns are essential for running Agent Analysis." placement="bottom-start" open>
+                    <span style={{ display:"inline-flex", alignItems:"center", cursor:"help" }}>
+                      <InfoIcon size={16} color={T.gray800} />
+                    </span>
+                  </Tooltip>
+                </div>
+                <div style={{ display:"flex", justifyContent:"flex-end" }}>
+                  <Tooltip variant="light" content="Required columns are essential for running Agent Analysis." placement="bottom-end" open>
+                    <span style={{ display:"inline-flex", alignItems:"center", cursor:"help" }}>
+                      <InfoIcon size={16} color={T.gray800} />
+                    </span>
+                  </Tooltip>
+                </div>
+              </div>
+
+            </div>
+          </Card>
+
+          {/* Visual Tooltip (Figma 11235:164) — 이미지 + 제목 + 설명 + 화살표, 240w */}
+          <Card
+            title="Visual Tooltip (Figma 11235:164)"
+            subtitle="이미지 + 제목 + 설명. dark bg · width 240 · radius 8 · padding 8/8/10 · arrow 4px gap"
+          >
+            {/* Controls */}
+            <RowGroup label="옵션">
+              <Toggle label="Description" on={vtDesc} onClick={()=>setVtDesc(v=>!v)}/>
+            </RowGroup>
+
+            {/* Preview — 항상 열려 있는 기본 예시 (right 방향 → 아래 영역 안 침범) */}
+            <div style={{
+              display:"flex", alignItems:"center",
+              gap:0,
+              padding:"32px 24px",
+              borderBottom:`1px solid ${T.gray100}`,
+              minHeight: 220,
+            }}>
+              <Tooltip
+                variant="dark"
+                image={true}
+                title="텍스트를 입력해 주세요."
+                description={vtDesc ? "안내 텍스트를 입력해 주세요." : undefined}
+                placement="right"
+                open
+              >
+                <div style={{
+                  width:100, height:60,
+                  background:T.gray100, borderRadius:8,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:11, color:T.gray800, fontFamily:"Pretendard, sans-serif",
+                }}>Preview</div>
+              </Tooltip>
+            </div>
+
+            {/* Placement 12종 — 호버로 개별 확인 */}
+            <div style={{ padding:"24px 24px 8px 24px" }}>
+              <p style={{ fontSize:12, color:T.gray800, margin:"0 0 16px" }}>Placement 12종 — 트리거에 호버하세요.</p>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:16 }}>
+                {[
+                  "top-start","top","top-end","right-start",
+                  "bottom-start","bottom","bottom-end","right",
+                  "left-start","left","left-end","right-end",
+                ].map(p => (
+                  <div key={p} style={{ display:"flex", justifyContent:"center" }}>
+                    <Tooltip
+                      variant="dark"
+                      image={true}
+                      title="텍스트를 입력해 주세요."
+                      description={vtDesc ? "안내 텍스트를 입력해 주세요." : undefined}
+                      placement={p}
+                    >
+                      <div style={{
+                        width:100, height:60,
+                        background:T.gray100, borderRadius:8,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:11, color:T.gray800, fontFamily:"Pretendard, sans-serif",
+                        cursor:"help",
+                      }}>{p}</div>
+                    </Tooltip>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+
+          {/* 기존 Chart Tooltip 5종 — 참고용 스타일 프리뷰 */}
+          <Card title="Chart Tooltips (A~E)" subtitle="차트 호버 시 사용되는 스타일 프리뷰 — 공통: 배경 #FFF · border gray200 · radius 6 · padding 10/12 · shadow 0 6 20 rgba(0,0,0,.1)">
+            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
+              {/* Style A */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style A — 상단 라벨 + 하단 값</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
+                  <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>-18 pt</span>
+                </div>
+              </div>
+              {/* Style B */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style B — Label + Value + Badge</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2026년 3월</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990 }}>1,248</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", height:24, padding:"4px 6px", borderRadius:8, background:"#FEF2F2", color:T.red500, fontSize:12, fontWeight:500, lineHeight:"16px" }}>-42명 이탈</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
+              {/* Style C */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style C — Multi Series with dot</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"flex-start", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <span style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>35~44세</span>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:10, height:10, borderRadius:"50%", background:CHART_COLORS[0], flexShrink:0 }} />
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 높음</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>28.0</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:10, height:10, borderRadius:"50%", background:"#B0B3B8", flexShrink:0 }} />
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>신뢰도 낮음</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>36.4</span>
+                  </div>
+                </div>
+              </div>
+              {/* Style D */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style D — Funnel Multi-Row</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>Step 3: 결제 완료</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>유저 수</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>1,248</span>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>전환율</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.blue500, justifySelf:"end" }}>68.4%</span>
+                    <span style={{ fontSize:14, fontWeight:400, lineHeight:"20px", color:T.gray800 }}>직전 대비 이탈</span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.red500, justifySelf:"end" }}>-192 (13.3%)</span>
+                  </div>
+                </div>
+              </div>
+              {/* Style E */}
+              <div>
+                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 8px" }}>Style E — Combo (Bar + Line)</p>
+                <div style={{ display:"inline-flex", flexDirection:"column", gap:6, padding:"10px 12px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:6, boxShadow:"0 6px 20px rgba(0,0,0,0.1)", fontFamily:"Pretendard, sans-serif", whiteSpace:"nowrap" }}>
+                  <div style={{ fontSize:14, fontWeight:500, lineHeight:"20px", color:T.gray800 }}>2023</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"max-content max-content", columnGap:16, rowGap:4, alignItems:"center" }}>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <span style={{ width:20, display:"inline-flex", justifyContent:"center", flexShrink:0 }}>
+                        <span style={{ width:16, height:10, background:CHART_COLORS[0], display:"inline-block", borderRadius:2 }} />
+                      </span>
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>매출액(억원)</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>956</span>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+                      <svg width={20} height={12} style={{ display:"inline-block", flexShrink:0 }}>
+                        <line x1={0} y1={6} x2={20} y2={6} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
+                        <circle cx={10} cy={6} r={5} fill={T.white} stroke={CHART_COLORS[1]} strokeWidth={2.5} />
+                      </svg>
+                      <span style={{ fontSize:14, fontWeight:500, color:T.gray800 }}>직원수(명)</span>
+                    </span>
+                    <span style={{ fontSize:16, fontWeight:600, lineHeight:"24px", color:T.gray990, justifySelf:"end" }}>95</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+          </Card>
+        </>}
+
         {page==="icons" && <IconsTab />}
 
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
+
+        {page==="ui" && <UIPage />}
 
         {page==="reports" && <>
           <Card title="Reports" subtitle="각 리포트는 새 창에서 열립니다.">
@@ -1608,6 +1797,9 @@ export default function App() {
               </Btn>
               <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/cs`, "_blank")}>
                 고객 티켓 분석 리포트
+              </Btn>
+              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/ad`, "_blank")}>
+                광고 성과 분석 리포트
               </Btn>
             </div>
           </Card>

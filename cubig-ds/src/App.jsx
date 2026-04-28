@@ -124,6 +124,37 @@ function EnvBadge() {
   );
 }
 
+// 모달 시각 프리뷰 카드 — 옵션 데모용 미니 모달 모양
+function ModalPreview({ width = "100%", label, hasDescription = true, hasDivider = false, footer = null, active = false, onClick, bodyHeight = 28 }) {
+  return (
+    <div onClick={onClick} style={{
+      cursor: onClick ? "pointer" : "default",
+      width, minWidth: 0, flexShrink: 0,
+      border: `1px solid ${active ? "#2B7FFF" : "#E6E7E9"}`,
+      borderRadius: 12, background: "#FFFFFF",
+      overflow: "hidden",
+      transition: "border 0.15s, box-shadow 0.15s",
+      boxShadow: active ? "0 0 0 2px rgba(43,127,255,0.12)" : "none",
+      fontFamily: "Pretendard, sans-serif",
+    }}>
+      <div style={{ padding: "12px 16px 10px" }}>
+        {label && <div style={{ fontSize: 10, fontWeight: 600, color: "#7B7E85", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>{label}</div>}
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#171719", marginBottom: hasDescription ? 2 : 0 }}>제목</div>
+        {hasDescription && <div style={{ fontSize: 11, color: "#7B7E85", lineHeight: "16px" }}>Description 텍스트</div>}
+      </div>
+      {hasDivider && <div style={{ height: 1, background: "#E6E7E9" }} />}
+      <div style={{ padding: "8px 16px 12px" }}>
+        <div style={{ height: bodyHeight, background: "#EFF6FF", borderRadius: 4 }} />
+      </div>
+      {footer && (
+        <div style={{ padding: "8px 16px 12px", borderTop: `1px solid #F0F0F2` }}>
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Production 링크 — 현재 환경이 production이 아닐 때만 우측에 노출
 function ProdLink() {
   // eslint-disable-next-line no-undef
@@ -1347,17 +1378,26 @@ export default function App() {
           </div>
 
           <Card title="Sizes" subtitle="xs 320 · sm 480 · md 640 · lg 960 · xl 1200 · radius 12">
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            {/* 카드 안 미니 프리뷰 — 너비를 비례로 표현 */}
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap", alignItems:"flex-start", marginBottom: 16 }}>
               {[
-                { key:"xs", label:"xs (320)" },
-                { key:"sm", label:"sm (480)" },
-                { key:"md", label:"md (640)" },
-                { key:"lg", label:"lg (960)" },
-                { key:"xl", label:"xl (1200)" },
+                { key:"xs", label:"xs · 320", width: 88 },
+                { key:"sm", label:"sm · 480", width: 132 },
+                { key:"md", label:"md · 640", width: 176 },
+                { key:"lg", label:"lg · 960", width: 220 },
+                { key:"xl", label:"xl · 1200", width: 264 },
               ].map(s => (
-                <Btn key={s.key} variant="solid-secondary" size="md" onClick={()=>setModalSize(s.key)}>{s.label}</Btn>
+                <ModalPreview
+                  key={s.key}
+                  width={s.width}
+                  label={s.label}
+                  hasDescription={true}
+                  active={modalSize === s.key}
+                  onClick={() => setModalSize(s.key)}
+                />
               ))}
             </div>
+            <div style={{ fontSize: 12, color: T.gray800 }}>미니 프리뷰 클릭 시 실제 크기 모달이 열립니다.</div>
           </Card>
 
           <Modal
@@ -1376,78 +1416,99 @@ export default function App() {
           </Modal>
 
           <Card title="Header — Description 토글" subtitle="title 아래 description 표시 여부">
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
-              <Btn variant={modalDesc ? "solid-primary" : "solid-secondary"} size="md" onClick={()=>setModalDesc(true)}>On</Btn>
-              <Btn variant={!modalDesc ? "solid-primary" : "solid-secondary"} size="md" onClick={()=>setModalDesc(false)}>Off</Btn>
+            <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
+              <ModalPreview
+                width={240}
+                label="Description On"
+                hasDescription={true}
+                active={modalDesc}
+                onClick={() => setModalDesc(true)}
+              />
+              <ModalPreview
+                width={240}
+                label="Description Off"
+                hasDescription={false}
+                active={!modalDesc}
+                onClick={() => setModalDesc(false)}
+              />
             </div>
           </Card>
 
-          <Card title="Divider" subtitle="Header와 Body 사이 1px gray200 라인 (끈 버전 / 켠 버전)">
-            {/* 카드 안 미니 프리뷰 — 두 상태를 즉시 비교 */}
-            <div style={{ display:"flex", gap:16, flexWrap:"wrap", marginBottom: 16 }}>
-              {/* Divider Off */}
-              <div style={{ flex:"1 1 240px", minWidth:240, border:`1px solid ${T.gray200}`, borderRadius:12, padding:16, background:T.white }}>
-                <div style={{ fontSize:11, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Divider Off</div>
-                <div style={{ fontSize:16, fontWeight:600, color:T.gray990, marginBottom:2 }}>제목</div>
-                <div style={{ fontSize:13, color:T.gray800, marginBottom:12 }}>Description 텍스트</div>
-                <div style={{ height:60, background:T.blue50, borderRadius:8 }} />
-              </div>
-              {/* Divider On */}
-              <div style={{ flex:"1 1 240px", minWidth:240, border:`1px solid ${T.gray200}`, borderRadius:12, padding:16, background:T.white }}>
-                <div style={{ fontSize:11, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Divider On</div>
-                <div style={{ fontSize:16, fontWeight:600, color:T.gray990, marginBottom:2 }}>제목</div>
-                <div style={{ fontSize:13, color:T.gray800, marginBottom:12 }}>Description 텍스트</div>
-                <div style={{ height:1, background:T.gray200, marginBottom:12 }} />
-                <div style={{ height:60, background:T.blue50, borderRadius:8 }} />
-              </div>
-            </div>
-            {/* 모달 풀 사이즈로 보기 */}
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalDividerVariant("off")}>모달로 보기 (Off)</Btn>
-              <Btn variant="solid-primary" size="md" onClick={()=>setModalDividerVariant("on")}>모달로 보기 (On)</Btn>
-            </div>
+          <Card title="Divider" subtitle="Header와 Body 사이 1px gray200 라인">
+            <ModalPreview
+              width={280}
+              label="Divider"
+              hasDescription={true}
+              hasDivider={true}
+            />
           </Card>
 
-          <Modal
-            open={modalDividerVariant !== null}
-            onClose={()=>setModalDividerVariant(null)}
-            onConfirm={()=>setModalDividerVariant(null)}
-            title="제목"
-            description="Description 텍스트"
-            size="sm"
-            divider={modalDividerVariant === "on"}
-          >
-            <div style={{ height:200, background:T.blue50, borderRadius:8 }} />
-          </Modal>
-
-          <Card title="Action Area" subtitle="type · buttonLayout · alignment 조합 — 열어서 확인">
-            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>Type</p>
-                <div style={{ display:"flex", gap:6 }}>
-                  {["dual","single"].map(v => (
-                    <PillBtn key={v} label={v} active={modalActionType===v} onClick={()=>setModalActionType(v)} />
-                  ))}
+          <Card title="Action Area" subtitle="type · buttonLayout · alignment 조합 — 선택 즉시 미니 프리뷰 반영">
+            <div style={{ display:"flex", gap:24, flexWrap:"wrap", alignItems:"flex-start" }}>
+              {/* 좌측: 옵션 선택 */}
+              <div style={{ display:"flex", flexDirection:"column", gap:12, minWidth: 200, flex: "0 0 auto" }}>
+                <div>
+                  <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>Type</p>
+                  <div style={{ display:"flex", gap:6 }}>
+                    {["dual","single"].map(v => (
+                      <PillBtn key={v} label={v} active={modalActionType===v} onClick={()=>setModalActionType(v)} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonLayout</p>
-                <div style={{ display:"flex", gap:6 }}>
-                  {["hug","fill"].map(v => (
-                    <PillBtn key={v} label={v} active={modalBtnLayout===v} onClick={()=>setModalBtnLayout(v)} />
-                  ))}
+                <div>
+                  <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonLayout</p>
+                  <div style={{ display:"flex", gap:6 }}>
+                    {["hug","fill"].map(v => (
+                      <PillBtn key={v} label={v} active={modalBtnLayout===v} onClick={()=>setModalBtnLayout(v)} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonAlignment</p>
-                <div style={{ display:"flex", gap:6 }}>
-                  {["start","end","space-between"].map(v => (
-                    <PillBtn key={v} label={v} active={modalBtnAlign===v} onClick={()=>setModalBtnAlign(v)} />
-                  ))}
+                <div>
+                  <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>ButtonAlignment</p>
+                  <div style={{ display:"flex", gap:6 }}>
+                    {["start","end","space-between"].map(v => (
+                      <PillBtn key={v} label={v} active={modalBtnAlign===v} onClick={()=>setModalBtnAlign(v)} />
+                    ))}
+                  </div>
                 </div>
+                <Btn variant="solid-primary" size="md" onClick={()=>setModalActionOpen(true)}>현재 설정으로 모달 열기</Btn>
               </div>
-              <div>
-                <Btn variant="solid-primary" size="md" onClick={()=>setModalActionOpen(true)}>현재 설정으로 열기</Btn>
+              {/* 우측: 미니 프리뷰 — 옵션 변경 시 즉시 반영 */}
+              <div style={{ flex: "1 1 280px", minWidth: 280 }}>
+                <ModalPreview
+                  width="100%"
+                  label={`${modalActionType} · ${modalBtnLayout} · ${modalBtnAlign}`}
+                  hasDescription={modalDesc}
+                  footer={
+                    <div style={{
+                      display: "flex",
+                      flexDirection: modalBtnLayout === "fill" ? "row" : "row",
+                      gap: 6,
+                      justifyContent:
+                        modalBtnAlign === "start" ? "flex-start" :
+                        modalBtnAlign === "space-between" ? "space-between" :
+                        "flex-end",
+                    }}>
+                      {modalActionType === "dual" && (
+                        <div style={{
+                          flex: modalBtnLayout === "fill" ? 1 : "0 0 auto",
+                          height: 24,
+                          width: modalBtnLayout === "fill" ? undefined : 56,
+                          background: T.white,
+                          border: `1px solid ${T.gray200}`,
+                          borderRadius: 6,
+                        }} />
+                      )}
+                      <div style={{
+                        flex: modalBtnLayout === "fill" ? 1 : "0 0 auto",
+                        height: 24,
+                        width: modalBtnLayout === "fill" ? undefined : 56,
+                        background: T.gray990,
+                        borderRadius: 6,
+                      }} />
+                    </div>
+                  }
+                />
               </div>
             </div>
           </Card>
@@ -1468,9 +1529,84 @@ export default function App() {
           </Modal>
 
           <Card title="Content Blocks" subtitle="모달 내부 레이아웃 — UserCard / Field / Stat / Grid (1~4단)">
+            {/* 카드 안 미니 프리뷰 — 3가지 패턴 시각적으로 즉시 비교 */}
+            <div style={{ display:"flex", gap:16, flexWrap:"wrap", marginBottom: 16 }}>
+              {/* Pattern 1: 유저 헤더 + Field 반복 */}
+              <div onClick={()=>setModalContentOpen("user")} style={{
+                cursor:"pointer", flex:"1 1 220px", minWidth:220,
+                border:`1px solid ${T.gray200}`, borderRadius:12, padding:12, background:T.white,
+                fontFamily:"Pretendard, sans-serif",
+              }}>
+                <div style={{ fontSize:10, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Pattern 1 · UserCard + Field</div>
+                <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 8px", border:`1px solid ${T.gray200}`, borderRadius:8, marginBottom:8 }}>
+                  <div style={{ width:20, height:20, borderRadius:"50%", background:T.gray100 }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ height:8, width:"60%", background:T.gray200, borderRadius:2, marginBottom:4 }} />
+                    <div style={{ height:6, width:"80%", background:T.gray100, borderRadius:2 }} />
+                  </div>
+                </div>
+                <div style={{ background:T.gray50, borderRadius:8, padding:6, display:"flex", flexDirection:"column", gap:4 }}>
+                  {[0,1,2].map(i => (
+                    <div key={i}>
+                      <div style={{ height:6, width:"40%", background:T.gray200, borderRadius:2, marginBottom:3 }} />
+                      <div style={{ height:5, width:"90%", background:T.gray100, borderRadius:2 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pattern 2: 탭 + Persona + Overview Stat 그리드 */}
+              <div onClick={()=>setModalContentOpen("stats")} style={{
+                cursor:"pointer", flex:"1 1 220px", minWidth:220,
+                border:`1px solid ${T.gray200}`, borderRadius:12, padding:12, background:T.white,
+                fontFamily:"Pretendard, sans-serif",
+              }}>
+                <div style={{ fontSize:10, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Pattern 2 · Tab + Persona + Stats</div>
+                {/* tab */}
+                <div style={{ display:"flex", gap:2, marginBottom:8 }}>
+                  <div style={{ flex:1, height:14, background:T.gray990, borderRadius:4 }} />
+                  <div style={{ flex:1, height:14, background:T.gray100, borderRadius:4 }} />
+                  <div style={{ flex:1, height:14, background:T.gray100, borderRadius:4 }} />
+                </div>
+                {/* persona label (primary) */}
+                <div style={{ fontSize:9, fontWeight:600, color:T.blue500, marginBottom:4 }}>Persona</div>
+                <div style={{ display:"flex", alignItems:"center", gap:6, padding:"4px 6px", border:`1px solid ${T.gray200}`, borderRadius:6, marginBottom:8 }}>
+                  <div style={{ width:14, height:14, borderRadius:"50%", background:T.gray100 }} />
+                  <div style={{ flex:1, height:6, background:T.gray200, borderRadius:2 }} />
+                </div>
+                {/* overview label (primary) + wrapping */}
+                <div style={{ fontSize:9, fontWeight:600, color:T.blue500, marginBottom:4 }}>Overview</div>
+                <div style={{ background:T.gray50, borderRadius:8, padding:6, display:"flex", flexDirection:"column", gap:4 }}>
+                  <div style={{ display:"flex", gap:4 }}>
+                    <div style={{ flex:1, height:18, background:T.white, border:`1px solid ${T.gray200}`, borderRadius:4 }} />
+                    <div style={{ flex:1, height:18, background:T.white, border:`1px solid ${T.gray200}`, borderRadius:4 }} />
+                  </div>
+                  <div style={{ height:14, background:T.white, border:`1px solid ${T.gray200}`, borderRadius:4 }} />
+                </div>
+              </div>
+
+              {/* Pattern 3: 4단 Stat 그리드 */}
+              <div onClick={()=>setModalContentOpen("4col")} style={{
+                cursor:"pointer", flex:"1 1 220px", minWidth:220,
+                border:`1px solid ${T.gray200}`, borderRadius:12, padding:12, background:T.white,
+                fontFamily:"Pretendard, sans-serif",
+              }}>
+                <div style={{ fontSize:10, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Pattern 3 · 4-col Stats</div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:4 }}>
+                  {[0,1,2,3].map(i => (
+                    <div key={i} style={{ background:T.gray50, borderRadius:6, padding:6 }}>
+                      <div style={{ height:5, width:"70%", background:T.gray200, borderRadius:2, marginBottom:3 }} />
+                      <div style={{ height:8, width:"50%", background:T.gray990, borderRadius:2 }} />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop:8, height:30, background:T.gray50, borderRadius:6 }} />
+              </div>
+            </div>
+            {/* 모달로 풀 사이즈 보기 */}
             <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("user")}>유저 헤더 + Field 반복</Btn>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("stats")}>탭 + 2단 Stat 그리드</Btn>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("user")}>유저 헤더 + Field</Btn>
+              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("stats")}>Persona + Overview</Btn>
               <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("4col")}>4단 Stat 그리드</Btn>
             </div>
           </Card>
@@ -1527,17 +1663,20 @@ export default function App() {
                 size="md"
               />
               <div>
-                <div style={{ fontSize:13, fontWeight:500, color:T.gray800, marginBottom:8 }}>Persona</div>
+                <div style={{ fontSize:13, fontWeight:600, color:T.blue500, marginBottom:8 }}>Persona</div>
                 <ModalUserCard name="Premium Enthusiasts" subtitle="Early adopters driven by quality and brand value." />
               </div>
               <div>
-                <div style={{ fontSize:13, fontWeight:500, color:T.gray800, marginBottom:8 }}>Overview</div>
-                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:T.blue500, marginBottom:8 }}>Overview</div>
+                <div style={{
+                  display:"flex", flexDirection:"column", gap:8, padding:8,
+                  borderRadius:16, background:T.gray50,
+                }}>
                   <ModalGrid columns={2}>
                     <ModalStat label="Size" value="28.4K" unit="users" />
                     <ModalStat label="Average Age" value="35 – 45" />
                   </ModalGrid>
-                  <ModalField label="Gender Distribution">
+                  <ModalField label="Gender Distribution" style={{ border: "none" }}>
                     <div style={{ display:"flex", alignItems:"baseline", gap:16 }}>
                       <div><strong style={{ fontSize:16, color:T.gray990 }}>62%</strong> <span style={{ color:T.gray800, fontSize:13 }}> female</span></div>
                       <div style={{ width:1, height:12, background:T.gray200 }} />

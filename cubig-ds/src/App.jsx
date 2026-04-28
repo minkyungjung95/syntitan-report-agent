@@ -106,6 +106,26 @@ const VARIANT_ACCENT = { Primary:T.gray990, Secondary:T.gray800, Brand:T.dp600, 
 const th = { padding:"8px 14px", textAlign:"left", fontSize:12, fontWeight:600, color:"#7B7E85", borderBottom:"1px solid #E6E7E9", whiteSpace:"nowrap" };
 const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlign:"middle" };
 
+// 환경 배지 — Vercel 시스템 env(__VERCEL_ENV__/__VERCEL_BRANCH__)로 환경 구분
+function EnvBadge() {
+  // eslint-disable-next-line no-undef
+  const env = typeof __VERCEL_ENV__ !== "undefined" ? __VERCEL_ENV__ : "local";
+  // eslint-disable-next-line no-undef
+  const branch = typeof __VERCEL_BRANCH__ !== "undefined" ? __VERCEL_BRANCH__ : "local";
+  const label = env === "production" ? "PROD"
+    : env === "preview" ? `DEV · ${branch}`
+    : "LOCAL";
+  return (
+    <span style={{
+      fontSize: 11, fontWeight: 600, lineHeight: "16px",
+      padding: "2px 8px", borderRadius: 4,
+      background: "#F0F0F2", color: "#7B7E85",
+      letterSpacing: 0.4, textTransform: "uppercase",
+      fontFamily: "Pretendard, sans-serif",
+    }}>{label}</span>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState("charts");
 
@@ -174,8 +194,9 @@ export default function App() {
     <div style={{ minHeight:"100vh", background:T.gray50, fontFamily:"Pretendard, sans-serif", boxSizing:"border-box" }}>
 
       {/* Header */}
-      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, position:"sticky", top:0, zIndex:11 }}>
+      <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:8, position:"sticky", top:0, zIndex:11 }}>
         <span style={{ fontSize:14, fontWeight:700, color:T.gray990, padding:"14px 0", flexShrink:0 }}>CUBIG</span>
+        <EnvBadge />
       </div>
 
       {/* DS Sub Nav */}

@@ -110,10 +110,8 @@ const td = { padding:"10px 14px", borderBottom:"1px solid #F0F0F2", verticalAlig
 function EnvBadge() {
   // eslint-disable-next-line no-undef
   const env = typeof __VERCEL_ENV__ !== "undefined" ? __VERCEL_ENV__ : "local";
-  // eslint-disable-next-line no-undef
-  const branch = typeof __VERCEL_BRANCH__ !== "undefined" ? __VERCEL_BRANCH__ : "local";
   const label = env === "production" ? "PROD"
-    : env === "preview" ? `DEV · ${branch}`
+    : env === "preview" ? "DEV"
     : "LOCAL";
   return (
     <span style={{
@@ -123,6 +121,30 @@ function EnvBadge() {
       letterSpacing: 0.4, textTransform: "uppercase",
       fontFamily: "Pretendard, sans-serif",
     }}>{label}</span>
+  );
+}
+
+// Production 링크 — 현재 환경이 production이 아닐 때만 우측에 노출
+function ProdLink() {
+  // eslint-disable-next-line no-undef
+  const env = typeof __VERCEL_ENV__ !== "undefined" ? __VERCEL_ENV__ : "local";
+  if (env === "production") return null;
+  const hash = typeof window !== "undefined" ? window.location.hash : "";
+  const prodUrl = `https://syntitan-report-agent.vercel.app/${hash}`;
+  return (
+    <a href={prodUrl} target="_blank" rel="noopener noreferrer" style={{
+      marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6,
+      fontSize: 12, fontWeight: 500, lineHeight: "18px",
+      padding: "6px 12px", borderRadius: 8,
+      border: "1px solid #E6E7E9", background: "#FFFFFF", color: "#171719",
+      textDecoration: "none", fontFamily: "Pretendard, sans-serif",
+      transition: "background 0.15s",
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.background = "#F7F7F8"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.background = "#FFFFFF"; }}
+    >
+      Production 화면 보기 →
+    </a>
   );
 }
 
@@ -197,6 +219,7 @@ export default function App() {
       <div style={{ background:T.white, borderBottom:`1px solid ${T.gray200}`, padding:"0 24px", display:"flex", alignItems:"center", gap:8, position:"sticky", top:0, zIndex:11 }}>
         <span style={{ fontSize:14, fontWeight:700, color:T.gray990, padding:"14px 0", flexShrink:0 }}>CUBIG</span>
         <EnvBadge />
+        <ProdLink />
       </div>
 
       {/* DS Sub Nav */}

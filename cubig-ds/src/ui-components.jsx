@@ -383,6 +383,8 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: resolvedWidth,
+          // 모달 전체 세로 최대 674px — viewport보다 작을 때는 viewport에 맞춤
+          maxHeight: "min(674px, calc(100vh - 32px))",
           background: T.white, borderRadius: 12,
           boxShadow: "0 10px 32px rgba(15,15,16,0.16)",
           display: "flex", flexDirection: "column",
@@ -430,8 +432,8 @@ export function Modal({
         {/* Divider (optional) — Header와 Body 사이 1px gray200 */}
         {divider && <div style={{ height: 1, background: T.gray200 }} />}
 
-        {/* Body — Figma: padding 12px 24px */}
-        <div style={{ padding: "12px 24px", flex: 1, minHeight: 0, ...bodyStyle }}>
+        {/* Body — Figma: padding 12px 24px / 길어지면 내부 스크롤 */}
+        <div style={{ padding: "12px 24px", flex: 1, minHeight: 0, overflowY: "auto", ...bodyStyle }}>
           {children}
         </div>
 
@@ -511,7 +513,7 @@ export function ModalStat({ label, value, unit, style }) {
         <div style={{ fontSize: 13, fontWeight: 500, lineHeight: "18px", color: T.gray800 }}>{label}</div>
       )}
       <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-        <span style={{ fontSize: 18, fontWeight: 700, lineHeight: "26px", color: T.gray990 }}>{value}</span>
+        <span style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: T.gray990 }}>{value}</span>
         {unit && (
           <span style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{unit}</span>
         )}

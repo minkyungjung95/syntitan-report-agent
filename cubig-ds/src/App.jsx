@@ -1415,38 +1415,17 @@ export default function App() {
             <div style={{ height:200, background:T.blue50, borderRadius:8 }} />
           </Modal>
 
-          <Card title="Header — Description 토글" subtitle="title 아래 description 표시 여부">
-            <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
-              <ModalPreview
-                width={240}
-                label="Description On"
-                hasDescription={true}
-                active={modalDesc}
-                onClick={() => setModalDesc(true)}
-              />
-              <ModalPreview
-                width={240}
-                label="Description Off"
-                hasDescription={false}
-                active={!modalDesc}
-                onClick={() => setModalDesc(false)}
-              />
-            </div>
-          </Card>
-
-          <Card title="Divider" subtitle="Header와 Body 사이 1px gray200 라인">
-            <ModalPreview
-              width={280}
-              label="Divider"
-              hasDescription={true}
-              hasDivider={true}
-            />
-          </Card>
-
-          <Card title="Action Area" subtitle="type · buttonLayout · alignment 조합 — 선택 즉시 미니 프리뷰 반영">
+          <Card title="Action Area" subtitle="description · type · buttonLayout · alignment 조합 — 선택 즉시 미니 프리뷰 반영">
             <div style={{ display:"flex", gap:24, flexWrap:"wrap", alignItems:"flex-start" }}>
               {/* 좌측: 옵션 선택 */}
               <div style={{ display:"flex", flexDirection:"column", gap:12, minWidth: 200, flex: "0 0 auto" }}>
+                <div>
+                  <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>Description</p>
+                  <div style={{ display:"flex", gap:6 }}>
+                    <PillBtn label="On" active={modalDesc===true} onClick={()=>setModalDesc(true)} />
+                    <PillBtn label="Off" active={modalDesc===false} onClick={()=>setModalDesc(false)} />
+                  </div>
+                </div>
                 <div>
                   <p style={{ fontSize:12, color:T.gray800, margin:"0 0 6px", fontWeight:500 }}>Type</p>
                   <div style={{ display:"flex", gap:6 }}>
@@ -1519,7 +1498,7 @@ export default function App() {
             onConfirm={()=>setModalActionOpen(false)}
             title="제목"
             description={modalDesc ? `${modalActionType} · ${modalBtnLayout} · ${modalBtnAlign}` : undefined}
-            size="sm"
+            size="lg"
             actionType={modalActionType}
             buttonLayout={modalBtnLayout}
             buttonAlignment={modalBtnAlign}
@@ -1564,9 +1543,9 @@ export default function App() {
                 <div style={{ fontSize:10, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Pattern 2 · Tab + Persona + Stats</div>
                 {/* tab */}
                 <div style={{ display:"flex", gap:2, marginBottom:8 }}>
-                  <div style={{ flex:1, height:14, background:T.gray990, borderRadius:4 }} />
-                  <div style={{ flex:1, height:14, background:T.gray100, borderRadius:4 }} />
-                  <div style={{ flex:1, height:14, background:T.gray100, borderRadius:4 }} />
+                  <div style={{ flex:1, height:18, background:T.gray990, borderRadius:4, color:T.white, fontSize:9, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 1</div>
+                  <div style={{ flex:1, height:18, background:T.gray100, borderRadius:4, color:T.gray800, fontSize:9, fontWeight:500, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 2</div>
+                  <div style={{ flex:1, height:18, background:T.gray100, borderRadius:4, color:T.gray800, fontSize:9, fontWeight:500, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 3</div>
                 </div>
                 {/* persona label (primary) */}
                 <div style={{ fontSize:9, fontWeight:600, color:T.blue500, marginBottom:4 }}>Persona</div>
@@ -1592,6 +1571,19 @@ export default function App() {
                 fontFamily:"Pretendard, sans-serif",
               }}>
                 <div style={{ fontSize:10, fontWeight:600, color:T.gray800, marginBottom:8, textTransform:"uppercase", letterSpacing:0.4 }}>Pattern 3 · 4-col Stats</div>
+                {/* 1. Tab 카테고리 */}
+                <div style={{ display:"flex", gap:2, marginBottom:16 }}>
+                  <div style={{ flex:1, height:18, background:T.gray990, borderRadius:4, color:T.white, fontSize:9, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 1</div>
+                  <div style={{ flex:1, height:18, background:T.gray100, borderRadius:4, color:T.gray800, fontSize:9, fontWeight:500, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 2</div>
+                  <div style={{ flex:1, height:18, background:T.gray100, borderRadius:4, color:T.gray800, fontSize:9, fontWeight:500, display:"flex", alignItems:"center", justifyContent:"center", letterSpacing:0.2 }}>카테고리 3</div>
+                </div>
+                {/* 2. Chip 형태 카테고리 탭 */}
+                <div style={{ display:"flex", gap:4, marginBottom:8, flexWrap:"wrap" }}>
+                  <div style={{ height:16, padding:"0 8px", background:T.gray990, borderRadius:99, color:T.white, fontSize:9, fontWeight:600, display:"inline-flex", alignItems:"center", letterSpacing:0.2 }}>칩 1</div>
+                  <div style={{ height:16, padding:"0 8px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:99, color:T.gray800, fontSize:9, fontWeight:500, display:"inline-flex", alignItems:"center", letterSpacing:0.2 }}>칩 2</div>
+                  <div style={{ height:16, padding:"0 8px", background:T.white, border:`1px solid ${T.gray200}`, borderRadius:99, color:T.gray800, fontSize:9, fontWeight:500, display:"inline-flex", alignItems:"center", letterSpacing:0.2 }}>칩 3</div>
+                </div>
+                {/* 3. 4-col grid */}
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:4 }}>
                   {[0,1,2,3].map(i => (
                     <div key={i} style={{ background:T.gray50, borderRadius:6, padding:6 }}>
@@ -1656,25 +1648,23 @@ export default function App() {
             onConfirm={()=>setModalContentOpen(null)}
           >
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <SegmentedControl
-                items={["Customer Overview","Behavior Insights","Strategic Analysis"]}
-                activeIndex={modalContentTab}
-                onChange={setModalContentTab}
-                size="md"
-              />
               <div>
-                <div style={{ fontSize:13, fontWeight:600, color:T.blue500, marginBottom:8 }}>Persona</div>
-                <ModalUserCard name="Premium Enthusiasts" subtitle="Early adopters driven by quality and brand value." />
+                <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Persona</div>
+                <ModalUserCard
+                  icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+                  name="Premium Enthusiasts"
+                  subtitle="Early adopters driven by quality and brand value."
+                />
               </div>
               <div>
-                <div style={{ fontSize:13, fontWeight:600, color:T.blue500, marginBottom:8 }}>Overview</div>
+                <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Overview</div>
                 <div style={{
                   display:"flex", flexDirection:"column", gap:8, padding:8,
                   borderRadius:16, background:T.gray50,
                 }}>
                   <ModalGrid columns={2}>
-                    <ModalStat label="Size" value="28.4K" unit="users" />
-                    <ModalStat label="Average Age" value="35 – 45" />
+                    <ModalStat label="Size" value="28.4K" unit="users" style={{ border: "none" }} />
+                    <ModalStat label="Average Age" value="35 – 45" style={{ border: "none" }} />
                   </ModalGrid>
                   <ModalField label="Gender Distribution" style={{ border: "none" }}>
                     <div style={{ display:"flex", alignItems:"baseline", gap:16 }}>

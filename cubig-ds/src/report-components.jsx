@@ -1007,9 +1007,18 @@ export function StatRow({ label, value, items = [], style }) {
   );
 }
 
-export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", variant, badgePrefix = "Insight", badgeVariant: badgeVariantOverride, bordered = true, style }) {
-  // alert 있음 → Secondary(기본). alert 없음 → variant prop 사용. badgeVariant override 가 있으면 최우선
-  const badgeVariant = badgeVariantOverride || (alert ? "Secondary" : (variant || "Primary"));
+// SignalCard
+//   badgePrefix: 배지 텍스트(예: "Insight", "KPI", "평균 CPA" 등). JSON `label` 값을 그대로 전달.
+//   variant: 카드 톤 — 메시지 성격에 따라
+//     • "Info"      파랑 (default) — 일반 정보 / 약한 좋은 신호
+//     • "Positive"  초록           — 좋은 결과 / 우수 신호
+//     • "Negative"  빨강           — 안 좋은 신호 / 경고
+//     • "Secondary" 회색           — 중립 / 그냥 저냥
+//   showDivider: title 아래 1px 라인 표시 여부 (default true). SectionCard 안에 들어갈 때 false 추천.
+//   alert 있을 때는 자동으로 Secondary 처리(callout 본문에 톤이 들어가므로 배지는 중립)
+export function SignalCard({ number, title, items = [], alert, alertVariant = "Cautionary", variant, badgePrefix = "Insight", badgeVariant: badgeVariantOverride, bordered = true, showDivider = true, style }) {
+  // alert 있음 → Secondary(기본). alert 없음 → variant prop 사용 (default Info 파랑). badgeVariant override 가 있으면 최우선
+  const badgeVariant = badgeVariantOverride || (alert ? "Secondary" : (variant || "Info"));
   return (
     <div style={{
       flex: "1 1 320px", minWidth: 320,
@@ -1022,17 +1031,23 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
       background: T.white,
       ...style,
     }}>
-      {/* Badge — badgePrefix prop (default "Insight", "Signal" 등 context 에 따라 override) */}
+      {/* Badge — badgePrefix(JSON label 값) + 선택 number (생략 시 prefix만) */}
       <div style={{ display: "flex" }}>
-        <Badge type="Solid" variant={badgeVariant} size="Medium" text={`${badgePrefix} ${number}`} />
+        <Badge type="Solid" variant={badgeVariant} size="Medium" text={number != null ? `${badgePrefix} ${number}` : badgePrefix} />
       </div>
       {/* Badge → Title gap 24 */}
       <div style={{ marginTop: 24 }}>
         <div style={{ fontSize: 16, fontWeight: 700, lineHeight: "24px", color: T.gray990 }}>{title}</div>
       </div>
-      {/* Title ↔ Line ↔ Description gap 16 total (8+8) */}
-      <div style={{ height: 8, borderBottom: `1px solid ${T.gray200}` }} />
-      <div style={{ height: 8 }} />
+      {/* Title ↔ Line ↔ Description — showDivider=false 면 라인 제거 */}
+      {showDivider ? (
+        <>
+          <div style={{ height: 8, borderBottom: `1px solid ${T.gray200}` }} />
+          <div style={{ height: 8 }} />
+        </>
+      ) : (
+        <div style={{ height: 12 }} />
+      )}
       {/* Description bullets (flex:1 → 카드 높이 맞춤, Callout 하단 정렬) */}
       <div style={{ flex: 1 }}>
         <ul style={{ margin: 0, paddingLeft: 16 }}>

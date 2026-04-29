@@ -1,12 +1,12 @@
 import {
   PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
   ExecutiveSummaryCard,
-  InsightContent,
-  ContentArea,
+  StrategyCard,
+  SignalCard,
   DataTable,
   StrategyRoadmapTable,
 } from "./report-components";
-import { DonutChart, MultiLineChart, VBarChart } from "./charts";
+import { DonutChart, MultiLineChart, VBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
@@ -21,16 +21,16 @@ const mediaCostData = [
 ];
 
 // Section 4: 매체 효율 단면 — DataTable (행=매체, 컬럼=지표)
-// 컬럼별 worst 셀만 레드 강조
-const ctrHL = (row) => row.media === "카카오" ? "red" : false; // 0.91% (최저)
-const cpcHL = (row) => row.media === "구글"   ? "red" : false; // 931원 (최고)
-const cvrHL = (row) => row.media === "카카오" ? "red" : false; // 1.20% (최저)
-const cpaHL = (row) => row.media === "카카오" ? "red" : false; // 33,019원 (최고)
+// 헤드라인 메시지(카카오 광고비 대비 성과 최하위)와 일치하는 카카오 worst 지표만 레드 강조
+// CPC는 카카오가 오히려 가장 낮아(좋음) 강조 제외
+const ctrHL = (row) => row.media === "카카오" ? "red" : false; // 0.91% (최저, worst)
+const cvrHL = (row) => row.media === "카카오" ? "red" : false; // 1.20% (최저, worst)
+const cpaHL = (row) => row.media === "카카오" ? "red" : false; // 33,019원 (최고, worst)
 const mediaBreakdownColumns = [
   { key: "media", label: "매체", align: "left" },
-  { key: "cost", label: "비용", align: "center" },
+  { key: "cost", label: "총 비용", align: "center" },
   { key: "ctr",  label: "CTR (클릭률)",       align: "center", highlightWhen: ctrHL },
-  { key: "cpc",  label: "CPC (클릭당 비용)",   align: "center", highlightWhen: cpcHL },
+  { key: "cpc",  label: "CPC (클릭당 비용)",   align: "center" },
   { key: "cvr",  label: "CVR (전환율)",       align: "center", highlightWhen: cvrHL },
   { key: "cpa",  label: "CPA (전환당 비용)",   align: "center", highlightWhen: cpaHL },
 ];
@@ -68,12 +68,12 @@ const TOP_CAMPAIGN_NAMES = new Set([
 ]);
 const campaignCpaHL = (row) => TOP_CAMPAIGN_NAMES.has(row.name) ? "green" : "red";
 const campaignColumns = [
-  { key: "name", label: "캠페인",  align: "left" },
-  { key: "cost", label: "비용",    align: "center" },
-  { key: "ctr",  label: "CTR",     align: "center" },
-  { key: "cvr",  label: "CVR",     align: "center" },
-  { key: "conv", label: "전환수",  align: "center" },
-  { key: "cpa",  label: "CPA",     align: "center", highlightWhen: campaignCpaHL },
+  { key: "name", label: "캠페인",                align: "left" },
+  { key: "cost", label: "총 비용",                  align: "center" },
+  { key: "ctr",  label: "CTR (클릭률)",          align: "center" },
+  { key: "cvr",  label: "CVR (전환율)",          align: "center" },
+  { key: "conv", label: "전환수",                align: "center" },
+  { key: "cpa",  label: "CPA (전환당 비용)",     align: "center", highlightWhen: campaignCpaHL },
 ];
 const campaignData = [
   { name: "구글 브랜드검색",          cost: "39,301,659원", ctr: "6.69%", cvr: "6.95%", conv: "3,086건", cpa: "12,735원" },
@@ -91,19 +91,19 @@ const campaignData = [
 // Section 7: 주별 CPA 추이 — MultiLineChart (매체별) + 전체 평균 벤치마크
 const weeklyTrendData = [
   { id: "구글",   data: [
-    { x: "1주 차", y: 13.9 }, { x: "2주 차", y: 13.6 }, { x: "3주 차", y: 11.4 }, { x: "4주 차", y: 15.5 },
+    { x: "1주 차", y: 13900 }, { x: "2주 차", y: 13600 }, { x: "3주 차", y: 11400 }, { x: "4주 차", y: 15500 },
   ]},
   { id: "네이버", data: [
-    { x: "1주 차", y: 19.5 }, { x: "2주 차", y: 15.1 }, { x: "3주 차", y: 18.5 }, { x: "4주 차", y: 18.9 },
+    { x: "1주 차", y: 19500 }, { x: "2주 차", y: 15100 }, { x: "3주 차", y: 18500 }, { x: "4주 차", y: 18900 },
   ]},
   { id: "메타",   data: [
-    { x: "1주 차", y: 15.5 }, { x: "2주 차", y: 15.8 }, { x: "3주 차", y: 16.0 }, { x: "4주 차", y: 16.1 },
+    { x: "1주 차", y: 15500 }, { x: "2주 차", y: 15800 }, { x: "3주 차", y: 16000 }, { x: "4주 차", y: 16100 },
   ]},
   { id: "카카오", data: [
-    { x: "1주 차", y: 50.0 }, { x: "2주 차", y: 31.1 }, { x: "3주 차", y: 19.8 }, { x: "4주 차", y: 45.5 },
+    { x: "1주 차", y: 50000 }, { x: "2주 차", y: 31100 }, { x: "3주 차", y: 19800 }, { x: "4주 차", y: 45500 },
   ]},
   { id: "전체 평균", data: [
-    { x: "1주 차", y: 15.0 }, { x: "2주 차", y: 15.0 }, { x: "3주 차", y: 15.0 }, { x: "4주 차", y: 15.0 },
+    { x: "1주 차", y: 15000 }, { x: "2주 차", y: 15000 }, { x: "3주 차", y: 15000 }, { x: "4주 차", y: 15000 },
   ]},
 ];
 
@@ -164,55 +164,12 @@ export default function AdPerformanceReport() {
           />
         </div>
 
-        {/* Section 2: 핵심 효율 KPI — InsightContent horizontal 3개 */}
-        <div>
-          <SectionHeading
-            overline="핵심 효율 KPI"
-            title="3개 핵심 지표 모두 매체별 편차가 최대 7.3배에 달해, 평균값만 보면 매체별 효율 차이를 놓치게 됩니다"
-            description="하나의 평균으로 묶인 숫자 뒤에 서로 다른 성과의 매체가 섞여 있습니다. 구글은 3개 지표 모두 최고 효율을 내고 있고, 카카오는 세 지표 모두 최하위에 자리 잡고 있어 같은 광고비라도 매체에 따라 결과가 크게 달라지는 상태입니다."
-          />
-          <ReportSection>
-            <ContentArea wrap={true}>
-              <InsightContent
-                layout="horizontal"
-                wrap={true}
-                label="평균 CPA"
-                value="15,022원"
-                items={[
-                  "매체별 13,598원~33,019원, 편차 2.4배",
-                  "매체별 CPA가 최저 13,598원에서 최고 33,019원까지 벌어져 있으며, 구글이 가장 낮고 카카오가 가장 높습니다.",
-                ]}
-              />
-              <InsightContent
-                layout="horizontal"
-                wrap={true}
-                label="평균 CTR"
-                value="3.67%"
-                items={[
-                  "매체별 0.91%~6.65%, 편차 7.3배",
-                  "CTR은 구글 6.65%에서 카카오 0.91%까지 7.3배 차이 나며, 검색형 매체가 높고 배너·메시지형 매체가 낮습니다.",
-                ]}
-              />
-              <InsightContent
-                layout="horizontal"
-                wrap={true}
-                label="평균 CVR"
-                value="5.47%"
-                items={[
-                  "매체별 1.20%~6.85%, 편차 5.7배",
-                  "클릭 이후 전환율도 구글 6.85%와 카카오 1.20% 사이에서 5.7배 벌어져 있습니다.",
-                ]}
-              />
-            </ContentArea>
-          </ReportSection>
-        </div>
-
-        {/* Section 3: 매체 비용 구성 — DonutChart */}
+        {/* Section 2: 매체 비용 구성 — DonutChart (PM JSON 순서) */}
         <div>
           <SectionHeading
             overline="매체 비용 구성"
             title="구글이 전체 광고비의 59.9%를 차지하며 단일 매체 의존도가 높아, 매체 구성을 다양화해야 합니다"
-            description="광고비는 구글·네이버 두 매체에 86.5%가 집중되어 있고 메타·카카오는 보조 비중입니다. 단일 매체 비중이 60%에 달하면 해당 매체의 단가·정책이 흔들릴 때 전체 성과가 곧바로 따라 움직이므로, 네이버의 역할을 넓혀 구글 쏠림을 줄일 여지가 있는지 함께 봐야 합니다."
+            description="광고비는 구글·네이버 두 매체에 86.5%가 집중되어 있고, 메타·카카오의 비중은 크지 않습니다. 단일 매체 비중이 60%에 달하면 해당 매체의 단가·정책이 흔들릴 때 전체 성과가 곧바로 따라 움직이므로, 네이버에 집행 비중을 더 실어 구글 의존도를 낮춰야 합니다."
           />
           <ReportSection>
             <SectionCard>
@@ -228,12 +185,54 @@ export default function AdPerformanceReport() {
           </ReportSection>
         </div>
 
-        {/* Section 4: 매체 효율 단면 — DataTable */}
+        {/* Section 3: 핵심 효율 KPI — SignalCard 3개 */}
         <div>
           <SectionHeading
-            overline="매체 효율 단면"
+            overline="핵심 효율 KPI"
+            title="3개 핵심 지표가 매체별로 2~7배까지 벌어져 있어, 평균값만 보면 매체별 효율 차이를 놓치게 됩니다"
+            description="매체 유형이 효율을 가릅니다. 검색형인 구글·네이버는 CTR·CVR이 모두 상위권이고 배너·메시지형인 메타·카카오는 모두 하위권이라, 어느 매체에 집행하느냐가 그 캠페인의 기본 성과를 좌우합니다."
+          />
+          <ReportSection>
+            <SectionCard>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "stretch" }}>
+                <StrategyCard
+                  badge={{ text: "평균 CPA", type: "Solid", size: "Medium", variant: "Info" }}
+                  price="15,022원"
+                  priceLabel="매체별 13,598원~33,019원, 편차 2.4배"
+                  bordered={false}
+                  style={{ background: "#FFFFFF" }}
+                >
+                  구글이 가장 낮고 카카오가 가장 높아, 1건 전환 단가가 매체별로 크게 갈립니다.
+                </StrategyCard>
+                <StrategyCard
+                  badge={{ text: "평균 CTR", type: "Solid", size: "Medium", variant: "Info" }}
+                  price="3.67%"
+                  priceLabel="매체별 0.91%~6.65%, 편차 7.3배"
+                  bordered={false}
+                  style={{ background: "#FFFFFF" }}
+                >
+                  매체 유형이 노출→클릭 단계에 가장 크게 반영되는 지표로, 세 지표 중 편차가 가장 큽니다.
+                </StrategyCard>
+                <StrategyCard
+                  badge={{ text: "평균 CVR", type: "Solid", size: "Medium", variant: "Info" }}
+                  price="5.47%"
+                  priceLabel="매체별 1.20%~6.85%, 편차 5.7배"
+                  bordered={false}
+                  style={{ background: "#FFFFFF" }}
+                >
+                  클릭→전환 단계에서도 매체 유형 패턴이 그대로 이어져, 유형 간 성과 차이가 유지됩니다.
+                </StrategyCard>
+              </div>
+            </SectionCard>
+          </ReportSection>
+        </div>
+
+        {/* Section 4: 매체별 효율 비교 — DataTable (PM 새 이름) */}
+        <div>
+          <SectionHeading
+            overline="매체별 효율 비교"
             title="카카오는 비용 점유율이 2.5%에 불과하지만 매체 중 CPA가 가장 높아, 광고비 대비 성과가 최하위입니다"
-            description="구글은 전 지표에서 최고 효율을 내고 있고, 네이버는 CPC가 상대적으로 높아 키워드 입찰을 개선할 여지가 있습니다. 메타는 CTR이 낮지만 CPC가 저렴해 CPA가 평균 수준에 머물고, 카카오는 모든 지표가 최하위라 비용 점유율이 작아도 재배분을 검토해야 합니다."
+            description="구글은 모든 지표에서 가장 좋은 성과를 내고 있고, 네이버는 CPC가 높은 편이라 키워드 입찰 단가를 다시 맞춰야 합니다. 메타는 CTR이 낮지만 CPC가 싸서 CPA가 평균 수준에 머물고, 카카오는 모든 지표가 가장 낮아 쓰는 돈이 적더라도 다른 매체로 옮기는 게 낫습니다."
           />
           <ReportSection>
             <SectionCard>
@@ -244,7 +243,7 @@ export default function AdPerformanceReport() {
           </ReportSection>
         </div>
 
-        {/* Section 5 + 6: 캠페인 단위 성과 — 통합 테이블 + 위에 세로 막대 CPA 랭킹 */}
+        {/* Section 5+6: 캠페인 단위 성과 — 메인 헤드라인 + 차트 + 좌우 두 카드(우수/낮은) + 통합 테이블 */}
         <div>
           <SectionHeading
             overline="캠페인 단위 성과"
@@ -252,6 +251,7 @@ export default function AdPerformanceReport() {
             description="상위 5개는 모두 구글 검색·리타겟팅과 메타 리타겟팅 계열로 CPA 16,000원 이하이고, 하위 5개는 카카오 집행 중단·네이버 키워드 재설계·메타 타겟 재정의 세 방향으로 나뉘는 비효율을 보입니다."
           />
           <ReportSection>
+            {/* 한 SectionCard 안에 차트 → 두 SignalCard(우수/낮은) → 통합 테이블 */}
             <SectionCard>
               <ContentCard padding={40}>
                 <VBarChart
@@ -265,6 +265,31 @@ export default function AdPerformanceReport() {
                   hideLegend
                 />
               </ContentCard>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+                <SignalCard
+                  bordered={false}
+                  showDivider={false}
+                  variant="Positive"
+                  badgePrefix="효율 우수 캠페인"
+                  title="효율이 가장 높은 캠페인 5개는 모두 구글 검색·리타겟팅과 메타 리타겟팅 계열이라, 예산 확대 후보로 추릴 수 있습니다"
+                  items={[
+                    "상위 5개 모두 이미 브랜드를 알고 있거나 한 번 방문했던 사용자를 다시 겨냥하는 브랜드검색·리타겟팅 계열이라, 예산을 더 실어도 효율이 크게 떨어질 가능성이 낮습니다.",
+                    "상위 두 캠페인은 각각 월 3,000건 안팎의 전환을 내고 있어 규모도 큽니다.",
+                  ]}
+                />
+                <SignalCard
+                  bordered={false}
+                  showDivider={false}
+                  variant="Negative"
+                  badgePrefix="효율 낮은 캠페인"
+                  title="효율이 낮은 캠페인은 매체마다 원인이 달라, 카카오·네이버·메타에 각각 다른 조치가 필요합니다"
+                  items={[
+                    "카카오 친구메시지·비즈보드는 CTR과 CVR이 모두 1% 전후로 다른 캠페인들보다 훨씬 낮아 중단 대상입니다.",
+                    "네이버 파워링크 브랜드는 자사 브랜드 검색 광고인데도 쇼핑검색(16,842원)보다 CPA가 높은 19,234원이라 입찰가와 키워드를 점검해야 합니다.",
+                    "메타 신규유입은 메타 안에서 리타겟팅 계열(CVR 4% 안팎)보다 낮은 3.47%에 그쳐 타겟 사용자를 다시 잡아야 합니다.",
+                  ]}
+                />
+              </div>
               <ContentCard padding={0}>
                 <DataTable columns={campaignColumns} data={campaignData} />
               </ContentCard>
@@ -276,17 +301,18 @@ export default function AdPerformanceReport() {
         <div>
           <SectionHeading
             overline="주별 추이"
-            title="4주 차에 카카오 CPA가 45,500원까지 급등하며 전체 평균의 3배 수준을 다시 넘어, 월 후반 효율 악화 신호가 뚜렷합니다"
-            description="전체 CPA는 3주 차까지 내려가다 4주 차에 다시 튀었고, 반등 폭의 대부분은 카카오에서 나왔습니다. 메타는 15,500~16,100원 구간에서 완만한 상승세를 이어가고 있어 큰 변동은 없지만 개선 신호도 보이지 않습니다."
+            title="4주 차에 카카오 CPA가 45,500원까지 다시 뛰어 전체 평균의 3배까지 벌어지면서, 월 후반으로 갈수록 효율이 뚜렷하게 나빠지고 있습니다"
+            description="전체 CPA는 3주 차까지 내려갔다가 4주 차에 다시 올랐고, 이 상승은 대부분 카카오에서 발생했습니다. 메타는 15,500~16,100원 구간에서 완만한 상승세를 이어가고 있어 큰 변동은 없지만 개선 신호도 보이지 않습니다."
           />
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
                 <MultiLineChart
-                  title="매체별 주별 CPA 추이 (단위: 천원)"
+                  title="매체별 주별 CPA 추이 (단위: 원)"
                   curve="monotoneX"
                   data={weeklyTrendData}
                   height={420}
+                  colors={[...CHART_COLORS.slice(0, 4), "#B6B8BD"]}
                 />
               </ContentCard>
             </SectionCard>
@@ -297,8 +323,8 @@ export default function AdPerformanceReport() {
         <div>
           <SectionHeading
             overline="예산 재배분 로드맵"
-            title="카카오 비효율 캠페인을 정리해 구글로 재배분하고 메타 크리에이티브 교체를 병행하면, 전체 CPA를 15,022원에서 12,500원까지 낮출 수 있습니다"
-            description="앞서 드러난 두 축의 비효율, 즉 카카오 매체·캠페인의 전 지표 최하위 성과와 메타의 4주 연속 CTR 하락에 각각 대응하는 실행안입니다. 가장 먼저 카카오 2개 캠페인을 정리해 확보한 약 335만 원을 구글 디스플레이 리마케팅으로 이동하고 메타 브랜드인지 영상 소재를 교체합니다. 이어서 네이버 브랜드 키워드 구조를 재설계하고, 장기적으로는 매체 믹스와 예산 가이드를 정비해 월별 매체 리뷰 사이클을 정착시킵니다."
+            title="카카오의 비효율 캠페인을 정리해 그 예산을 구글로 옮기고 메타 소재를 함께 교체하면, 전체 CPA를 15,022원에서 12,500원까지 낮출 수 있습니다"
+            description="비효율은 두 군데에서 나오고 있습니다. 카카오는 매체·캠페인 모두 지표가 가장 낮고, 메타는 CTR이 4주 내내 내려갔습니다. 가장 먼저 카카오 캠페인 2개를 정리해 얻은 약 335만 원을 이미 효율이 확인된 구글 디스플레이 리마케팅으로 일단 옮기고, 메타 브랜드인지 영상 소재를 교체합니다. 이어서 네이버 브랜드 키워드 구조를 정비하고, 길게는 매체별 비중을 다시 조정해 구글에 집중된 59.9%를 45%까지 낮춥니다."
           />
           <ReportSection>
             <SectionCard>

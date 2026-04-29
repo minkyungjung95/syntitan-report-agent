@@ -520,7 +520,7 @@ export function SemiDonutChart({
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY200}, ${GRAY200} 2px, ${GRAY300} 2px, ${GRAY300} 4px)` : color }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: d.hatched ? `repeating-linear-gradient(45deg, ${GRAY200}, ${GRAY200} 2px, ${GRAY300} 2px, ${GRAY300} 4px)` : color }} />
                       <span style={{ fontSize: 16, fontWeight: 600, color: GRAY990, lineHeight: "24px" }}>{d.id}</span>
                     </div>
                     {d.description ? (
@@ -1092,7 +1092,8 @@ export function computeYScale(values, metricType) {
 
 export function LineChart({ data, title, enableArea = true, curve = "monotoneX", variant = "blue", valuePrefix = "", valueSuffix = "", badgeFormatter, badgeLabel, disableTooltip = false, disableBadge = false, yMin: yMinOverride, yMax: yMaxOverride, tickStep, metricType }) {
   const isRed = variant === "red";
-  const lineColor = isRed ? RED500 : CHART_COLORS[0];
+  // 차트 데이터 color — 레드는 Red 400(#FF6467) 사용 (그래프 전용 규칙)
+  const lineColor = isRed ? "#FF6467" : CHART_COLORS[0];
 
   // metricType 있으면 자동 계산 (명시적 yMin/yMax 있으면 그쪽 우선)
   const autoScale = metricType ? computeYScale(data.flatMap(s => s.data.map(d => d.y)), metricType) : null;
@@ -1197,8 +1198,8 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
 
 // ─── MultiLineChart: 다중 시리즈 전용 — CHART_COLORS 자동 매핑, cross 점선 크로스헤어,
 //                   x/y 키-값 툴팁, PSM 차트 스타일의 하단 가로 선형 범례 (직선 연결)
-export function MultiLineChart({ data, title, curve = "linear", height = 280 }) {
-  const palette = CHART_COLORS;
+export function MultiLineChart({ data, title, curve = "linear", height = 280, colors }) {
+  const palette = colors || CHART_COLORS;
 
   const allY = data.flatMap(s => s.data.map(d => d.y));
   const yMin = Math.min(...allY);
@@ -1234,7 +1235,7 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280 }) 
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
           axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
           enableSlices="x"
-          enableCrosshair={false}
+          enableCrosshair={true}
           sliceTooltip={({ slice }) => (
             <div style={{
               background: WHITE,
@@ -1249,7 +1250,7 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280 }) 
               whiteSpace: "nowrap",
               minWidth: 140,
             }}>
-              <span style={{ fontSize: 13, fontWeight: 500, lineHeight: "18px", color: GRAY800, paddingBottom: 4, borderBottom: `1px solid ${GRAY200}` }}>
+              <span style={{ fontSize: 13, fontWeight: 500, lineHeight: "18px", color: GRAY800 }}>
                 {slice.points[0]?.data.xFormatted}
               </span>
               {[...slice.points]
@@ -1354,7 +1355,8 @@ export function LabeledLineChart({
     return () => ro.disconnect();
   }, []);
 
-  const margin = { top: 40, right: 40, bottom: 10, left: 40 };
+  // 좌측 margin 확대 — Y축 tick 라벨 들어갈 자리 (Nivo LineChart와 일관)
+  const margin = { top: 40, right: 40, bottom: 10, left: 60 };
   const catCount = categories?.length || (series[0]?.data.length || 0);
 
   // 값 범위 계산
@@ -1370,6 +1372,13 @@ export function LabeledLineChart({
   const xStep = catCount > 1 ? plotW / (catCount - 1) : plotW;
   const toX = (i) => margin.left + i * xStep;
   const toY = (v) => margin.top + plotH - ((v - minY) / (maxY - minY)) * plotH;
+
+  // Y축 tick — Nivo LineChart 와 동일하게 5개 균등
+  const yTickCount = 5;
+  const yTicks = Array.from({ length: yTickCount }, (_, i) => {
+    const v = minY + ((maxY - minY) / (yTickCount - 1)) * i;
+    return Math.round(v);
+  });
 
   // 하이라이트 컬럼 너비
   const hlW = xStep;
@@ -1394,15 +1403,28 @@ export function LabeledLineChart({
         </div>
 
         <svg viewBox={`0 0 ${totalW} ${chartH}`} width="100%" style={{ display: "block", overflow: "hidden" }}>
-          {/* 호버 하이라이트 컬럼 */}
+          {/* Y축 grid + tick (Nivo LineChart 와 일관) */}
+          {yTicks.map((tv, ti) => (
+            <g key={`yt-${ti}`}>
+              <line
+                x1={margin.left} x2={totalW - margin.right}
+                y1={toY(tv)} y2={toY(tv)}
+                stroke={GRAY200} strokeWidth={1}
+              />
+              <text
+                x={margin.left - 12} y={toY(tv)}
+                textAnchor="end" dominantBaseline="middle"
+                style={{ fontSize: 12, fill: GRAY800, fontFamily: FF }}
+              >{tv}</text>
+            </g>
+          ))}
+          {/* 호버 시 세로 점선 (다른 라인차트 crosshair 와 통일) */}
           {hoveredCol !== null && (
-            <rect
-              x={toX(hoveredCol) - hlW / 2}
-              y={margin.top - 4}
-              width={hlW}
-              height={plotH + 8}
-              rx={4} ry={4}
-              fill={T.gray50 || "#F7F8F9"}
+            <line
+              x1={toX(hoveredCol)} x2={toX(hoveredCol)}
+              y1={margin.top - 4} y2={margin.top + plotH + 4}
+              stroke={GRAY800} strokeWidth={1} strokeOpacity={0.8}
+              strokeDasharray="4 4"
             />
           )}
 
@@ -1420,9 +1442,14 @@ export function LabeledLineChart({
                 {pts.map((p) => {
                   const isH = hovered?.si === si && hovered?.di === p.di;
                   const lblColor = s.labelColor || s.color;
-                  // 라벨 위치: 첫 번째 시리즈는 항상 아래, 나머지는 위
-                  const labelAbove = series.length === 1 ? true : si > 0;
-                  const ly = labelAbove ? p.y - 20 : p.y + 26;
+                  // 라벨 위치: 첫 번째 시리즈는 점 위, 나머지는 점 아래 (라인 겹침 방지)
+                  const labelAbove = series.length === 1 ? true : si === 0;
+                  const ly = labelAbove ? p.y - 14 : p.y + 22;
+                  // 첫/마지막 점은 Y축 tick / 차트 우측과 겹치지 않게 라벨 anchor 조정
+                  const isFirst = p.di === 0;
+                  const isLast = p.di === catCount - 1;
+                  const lAnchor = isFirst ? "start" : isLast ? "end" : "middle";
+                  const lOffsetX = isFirst ? 6 : isLast ? -6 : 0;
 
                   return (
                     <g key={p.di}
@@ -1432,7 +1459,7 @@ export function LabeledLineChart({
                     >
                       <circle cx={p.x} cy={p.y} r={isH ? 6 : 5} fill={WHITE} stroke={s.color} strokeWidth={2}
                         style={{ transition: "r 0.15s" }} />
-                      <text x={p.x} y={ly} textAnchor="middle" dominantBaseline="auto"
+                      <text x={p.x + lOffsetX} y={ly} textAnchor={lAnchor} dominantBaseline="auto"
                         style={{ fontSize: isH ? 16 : 14, fontWeight: 700, fill: lblColor, fontFamily: FF }}>
                         {p.val}
                       </text>
@@ -1540,12 +1567,12 @@ export function LabeledLineChart({
         )}
       </div>
 
-      {/* 하단 카테고리 라벨 */}
+      {/* 하단 카테고리 라벨 — Nivo axisBottom 스타일 (별도 라인 없이 라벨만) */}
       {categories && (
-        <div style={{ borderTop: `1px solid #CACCCF`, marginTop: 8, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
-          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "10px 0 8px" }}>
+        <div style={{ marginTop: 4, padding: `0 ${(margin.right / totalW) * 100}% 0 ${(margin.left / totalW) * 100}%` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center", padding: "8px 0" }}>
             {categories.map((c, i) => (
-              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 14, fontWeight: 500, color: GRAY800 }}>{c.label}</span>
+              <span key={i} style={{ flex: "0 0 auto", width: 0, display: "flex", justifyContent: "center", whiteSpace: "nowrap", fontSize: 12, fontWeight: 500, color: GRAY800 }}>{c.label}</span>
             ))}
           </div>
         </div>
@@ -2248,7 +2275,8 @@ export function KPITrendCard({
 }) {
   const isRed = variant === "red";
   const BLUE500 = "#2B7FFF";
-  const lineColor = isRed ? RED500 : BLUE500;
+  // 차트 데이터 color — 레드는 Red 400(#FF6467) 사용 (그래프 전용 규칙)
+  const lineColor = isRed ? "#FF6467" : BLUE500;
   const gradFromOpacity = 0.22;
   const gradId = useMemo(() => `kpi-trend-grad-${Math.random().toString(36).slice(2, 9)}`, []);
   const ys = (data || []).map((d) => Number(d.y) || 0);

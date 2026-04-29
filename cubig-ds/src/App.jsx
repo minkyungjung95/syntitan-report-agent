@@ -236,6 +236,8 @@ export default function App() {
   const [modalDividerVariant, setModalDividerVariant] = useState(null); // "off" | "on" | null
   const [modalContentOpen, setModalContentOpen] = useState(null); // "user" | "stats" | "4col" | null
   const [modalContentTab, setModalContentTab] = useState(0);
+  const [modalContent4colTab, setModalContent4colTab] = useState(1);
+  const [modalContent4colChip, setModalContent4colChip] = useState(0);
 
   const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","tooltip","icons","report","reports","ui"];
   const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", tooltip:"Tooltip", icons:"Icons", report:"Report Components", reports:"Reports", ui:"UI" };
@@ -1196,8 +1198,8 @@ export default function App() {
             />
           </Card>
 
-          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 · 점선 크로스헤어 · x/y 키-값 툴팁 · curve=monotoneX · 음수 스케일 지원) */}
-          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / monotoneX 곡선 / 음수 스케일 지원 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례">
+          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 · 점선 크로스헤어 · x/y 키-값 툴팁 · curve=monotoneX · 음수 스케일 지원 · 평균 시리즈 회색) */}
+          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / monotoneX 곡선 / 음수 스케일 지원 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례 · 평균값 시리즈는 회색(#B6B8BD)으로 통일">
             <MultiLineChart
               title="지표 추이 (음수 스케일 포함)"
               curve="monotoneX"
@@ -1211,7 +1213,11 @@ export default function App() {
                 { id: "C", data: [
                   { x: "2017", y: -10 }, { x: "2018", y: -20 }, { x: "2019", y: -30 }, { x: "2020", y: -32 },
                 ]},
+                { id: "전체 평균", data: [
+                  { x: "2017", y: 30 }, { x: "2018", y: 30 }, { x: "2019", y: 30 }, { x: "2020", y: 30 },
+                ]},
               ]}
+              colors={[...CHART_COLORS.slice(0, 3), "#B6B8BD"]}
             />
           </Card>
 
@@ -1221,12 +1227,12 @@ export default function App() {
               title="AI 생성 정보/리뷰성 콘텐츠 신뢰도"
               series={[
                 { id: "신뢰도 높음", color: "#2B7FFF", data: [
-                  { x: "전체", y: 27.6 }, { x: "15~24세", y: 25.5 }, { x: "24~34세", y: 28.7 },
-                  { x: "35~44세", y: 28.0 }, { x: "45~54세", y: 25.7 }, { x: "55~59세", y: 31.1 },
-                ]},
-                { id: "신뢰도 낮음", color: "#B0B3B8", labelColor: "#7B7E85", data: [
                   { x: "전체", y: 35.2 }, { x: "15~24세", y: 39.7 }, { x: "24~34세", y: 34.7 },
                   { x: "35~44세", y: 36.4 }, { x: "45~54세", y: 34.5 }, { x: "55~59세", y: 30.1 },
+                ]},
+                { id: "신뢰도 낮음", color: "#B0B3B8", labelColor: "#7B7E85", data: [
+                  { x: "전체", y: 27.6 }, { x: "15~24세", y: 25.5 }, { x: "24~34세", y: 28.7 },
+                  { x: "35~44세", y: 28.0 }, { x: "45~54세", y: 25.7 }, { x: "55~59세", y: 31.1 },
                 ]},
               ]}
               categories={[
@@ -1595,12 +1601,6 @@ export default function App() {
                 <div style={{ marginTop:8, height:30, background:T.gray50, borderRadius:6 }} />
               </div>
             </div>
-            {/* 모달로 풀 사이즈 보기 */}
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("user")}>유저 헤더 + Field</Btn>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("stats")}>Persona + Overview</Btn>
-              <Btn variant="solid-secondary" size="md" onClick={()=>setModalContentOpen("4col")}>4단 Stat 그리드</Btn>
-            </div>
           </Card>
 
           {/* Pattern 1: 유저 카드 + Field 반복 (Synthetic Respondent Samples) */}
@@ -1608,7 +1608,7 @@ export default function App() {
             open={modalContentOpen === "user"}
             onClose={()=>setModalContentOpen(null)}
             title="Synthetic Respondent Samples"
-            size="md"
+            size="lg"
             actionType="single"
             confirmLabel="Close"
             onConfirm={()=>setModalContentOpen(null)}
@@ -1641,60 +1641,265 @@ export default function App() {
             open={modalContentOpen === "stats"}
             onClose={()=>setModalContentOpen(null)}
             title="Detailed Analysis"
-            size="md"
-            divider={true}
-            actionType="single"
-            confirmLabel="Close"
-            onConfirm={()=>setModalContentOpen(null)}
-          >
-            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div>
-                <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Persona</div>
-                <ModalUserCard
-                  icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
-                  name="Premium Enthusiasts"
-                  subtitle="Early adopters driven by quality and brand value."
-                />
-              </div>
-              <div>
-                <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Overview</div>
-                <div style={{
-                  display:"flex", flexDirection:"column", gap:8, padding:8,
-                  borderRadius:16, background:T.gray50,
-                }}>
-                  <ModalGrid columns={2}>
-                    <ModalStat label="Size" value="28.4K" unit="users" style={{ border: "none" }} />
-                    <ModalStat label="Average Age" value="35 – 45" style={{ border: "none" }} />
-                  </ModalGrid>
-                  <ModalField label="Gender Distribution" style={{ border: "none" }}>
-                    <div style={{ display:"flex", alignItems:"baseline", gap:16 }}>
-                      <div><strong style={{ fontSize:16, color:T.gray990 }}>62%</strong> <span style={{ color:T.gray800, fontSize:13 }}> female</span></div>
-                      <div style={{ width:1, height:12, background:T.gray200 }} />
-                      <div><strong style={{ fontSize:16, color:T.gray990 }}>38%</strong> <span style={{ color:T.gray800, fontSize:13 }}> male</span></div>
-                    </div>
-                  </ModalField>
-                </div>
-              </div>
-            </div>
-          </Modal>
-
-          {/* Pattern 3: 4단 그리드 */}
-          <Modal
-            open={modalContentOpen === "4col"}
-            onClose={()=>setModalContentOpen(null)}
-            title="Behavioral Metrics"
-            description="Key engagement indicators across the cohort"
             size="lg"
             actionType="single"
             confirmLabel="Close"
             onConfirm={()=>setModalContentOpen(null)}
           >
-            <ModalGrid columns={4}>
-              <ModalStat label="Avg. Session" value="12.4" unit="min" />
-              <ModalStat label="Retention" value="78%" />
-              <ModalStat label="ARPU" value="$42" />
-              <ModalStat label="Churn" value="4.2%" />
-            </ModalGrid>
+            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+              <TabBar
+                tabs={["Customer Overview", "Behavior Insights", "Strategic Analysis"]}
+                activeIndex={modalContentTab}
+                onChange={setModalContentTab}
+              />
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Persona</div>
+                  <ModalUserCard
+                    icon={<IdentityPlatformOutlineIcon size={24} color={T.gray800} />}
+                    name="Premium Enthusiasts"
+                    subtitle="Early adopters driven by quality and brand value."
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:500, color:T.gray990, marginBottom:8 }}>Overview</div>
+                  <div style={{
+                    display:"flex", flexDirection:"column", gap:8, padding:8,
+                    borderRadius:16, background:T.gray50,
+                  }}>
+                    <ModalGrid columns={2}>
+                      <ModalStat label="Size" value="28.4K" unit="users" style={{ border: "none" }} />
+                      <ModalStat label="Average Age" value="35 – 45" style={{ border: "none" }} />
+                    </ModalGrid>
+                    <ModalField label="Gender Distribution" style={{ border: "none" }}>
+                      <div style={{ display:"flex", alignItems:"baseline", gap:16 }}>
+                        <div><strong style={{ fontSize:16, color:T.gray990 }}>62%</strong> <span style={{ color:T.gray800, fontSize:13 }}> female</span></div>
+                        <div style={{ width:1, height:12, background:T.gray200 }} />
+                        <div><strong style={{ fontSize:16, color:T.gray990 }}>38%</strong> <span style={{ color:T.gray800, fontSize:13 }}> male</span></div>
+                      </div>
+                    </ModalField>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+
+          {/* Pattern 3: Tabs + Chip Tabs + 다중 Stat 그리드 */}
+          <Modal
+            open={modalContentOpen === "4col"}
+            onClose={()=>setModalContentOpen(null)}
+            title="Detailed Analysis"
+            size="lg"
+            actionType="single"
+            confirmLabel="Close"
+            onConfirm={()=>setModalContentOpen(null)}
+          >
+            {(() => {
+              const cardStyle = {
+                background: T.white, borderRadius: 12, padding: 20,
+                display: "flex", flexDirection: "column", gap: 12,
+                flex: 1, minWidth: 0,
+              };
+              const cardLabel = {
+                fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray800,
+              };
+              const Bullet = ({ alignTop }) => (
+                <div style={{ display:"flex", alignItems: alignTop ? "flex-start" : "center", paddingTop: alignTop ? 8 : 0 }}>
+                  <div style={{ width: 4, height: 4, borderRadius: "50%", background: T.gray400, flexShrink: 0 }} />
+                </div>
+              );
+              const BulletRow = ({ label, value }) => (
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <Bullet />
+                  <div style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 14, lineHeight: "20px", whiteSpace: "nowrap" }}>
+                    <span style={{ fontWeight: 500, color: T.gray990 }}>{label}</span>
+                    {value && <span style={{ fontWeight: 400, color: T.gray800 }}>{value}</span>}
+                  </div>
+                </div>
+              );
+              const BulletStack = ({ title, sub }) => (
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <Bullet alignTop />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>{title}</div>
+                    {sub && <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: T.gray800 }}>{sub}</div>}
+                  </div>
+                </div>
+              );
+              const grayContainer = {
+                background: T.gray50, border: `1px solid ${T.gray100}`, borderRadius: 16,
+                padding: 8, display: "flex", flexDirection: "column", gap: 8,
+              };
+              const StatCard = ({ label, value, unit }) => (
+                <div style={cardStyle}>
+                  <div style={cardLabel}>{label}</div>
+                  <div style={{ display: "flex", gap: 4, alignItems: "baseline" }}>
+                    <span style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990, whiteSpace: "nowrap" }}>{value}</span>
+                    {unit && <span style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{unit}</span>}
+                  </div>
+                </div>
+              );
+
+              const renderChip0 = () => (
+                <div style={grayContainer}>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <StatCard label="Average Order Value" value="₩ 421,000" />
+                    <StatCard label="Purchase Frequency" value="2.3" unit="purchases /mo (27.6 /yr)" />
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <StatCard label="Total Annual Spend" value="₩ 11,619,600" />
+                    <StatCard label="Predicted LTV (12-Month Forecast)" value="₩ 8,450,000" />
+                  </div>
+                </div>
+              );
+
+              const renderChip1 = () => (
+                <>
+                  <div style={grayContainer}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Preferred Categories (Purchase Share)</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="Fashion" value="42%" />
+                          <BulletRow label="Beauty" value="28%" />
+                          <BulletRow label="Home Décor" value="18%" />
+                          <BulletRow label="Electronics" value="8%" />
+                          <BulletRow label="Others" value="4%" />
+                        </div>
+                      </div>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Brand Preferences</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <BulletStack title="Chanel, Dior, Hermès, Burberry, Gucci" sub="Top 5 Brands Purchased" />
+                          <BulletStack title="High" sub="Brand Loyalty" />
+                          <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                            <Bullet alignTop />
+                            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                              <div style={{ fontSize: 12, fontWeight: 400, lineHeight: "16px", color: T.gray800 }}>New Brand Adoption</div>
+                              <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>34%</span>
+                                <Badge label="Early Adopter" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Purchase Timing</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="Weekday Evenings" value="45% (7–10 PM)" />
+                          <BulletRow label="Weekends" value="38% (Sat–Sun Afternoons)" />
+                          <BulletRow label="Weekday Daytime" value="12% (Lunchtime)" />
+                          <BulletRow label="Others" value="5%" />
+                        </div>
+                      </div>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Seasonality Trends</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="Higher Activity in Spring & Fall" />
+                          <BulletRow label="Lower Spend During Sale Seasons" />
+                          <BulletRow label="Full-Price Purchases Dominant" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={grayContainer}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Channel Preference</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="Online" value="78% (Mobile App 62%, Web 16%)" />
+                          <BulletRow label="Offline" value="22% (Premium Store Visits)" />
+                        </div>
+                      </div>
+                      <div style={cardStyle}>
+                        <div style={cardLabel}>Device Usage</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="iOS" value="84% (iPhone, iPad)" />
+                          <BulletRow label="Android" value="12%" />
+                          <BulletRow label="PC" value="4%" />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ ...cardStyle, flex: "0 0 calc(50% - 4px)" }}>
+                        <div style={cardLabel}>Payment Methods</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          <BulletRow label="Credit Cards (Premium)" value="67% (Platinum / Black Cards)" />
+                          <BulletRow label="Digital Wallets" value="28% (Apple Pay, Samsung Pay)" />
+                          <BulletRow label="Others" value="5%" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+
+              const renderChip2 = () => (
+                <div style={grayContainer}>
+                  <div style={cardStyle}>
+                    <div style={cardLabel}>Core Values</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <BulletStack title="“Quality is an investment.”" sub="Willing to pay more when value is clear" />
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <Bullet />
+                        <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>Values brand story and heritage</span>
+                      </div>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <Bullet />
+                        <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>Seeks exclusivity and differentiated experiences</span>
+                      </div>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <Bullet />
+                        <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>Consumes as a form of self-expression and social identity</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={cardStyle}>
+                    <div style={cardLabel}>Purchase Consistency</div>
+                    <div style={{
+                      background: T.gray50, borderRadius: 12,
+                      padding: "12px 16px",
+                      display: "flex", alignItems: "center", gap: 10, width: "100%",
+                    }}>
+                      <span style={{ fontSize: 20, fontWeight: 600, lineHeight: "28px", color: T.gray990 }}>0.89</span>
+                      <span style={{
+                        display: "inline-flex", alignItems: "center", padding: "2px 6px",
+                        border: `1px solid #2B7FFF`, borderRadius: 8,
+                        fontSize: 12, fontWeight: 500, lineHeight: "16px", color: "#2B7FFF",
+                      }}>Very High</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <BulletStack title="Regular buying pattern" sub="about 2–3 purchases per month" />
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <Bullet />
+                        <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: T.gray990 }}>Predictable and stable spending behavior</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+
+              return (
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                  <TabBar
+                    tabs={["Customer Overview", "Behavior Insights", "Strategic Analysis"]}
+                    activeIndex={modalContent4colTab}
+                    onChange={setModalContent4colTab}
+                  />
+                  <ChipTabs
+                    tabs={["Purchase Behavior Metrics", "Preference & Patterns", "Behavioral Traits & Psychographic Profile"]}
+                    activeIndex={modalContent4colChip}
+                    onChange={setModalContent4colChip}
+                  />
+                  {modalContent4colChip === 0 && renderChip0()}
+                  {modalContent4colChip === 1 && renderChip1()}
+                  {modalContent4colChip === 2 && renderChip2()}
+                </div>
+              );
+            })()}
           </Modal>
         </>}
 
@@ -1960,21 +2165,79 @@ export default function App() {
         {page==="ui" && <UIPage />}
 
         {page==="reports" && <>
-          <Card title="Reports" subtitle="각 리포트는 새 창에서 열립니다.">
-            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/coupang`, "_blank")}>
-                쿠팡 캐리어 리뷰 리포트
-              </Btn>
-              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/chatgpt`, "_blank")}>
-                ChatGPT 리뷰 리포트
-              </Btn>
-              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/cs`, "_blank")}>
-                고객 티켓 분석 리포트
-              </Btn>
-              <Btn variant="solid-primary" size="md" onClick={()=>window.open(`${window.location.origin}/#/ad`, "_blank")}>
-                광고 성과 분석 리포트
-              </Btn>
-            </div>
+          <Card title="완료된 리포트" subtitle="토픽별 리포트 안에서 데이터 사례나 분석 변형을 골라 확인할 수 있습니다.">
+            {(() => {
+              const reportsByCategory = [
+                {
+                  category: "Customer Success",
+                  badgeVariant: "Brand",
+                  topics: [{
+                    title: "리뷰 분석",
+                    description: "VOC 데이터의 별점·감성·영역별 분포로 만족 동력과 부정 토픽을 진단",
+                    variants: [
+                      { name: "쿠팡 캐리어 리뷰", subtitle: "이커머스 제품 리뷰 1,000건", route: "/#/coupang" },
+                      { name: "ChatGPT 리뷰",    subtitle: "AI 서비스 한국어 리뷰",     route: "/#/chatgpt" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Operations",
+                  badgeVariant: "Brand",
+                  topics: [{
+                    title: "고객센터 티켓 분석",
+                    description: "CS 티켓 처리시간·SLA·채널별 성과 진단",
+                    variants: [
+                      { name: "기본 사례", subtitle: "처리시간·우선순위·채널 분포", route: "/#/cs" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Marketing",
+                  badgeVariant: "Positive",
+                  topics: [{
+                    title: "광고 성과 분석",
+                    description: "매체·캠페인별 효율을 진단하고 예산 재배분 방향 제시",
+                    variants: [
+                      { name: "CPA 중심",   subtitle: "전환수만 있을 때 — 비용 효율(CPA·CTR·CVR) 기반", route: "/#/ad" },
+                      { name: "ROAS 포함", subtitle: "매출 데이터까지 있을 때 — 수익성(ROAS) 추가 진단", route: "/#/ad-roas" },
+                    ],
+                  }],
+                },
+              ];
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(440px, 1fr))", gap: 16 }}>
+                  {reportsByCategory.flatMap(cat => cat.topics.map((topic, ti) => (
+                    <div key={`${cat.category}-${ti}`} style={{
+                      border: `1px solid ${T.gray200}`, borderRadius: 16, padding: 24,
+                      background: T.white, display: "flex", flexDirection: "column", gap: 16,
+                    }}>
+                      <div>
+                        <div style={{ marginBottom: 12 }}>
+                          <Badge type="Solid" variant={cat.badgeVariant} size="Medium" text={cat.category} />
+                        </div>
+                        <div style={{ fontSize: 20, fontWeight: 700, color: T.gray990, lineHeight: "28px", marginBottom: 4 }}>{topic.title}</div>
+                        <div style={{ fontSize: 14, fontWeight: 400, color: T.gray800, lineHeight: "22px" }}>{topic.description}</div>
+                      </div>
+                      <div style={{ height: 1, background: T.gray100 }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {topic.variants.map((v, vi) => (
+                          <div key={vi} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: T.gray990, marginBottom: 2 }}>{v.name}</div>
+                              <div style={{ fontSize: 13, fontWeight: 400, color: T.gray800, lineHeight: "20px" }}>{v.subtitle}</div>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                              <Btn variant="solid-primary" size="md" onClick={() => window.open(`${window.location.origin}${v.route}`, "_blank")}>Preview</Btn>
+                              <Btn variant="solid-secondary" size="md" onClick={() => window.open(`${window.location.origin}${v.route}`, "_blank")}>JSON</Btn>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )))}
+                </div>
+              );
+            })()}
           </Card>
         </>}
       </div>

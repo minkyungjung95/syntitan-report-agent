@@ -26,6 +26,7 @@ const CoupangReviewReport = lazy(() => import('./coupang-review-report'))
 const ChatgptReviewReport = lazy(() => import('./chatgpt-review-report'))
 const CsTicketReport = lazy(() => import('./cs-ticket-report'))
 const AdPerformanceReport = lazy(() => import('./ad-performance-report'))
+const AdRoasReport = lazy(() => import('./ad-roas-report'))
 const AuditLog = lazy(() => import('./syntitan-UI/audit-log.jsx'))
 
 function Root() {
@@ -59,6 +60,14 @@ function Root() {
     return (
       <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
         <AdPerformanceReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'ad-roas') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <AdRoasReport />
       </Suspense>
     )
   }

@@ -159,12 +159,12 @@ export default function ReportDemo() {
       </Section>
 
       <Section>
-        <Label>2. SignalCard — Without Callout (default Info / 부정 내용은 Negative)</Label>
+        <Label>2. SignalCard — Without Callout (default Info 파랑 / 안 좋은 내용 Negative 빨강 / 그냥 저냥 Secondary 회색)</Label>
         <SectionCard>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "stretch" }}>
             {[
               { number: 1, variant: "Negative", title: "기능 오류·결제/환불 두 카테고리가 전체 NPS를 끌어내림", items: ["전체 NPS 하락의 주요 원인이 두 카테고리에 집중됨", "전담 자원·우선순위 체계 부재로 처리 지연·SLA 위반 누적"] },
-              { number: 2, title: "해결시간이 곧 만족도", items: ["모든 카테고리에서 해결시간이 길수록 NPS 하락", "임계 시간을 넘기면 만족도가 급격히 떨어짐"] },
+              { number: 2, variant: "Secondary", title: "해결시간이 곧 만족도", items: ["모든 카테고리에서 해결시간이 길수록 NPS 하락", "임계 시간을 넘기면 만족도가 급격히 떨어짐"] },
               { number: 3, title: "카테고리 특성과 무관한 일괄 SLA 적용", items: ["해결시간 4배 격차 카테고리들이 같은 큐에서 처리됨", "복잡한 카테고리일수록 SLA 위반이 구조적으로 발생"] },
             ].map((s, i) => (
               <SignalCard key={i} number={s.number} variant={s.variant} title={s.title} items={s.items} bordered={false} />

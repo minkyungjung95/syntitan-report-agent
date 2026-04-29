@@ -4,7 +4,7 @@ import {
   StrategyCard,
   SignalCard,
   DataTable,
-  StrategyRoadmapTable,
+  StrategyRoadmapHorizontal,
 } from "./report-components";
 import { DonutChart, MultiLineChart, VBarChart, GroupedBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
@@ -278,7 +278,6 @@ export default function AdRoasReport() {
           <SectionHeading
             overline="캠페인 단위 성과"
             title="수익성 상·하위 캠페인을 함께 보면 ROAS 격차의 원인과 재배분 방향이 드러납니다"
-            description="상위 5개는 구글·네이버 검색/리타겟팅 + 메타 리타겟팅 계열이고, 하위 5개는 카카오 두 캠페인과 메타 신규/영상, 네이버 파워링크에 비효율이 집중되어 있습니다."
           />
           <ReportSection>
             <SectionCard>
@@ -366,9 +365,7 @@ export default function AdRoasReport() {
             description="비효율은 두 군데에서 나오고 있습니다. 카카오는 두 캠페인 모두 ROAS가 광고비를 회수하지 못하는 수준이고, 메타는 신규유입·브랜드인지 영상의 ROAS가 평균을 크게 밑돕니다. 가장 먼저 카카오 두 캠페인을 정리해 약 335만 원을 ROAS 460%가 검증된 구글 디스플레이 리마케팅으로 옮기고, 메타 두 캠페인의 소재·타겟을 교체합니다. 이어서 네이버 파워링크 브랜드 키워드 구조를 정비하고, 길게는 매체별 ROAS 벤치마크를 세워 분기마다 점검합니다."
           />
           <ReportSection>
-            <SectionCard>
-              <ContentCard padding={0}>
-                <StrategyRoadmapTable periods={[
+            <StrategyRoadmapHorizontal periods={[
                   {
                     badge: "즉시", period: "1주 이내",
                     rows: [
@@ -415,8 +412,6 @@ export default function AdRoasReport() {
                     ],
                   },
                 ]} />
-              </ContentCard>
-            </SectionCard>
           </ReportSection>
         </div>
 

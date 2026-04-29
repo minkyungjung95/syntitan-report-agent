@@ -96,19 +96,23 @@ function GroupTooltip({ label, rows }) {
 }
 
 // ─── Legend Dot ────────────────────────────────────────────────────────
-function LegendDot({ color }) {
-  return <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />;
+function LegendDot({ color, size = 10 }) {
+  return <span style={{ display: "inline-block", width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />;
 }
 
-// ─── Legend (세로 리스트) ──────────────────────────────────────────────
+// ─── Legend (세로/가로 리스트) ─────────────────────────────────────────
 // items: [{ color, label, value? }]
 // value가 있으면 우측 정렬로 진한 블랙 숫자 표시
-export function Legend({ items, gap = 10 }) {
+// direction: "column" (기본) | "row" — 가로 배치 시 항목 사이 gap 자동
+// dotSize: 도트 크기 (기본 10)
+export function Legend({ items, gap, direction = "column", dotSize = 10 }) {
+  const isRow = direction === "row";
+  const resolvedGap = gap ?? (isRow ? 24 : 10);
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", gap, fontFamily: "Pretendard, sans-serif" }}>
+    <div style={{ display: "inline-flex", flexDirection: direction, gap: resolvedGap, fontFamily: "Pretendard, sans-serif", alignItems: isRow ? "center" : "stretch" }}>
       {items.map((item, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 140 }}>
-          <LegendDot color={item.color} />
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, minWidth: isRow ? 0 : 140 }}>
+          <LegendDot color={item.color} size={dotSize} />
           <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, lineHeight: "20px" }}>{item.label}</span>
           {item.value != null && (
             <>
@@ -1240,7 +1244,7 @@ export function LineChart({ data, title, enableArea = true, curve = "monotoneX",
 
 // ─── MultiLineChart: 다중 시리즈 전용 — CHART_COLORS 자동 매핑, cross 점선 크로스헤어,
 //                   x/y 키-값 툴팁, PSM 차트 스타일의 하단 가로 선형 범례 (직선 연결)
-export function MultiLineChart({ data, title, curve = "linear", height = 280, colors }) {
+export function MultiLineChart({ data, title, curve = "linear", height = 280, colors, valueFormat }) {
   const palette = colors || CHART_COLORS;
 
   const allY = data.flatMap(s => s.data.map(d => d.y));
@@ -1275,7 +1279,7 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280, co
             crosshair: { line: { stroke: GRAY800, strokeWidth: 1, strokeOpacity: 0.8, strokeDasharray: "4 4" } },
           }}
           axisBottom={{ tickSize: 0, tickPadding: 12 }}
-          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5 }}
+          axisLeft={{ tickSize: 0, tickPadding: 12, tickValues: 5, format: valueFormat }}
           enableSlices="x"
           enableCrosshair={true}
           sliceTooltip={({ slice }) => (
@@ -1303,7 +1307,7 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280, co
                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.seriesColor || p.serieColor, flexShrink: 0 }} />
                     <span style={{ fontSize: 13, fontWeight: 500, color: GRAY800 }}>{p.seriesId || p.serieId}</span>
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990 }}>{p.data.yFormatted}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990 }}>{valueFormat ? valueFormat(p.data.y) : p.data.yFormatted}</span>
                 </div>
               ))}
             </div>

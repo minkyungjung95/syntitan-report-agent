@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { T, CheckCircleIcon, PersonIcon, IdentityPlatformIcon, IdentityPlatformOutlineIcon, ArrowUpIcon, ArrowDownIcon, WarnIcon, InfoIcon, InfoFillIcon, WarnFillIcon, SentimentSatisfiedIcon, SentimentNeutralIcon, SentimentDissatisfiedIcon, FaceIcon } from "./tokens.jsx";
 import { Badge, Btn, Chip, ChipTabs, Callout } from "./ui-components.jsx";
-import { CHART_COLORS } from "./charts";
+import { CHART_COLORS, Legend } from "./charts";
 
 const F = "Pretendard, sans-serif";
 
@@ -1281,6 +1281,176 @@ export function StrategyRoadmapTable({ periods = [], style }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STRATEGY ROADMAP HORIZONTAL — 요약 헤더 + 가로 타임라인 + 카드 그리드
+//   periods: [{ badge, period, rows: [{ strategy, objective, actionPlan, expectedImpact }] }]
+//   title: 상단 작은 라벨 (선택)
+// ═══════════════════════════════════════════════════════════════════════════
+export function StrategyRoadmapHorizontal({ periods = [], style, title }) {
+  const ACCENT = "#3182F6";
+  const stageMap = {
+    "즉시":       { dot: "#FB2C36", badgeVariant: "Negative"   },
+    "Immediate":  { dot: "#FB2C36", badgeVariant: "Negative"   },
+    "단기":       { dot: "#F59E0B", badgeVariant: "Cautionary" },
+    "Short-term": { dot: "#F59E0B", badgeVariant: "Cautionary" },
+    "중기":       { dot: "#3182F6", badgeVariant: "Info"       },
+    "Mid-term":   { dot: "#3182F6", badgeVariant: "Info"       },
+  };
+  const N = periods.length;
+  const allRows = periods.flatMap((period, pi) =>
+    period.rows.map((row) => ({ ...row, _stage: period, _stageIdx: pi }))
+  );
+  const total = allRows.length;
+
+  const renderBullets = (v) => {
+    if (typeof v !== "string") return <span style={{ fontSize: 13, color: T.gray990 }}>{v}</span>;
+    const items = v.split(/\n+/).map((s) => s.trim()).filter(Boolean);
+    return (
+      <ul style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 4, listStyle: "none" }}>
+        {items.map((it, i) => (
+          <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <span style={{ width: 3, height: 3, borderRadius: "50%", background: T.gray800, flexShrink: 0, marginTop: 8 }} />
+            <span style={{ fontSize: 13, color: T.gray990, lineHeight: "19px", letterSpacing: "-0.2px" }}>{it}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  // expectedImpact 줄별 파싱 — "라벨 ... → ..." 패턴이면 KPI 표로
+  const renderImpactTable = (v) => {
+    if (typeof v !== "string") return <div style={{ fontSize: 13, color: T.gray990 }}>{v}</div>;
+    const lines = v.split(/\n+/).map((s) => s.trim()).filter(Boolean);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {lines.map((line, i) => {
+          // 패턴: "라벨 [공백] X → Y [(델타)]"
+          const m = line.match(/^(.+?)\s+(\S+(?:[^→\n]*?))\s*→\s*(\S+(?:[^(\n]*?))(?:\s*\((.+?)\))?\s*$/);
+          if (!m) {
+            return <div key={i} style={{ fontSize: 13, color: T.gray990, lineHeight: "19px" }}>{line}</div>;
+          }
+          const [, label, from, to, delta] = m;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, lineHeight: "20px" }}>
+              <span style={{ fontSize: 13, color: T.gray800, flexShrink: 0 }}>{label.trim()}</span>
+              <span style={{ fontSize: 13, color: T.gray990, fontWeight: 500, textAlign: "right" }}>
+                <span style={{ color: T.gray800 }}>{from.trim()}</span>
+                <span style={{ color: T.gray500, margin: "0 6px" }}>→</span>
+                <span style={{ color: ACCENT, fontWeight: 700 }}>{to.trim()}</span>
+                {delta && <span style={{ color: ACCENT, fontWeight: 600, marginLeft: 6 }}>({delta.trim()})</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // ContentCard 스타일 (DS 패턴 inline)
+  const innerCard = {
+    background: T.white,
+    borderRadius: 16,
+    boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{
+      // SectionCard 스타일 (DS 패턴 inline) — 회색 외곽 + 흰색 카드 분리
+      background: T.gray50,
+      borderRadius: 20,
+      padding: 8,
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      fontFamily: F,
+      ...style,
+    }}>
+      {/* ── 1. 가로 타임라인 (라인 가운데, 위 뱃지 / 아래 기간) ── */}
+      <div style={{ ...innerCard, padding: "28px 32px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* 위: 뱃지 */}
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 16 }}>
+            {periods.map((period, pi) => {
+              const stage = stageMap[period.badge] || stageMap["중기"];
+              return (
+                <div key={pi} style={{ display: "flex", justifyContent: "center" }}>
+                  <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />
+                </div>
+              );
+            })}
+          </div>
+          {/* 가운데: 가로 라인 + 도트 */}
+          <div style={{ position: "relative", height: 16 }}>
+            <div style={{ position: "absolute", top: "50%", left: `calc(50% / ${N})`, right: `calc(50% / ${N})`, height: 1, background: T.gray200, transform: "translateY(-50%)" }} />
+            <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)` }}>
+              {periods.map((period, pi) => {
+                const stage = stageMap[period.badge] || stageMap["중기"];
+                return (
+                  <div key={pi} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: stage.dot, boxShadow: `0 0 0 3px ${T.white}` }} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* 아래: 기간 */}
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 16 }}>
+            {periods.map((period, pi) => (
+              <div key={pi} style={{ display: "flex", justifyContent: "center" }}>
+                {period.period && (
+                  <span style={{ fontSize: 12, color: T.gray800, lineHeight: "18px", letterSpacing: "-0.2px" }}>{period.period}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3. 액션 카드 그리드 — 단계별 컬럼 (같은 단계는 위아래로 쌓임, 컬럼 높이 통일) ── */}
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`, gap: 8, alignItems: "stretch" }}>
+        {periods.map((period, pi) => (
+          <div key={pi} style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+            {period.rows.map((row, ri) => {
+              const stage = stageMap[period.badge] || stageMap["중기"];
+              return (
+                <div key={ri} style={{ ...innerCard, padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* 상단: 뱃지 */}
+              <div>
+                <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />
+              </div>
+              {/* 제목 + 부제 */}
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: T.gray990, lineHeight: "22px", letterSpacing: "-0.3px", marginBottom: row.objective ? 4 : 0 }}>
+                  {row.strategy}
+                </div>
+                {row.objective && (
+                  <div style={{ fontSize: 13, color: T.gray800, lineHeight: "19px", letterSpacing: "-0.2px" }}>
+                    {row.objective}
+                  </div>
+                )}
+              </div>
+              {/* divider */}
+              <div style={{ height: 1, background: T.gray100 }} />
+              {/* 액션 */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: T.gray800, marginBottom: 6, letterSpacing: "-0.2px" }}>액션</div>
+                {renderBullets(row.actionPlan)}
+              </div>
+              {/* 임팩트 — ACCENT 컬러로 강조 */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: ACCENT, marginBottom: 6, letterSpacing: "-0.2px" }}>임팩트</div>
+                {renderBullets(row.expectedImpact)}
+              </div>
+            </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   UserCard,
   RespondentCard,
   StrategyRoadmapTable,
+  StrategyRoadmapHorizontal,
   ExpectedResultsGrid,
   ExecutionRoadmap,
   ExecutiveSummaryCard,
@@ -406,6 +407,32 @@ export default function ReportDemo() {
           </ContentCard>
         </SectionCard>
       </Section>
+
+      <Section>
+        <Label>6. Tables — StrategyRoadmapHorizontal (요약 + 가로 타임라인 + 카드 그리드)</Label>
+        <StrategyRoadmapHorizontal title="마케팅 최적화 로드맵" periods={[
+              {
+                badge: "즉시", period: "1주 이내",
+                rows: [
+                  { strategy: "카카오 2개 캠페인 예산 축소 및 구글 재배분", objective: "비효율 캠페인 정리로 약 335만 원을 효율 매체로 이동", actionPlan: "카카오 비즈보드 집행 중단\n친구메시지 예산 50% 축소\n구글 디스플레이 리마케팅으로 이동", expectedImpact: "월 전환 +160건 순증\n카카오 CPA 33,019원 구간 제거" },
+                  { strategy: "메타 브랜드인지 영상 소재 A/B 교체", objective: "메타 CTR을 4주 차 1.65%에서 2주 차 수준으로 회복", actionPlan: "신규 영상 3종 제작·동시 집행\n기존 소재 노출 점유 30% 이하로 제한", expectedImpact: "메타 CTR 1.88% → 2.10%\n월 전환 1,311 → 1,460건" },
+                ],
+              },
+              {
+                badge: "단기", period: "1개월 이내",
+                rows: [
+                  { strategy: "네이버 브랜드 키워드 구조 재설계", objective: "파워링크 브랜드 CPA를 쇼핑검색 수준까지 개선", actionPlan: "브랜드 키워드 입찰가 재책정\n경쟁사 침투 방어 영역만 유지\n비효율 쿼리 제외", expectedImpact: "네이버 CPA 17,951원 → 16,500원\n월 전환 1,301 → 1,510건" },
+                ],
+              },
+              {
+                badge: "중기", period: "3개월 이내",
+                rows: [
+                  { strategy: "매체 믹스 재설계 및 벤치마크 기반 예산 가이드 수립", objective: "전체 CPA·CTR 목표치 도달", actionPlan: "매체별 목표 CPA·CTR 벤치마크 수립\n월별 매체 믹스 리뷰 사이클 정착\n벤치마크 미달 자동 경고 도입", expectedImpact: "월 전환 12,593 → 15,000건\n단일 매체 의존도 59.9% → 45%로 분산" },
+                ],
+              },
+            ]} />
+      </Section>
+
 
       <Section>
         <Label>6. Tables — WeeklyPlanTable</Label>

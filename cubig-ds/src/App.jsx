@@ -2175,8 +2175,8 @@ export default function App() {
                     title: "리뷰 분석",
                     description: "VOC 데이터의 별점·감성·영역별 분포로 만족 동력과 부정 토픽을 진단",
                     variants: [
-                      { name: "쿠팡 캐리어 리뷰", subtitle: "이커머스 제품 리뷰 1,000건", route: "/#/coupang" },
-                      { name: "ChatGPT 리뷰",    subtitle: "AI 서비스 한국어 리뷰",     route: "/#/chatgpt" },
+                      { name: "쿠팡 캐리어 리뷰", subtitle: "이커머스 제품 리뷰 1,000건", route: "/#/coupang", jsonPath: "/json/coupang.json" },
+                      { name: "ChatGPT 리뷰",    subtitle: "AI 서비스 한국어 리뷰",     route: "/#/chatgpt", jsonPath: "/json/chatgpt.json" },
                     ],
                   }],
                 },
@@ -2187,7 +2187,7 @@ export default function App() {
                     title: "고객센터 티켓 분석",
                     description: "CS 티켓 처리시간·SLA·채널별 성과 진단",
                     variants: [
-                      { name: "기본 사례", subtitle: "처리시간·우선순위·채널 분포", route: "/#/cs" },
+                      { name: "기본 사례", subtitle: "처리시간·우선순위·채널 분포", route: "/#/cs", jsonPath: "/json/cs.json" },
                     ],
                   }],
                 },
@@ -2198,8 +2198,8 @@ export default function App() {
                     title: "광고 성과 분석",
                     description: "매체·캠페인별 효율을 진단하고 예산 재배분 방향 제시",
                     variants: [
-                      { name: "CPA 중심",   subtitle: "전환수만 있을 때 — 비용 효율(CPA·CTR·CVR) 기반", route: "/#/ad" },
-                      { name: "ROAS 포함", subtitle: "매출 데이터까지 있을 때 — 수익성(ROAS) 추가 진단", route: "/#/ad-roas" },
+                      { name: "CPA 중심",   subtitle: "전환수만 있을 때 — 비용 효율(CPA·CTR·CVR) 기반", route: "/#/ad",      jsonPath: "/json/ad-performance.json" },
+                      { name: "ROAS 포함", subtitle: "매출 데이터까지 있을 때 — 수익성(ROAS) 추가 진단", route: "/#/ad-roas", jsonPath: "/json/ad-roas.json" },
                     ],
                   }],
                 },
@@ -2228,7 +2228,7 @@ export default function App() {
                             </div>
                             <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                               <Btn variant="solid-primary" size="md" onClick={() => window.open(`${window.location.origin}${v.route}`, "_blank")}>Preview</Btn>
-                              <Btn variant="solid-secondary" size="md" onClick={() => window.open(`${window.location.origin}${v.route}`, "_blank")}>JSON</Btn>
+                              <Btn variant="solid-secondary" size="md" onClick={() => window.open(`${window.location.origin}${v.jsonPath}`, "_blank")} disabled={!v.jsonPath}>JSON</Btn>
                             </div>
                           </div>
                         ))}

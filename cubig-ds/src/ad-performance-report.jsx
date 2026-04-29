@@ -4,7 +4,7 @@ import {
   StrategyCard,
   SignalCard,
   DataTable,
-  StrategyRoadmapTable,
+  StrategyRoadmapHorizontal,
 } from "./report-components";
 import { DonutChart, MultiLineChart, VBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
@@ -248,7 +248,6 @@ export default function AdPerformanceReport() {
           <SectionHeading
             overline="캠페인 단위 성과"
             title="효율 상·하위 캠페인을 함께 보면 예산 재배분 방향이 드러납니다"
-            description="상위 5개는 모두 구글 검색·리타겟팅과 메타 리타겟팅 계열로 CPA 16,000원 이하이고, 하위 5개는 카카오 집행 중단·네이버 키워드 재설계·메타 타겟 재정의 세 방향으로 나뉘는 비효율을 보입니다."
           />
           <ReportSection>
             {/* 한 SectionCard 안에 차트 → 두 SignalCard(우수/낮은) → 통합 테이블 */}
@@ -313,6 +312,7 @@ export default function AdPerformanceReport() {
                   data={weeklyTrendData}
                   height={420}
                   colors={[...CHART_COLORS.slice(0, 4), "#B6B8BD"]}
+                  valueFormat={(v) => Number(v).toLocaleString()}
                 />
               </ContentCard>
             </SectionCard>
@@ -327,9 +327,7 @@ export default function AdPerformanceReport() {
             description="비효율은 두 군데에서 나오고 있습니다. 카카오는 매체·캠페인 모두 지표가 가장 낮고, 메타는 CTR이 4주 내내 내려갔습니다. 가장 먼저 카카오 캠페인 2개를 정리해 얻은 약 335만 원을 이미 효율이 확인된 구글 디스플레이 리마케팅으로 일단 옮기고, 메타 브랜드인지 영상 소재를 교체합니다. 이어서 네이버 브랜드 키워드 구조를 정비하고, 길게는 매체별 비중을 다시 조정해 구글에 집중된 59.9%를 45%까지 낮춥니다."
           />
           <ReportSection>
-            <SectionCard>
-              <ContentCard padding={0}>
-                <StrategyRoadmapTable periods={[
+            <StrategyRoadmapHorizontal periods={[
                   {
                     badge: "즉시", period: "1주 이내",
                     rows: [
@@ -370,8 +368,6 @@ export default function AdPerformanceReport() {
                     ],
                   },
                 ]} />
-              </ContentCard>
-            </SectionCard>
           </ReportSection>
         </div>
 

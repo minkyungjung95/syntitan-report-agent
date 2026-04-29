@@ -1198,11 +1198,11 @@ export default function App() {
             />
           </Card>
 
-          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 · 점선 크로스헤어 · x/y 키-값 툴팁 · curve=monotoneX · 음수 스케일 지원 · 평균 시리즈 회색) */}
-          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / monotoneX 곡선 / 음수 스케일 지원 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례 · 평균값 시리즈는 회색(#B6B8BD)으로 통일">
+          {/* Line Chart — Multi Series (CHART_COLORS 팔레트 자동 · 점선 크로스헤어 · x/y 키-값 툴팁 · curve=linear · 음수 스케일 지원 · 평균 시리즈 회색) */}
+          <Card title="Line Chart — Multi Series" subtitle="여러 시리즈 비교 — CHART_COLORS 팔레트 자동 / linear 직선 / 음수 스케일 지원 / 점선 크로스헤어 / X,Y 좌표 툴팁 / 하단 가로 선형 범례 · 평균값 시리즈는 회색(#B6B8BD)으로 통일">
             <MultiLineChart
               title="지표 추이 (음수 스케일 포함)"
-              curve="monotoneX"
+              curve="linear"
               data={[
                 { id: "A", data: [
                   { x: "2017", y: 10 }, { x: "2018", y: 50 }, { x: "2019", y: 80 }, { x: "2020", y: 100 },

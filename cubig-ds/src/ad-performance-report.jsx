@@ -23,9 +23,9 @@ const mediaCostData = [
 // Section 4: 매체 효율 단면 — DataTable (행=매체, 컬럼=지표)
 // 헤드라인 메시지(카카오 광고비 대비 성과 최하위)와 일치하는 카카오 worst 지표만 레드 강조
 // CPC는 카카오가 오히려 가장 낮아(좋음) 강조 제외
-const ctrHL = (row) => row.media === "카카오" ? "red" : false; // 0.91% (최저, worst)
-const cvrHL = (row) => row.media === "카카오" ? "red" : false; // 1.20% (최저, worst)
-const cpaHL = (row) => row.media === "카카오" ? "red" : false; // 33,019원 (최고, worst)
+const ctrHL = (row) => row.media === "카카오" ? "red" : false;
+const cvrHL = (row) => row.media === "카카오" ? "red" : false;
+const cpaHL = (row) => row.media === "카카오" ? "red" : false;
 const mediaBreakdownColumns = [
   { key: "media", label: "매체", align: "left" },
   { key: "cost", label: "총 비용", align: "center" },
@@ -309,7 +309,7 @@ export default function AdPerformanceReport() {
               <ContentCard padding={40}>
                 <MultiLineChart
                   title="매체별 주별 CPA 추이 (단위: 원)"
-                  curve="monotoneX"
+                  curve="linear"
                   data={weeklyTrendData}
                   height={420}
                   colors={[...CHART_COLORS.slice(0, 4), "#B6B8BD"]}

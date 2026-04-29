@@ -6,7 +6,7 @@ import {
   DataTable,
   StrategyRoadmapTable,
 } from "./report-components";
-import { DonutChart, MultiLineChart, VBarChart, CHART_COLORS } from "./charts";
+import { DonutChart, MultiLineChart, VBarChart, GroupedBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
@@ -20,29 +20,31 @@ const mediaCostData = [
   { id: "카카오", value: 2.5,  count: 4688628 },
 ];
 
-// Section 3: 매체별 매출 기여도
-const mediaRevenueData = [
-  { id: "구글",   value: 67.9, count: 490339000 },
-  { id: "네이버", value: 24.1, count: 173848000 },
-  { id: "메타",   value: 7.4,  count: 53464000 },
-  { id: "카카오", value: 0.7,  count: 4754000 },
+// Section 3: 매체별 매출 기여도 — 비용 점유율 vs 매출 점유율 비교
+// 매출이 비용보다 길면 효율적(구글), 짧으면 비효율(메타·카카오)
+const mediaShareCompareData = [
+  { label: "구글",   "비용 점유율": 59.9, "매출 점유율": 67.9 },
+  { label: "네이버", "비용 점유율": 26.6, "매출 점유율": 24.1 },
+  { label: "메타",   "비용 점유율": 11.0, "매출 점유율": 7.4 },
+  { label: "카카오", "비용 점유율": 2.5,  "매출 점유율": 0.7 },
 ];
 
-// Section 5: 매체별 효율 비교 — 카카오 worst만 레드
-const isKakaoCol = (row) => row.media === "카카오";
+// Section 5: 매체별 효율 비교 — DataTable (행=매체, 컬럼=지표)
+// 헤드라인 메시지(메타·카카오의 회수율이 평균에 한참 못 미친다)에 맞춰 ROAS 컬럼의 메타/카카오 셀만 레드 강조
+const roasWorstHL = (row) => row.media === "메타" || row.media === "카카오" ? "red" : false;
 const mediaBreakdownColumns = [
-  { key: "media", label: "지표",  align: "left" },
-  { key: "google",  label: "구글",   align: "center" },
-  { key: "naver",   label: "네이버", align: "center" },
-  { key: "meta",    label: "메타",   align: "center" },
-  { key: "kakao",   label: "카카오", align: "center" },
+  { key: "media",   label: "매체",  align: "left" },
+  { key: "ctr",     label: "CTR",   align: "center" },
+  { key: "cvr",     label: "CVR",   align: "center" },
+  { key: "cpa",     label: "CPA",   align: "center" },
+  { key: "revenue", label: "매출",  align: "center" },
+  { key: "roas",    label: "ROAS",  align: "center", highlightWhen: roasWorstHL },
 ];
 const mediaBreakdownData = [
-  { media: "CTR",   google: "6.65%",        naver: "4.91%",         meta: "1.88%",        kakao: "0.91%" },
-  { media: "CVR",   google: "6.85%",        naver: "4.58%",         meta: "3.69%",        kakao: "1.20%" },
-  { media: "CPA",   google: "13,598원",     naver: "17,951원",      meta: "15,860원",     kakao: "33,019원" },
-  { media: "매출",  google: "490,339,000원", naver: "173,848,000원", meta: "53,464,000원", kakao: "4,754,000원" },
-  { media: "ROAS",  google: "432%",         naver: "345%",          meta: "257%",         kakao: "101%" },
+  { media: "구글",   ctr: "6.65%", cvr: "6.85%", cpa: "13,598원", revenue: "490,339,000원", roas: "432%" },
+  { media: "네이버", ctr: "4.91%", cvr: "4.58%", cpa: "17,951원", revenue: "173,848,000원", roas: "345%" },
+  { media: "메타",   ctr: "1.88%", cvr: "3.69%", cpa: "15,860원", revenue: "53,464,000원",  roas: "257%" },
+  { media: "카카오", ctr: "0.91%", cvr: "1.20%", cpa: "33,019원", revenue: "4,754,000원",   roas: "101%" },
 ];
 
 // Section 6+7: 캠페인 통합 (ROAS 내림차순)
@@ -198,11 +200,15 @@ export default function AdRoasReport() {
           <ReportSection>
             <SectionCard>
               <ContentCard padding={40}>
-                <DonutChart
-                  title="매체별 매출 구성 (2025-03)"
-                  size={220}
-                  legendPosition="right"
-                  data={mediaRevenueData}
+                <GroupedBarChart
+                  title="매체별 비용 점유율 vs 매출 점유율 (2025-03, 단위: %)"
+                  subtitle="매출 막대가 비용 막대보다 길면 효율적, 짧으면 광고비 회수 부족"
+                  data={mediaShareCompareData}
+                  keys={["비용 점유율", "매출 점유율"]}
+                  indexBy="label"
+                  colors={["#8EC5FF", "#2B7FFF"]}
+                  valueSuffix="%"
+                  groupTooltip
                 />
               </ContentCard>
             </SectionCard>
@@ -287,6 +293,16 @@ export default function AdRoasReport() {
                   height={420}
                   hideLegend
                 />
+                <div style={{ display: "flex", gap: 24, justifyContent: "center", marginTop: 16, fontFamily: "Pretendard, sans-serif" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#7CCF00" }} />
+                    <span style={{ fontSize: 13, color: "#171719", fontWeight: 500 }}>수익성 우수 캠페인</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF6467" }} />
+                    <span style={{ fontSize: 13, color: "#171719", fontWeight: 500 }}>수익성 낮은 캠페인</span>
+                  </div>
+                </div>
               </ContentCard>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                 <SignalCard
@@ -332,7 +348,7 @@ export default function AdRoasReport() {
               <ContentCard padding={40}>
                 <MultiLineChart
                   title="매체별 주별 ROAS 추이 (단위: %)"
-                  curve="monotoneX"
+                  curve="linear"
                   data={weeklyTrendData}
                   height={420}
                   colors={[...CHART_COLORS.slice(0, 4), "#B6B8BD"]}

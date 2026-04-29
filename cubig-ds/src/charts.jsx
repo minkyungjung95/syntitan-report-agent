@@ -75,9 +75,51 @@ function Tooltip({ label, value }) {
   );
 }
 
+// 같은 indexValue 그룹 안의 모든 시리즈를 한 툴팁에 표시
+function GroupTooltip({ label, rows }) {
+  return (
+    <div style={{ ...tooltipBox, alignItems: "stretch", whiteSpace: "nowrap" }}>
+      <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY800, textAlign: "center" }}>{label}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "#7B7E85" }}>{r.key}</span>
+            </span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#171719" }}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Legend Dot ────────────────────────────────────────────────────────
 function LegendDot({ color }) {
   return <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />;
+}
+
+// ─── Legend (세로 리스트) ──────────────────────────────────────────────
+// items: [{ color, label, value? }]
+// value가 있으면 우측 정렬로 진한 블랙 숫자 표시
+export function Legend({ items, gap = 10 }) {
+  return (
+    <div style={{ display: "inline-flex", flexDirection: "column", gap, fontFamily: "Pretendard, sans-serif" }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 140 }}>
+          <LegendDot color={item.color} />
+          <span style={{ fontSize: 14, fontWeight: 500, color: GRAY800, lineHeight: "20px" }}>{item.label}</span>
+          {item.value != null && (
+            <>
+              <span style={{ flex: 1, minWidth: 24 }} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: GRAY990, lineHeight: "20px" }}>{item.value}</span>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1855,7 +1897,7 @@ export function QuadrantChart({
 // GROUPED BAR (Nivo - 세로 그룹/스택 막대)
 // ═══════════════════════════════════════════════════════════════════════
 // GroupedBarChart 개별 바 — 라운드 + 툴팁
-function GroupedBarItem({ bar, isStacked, actualKeys, valueSuffix }) {
+function GroupedBarItem({ bar, isStacked, actualKeys, valueSuffix, groupTooltip, groupLookup, keyColors }) {
   const { showTooltipFromEvent, hideTooltip } = useTooltip();
   const v = bar.data.value;
   const isNeg = v < 0;
@@ -1872,6 +1914,16 @@ function GroupedBarItem({ bar, isStacked, actualKeys, valueSuffix }) {
       : { tl: R, tr: R, br: 0, bl: 0 };
   }
   const showTip = (e) => {
+    if (groupTooltip && groupLookup) {
+      const row = groupLookup[bar.data.indexValue] || {};
+      const rows = actualKeys.map((k) => ({
+        key: k,
+        color: keyColors[k] || bar.color,
+        value: `${Number(row[k] ?? 0).toLocaleString()}${valueSuffix || ""}`,
+      }));
+      showTooltipFromEvent(<GroupTooltip label={String(bar.data.indexValue)} rows={rows} />, e);
+      return;
+    }
     showTooltipFromEvent(
       <Tooltip label={`${bar.data.indexValue} — ${bar.data.id}`} value={`${Number(v).toLocaleString()}${valueSuffix || ""}`} />,
       e
@@ -1890,10 +1942,13 @@ function GroupedBarItem({ bar, isStacked, actualKeys, valueSuffix }) {
   );
 }
 
-export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle, stacked = false, layout = "vertical", colors, showValueLabels = true, valueSuffix = "" }) {
+export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle, stacked = false, layout = "vertical", colors, showValueLabels = true, valueSuffix = "", groupTooltip = false }) {
   const actualKeys = keys || Object.keys(data[0] || {}).filter(k => k !== indexBy);
   const isStacked = stacked;
   const paletteColors = colors || CHART_COLORS;
+  // 그룹 툴팁용 — indexValue → 원본 row 매핑, key → 색 매핑
+  const groupLookup = data.reduce((acc, row) => { acc[row[indexBy]] = row; return acc; }, {});
+  const keyColors = actualKeys.reduce((acc, k, i) => { acc[k] = paletteColors[i % paletteColors.length]; return acc; }, {});
   // 차트 폭 추적 — X축 라벨 ellipsis 폭 계산용
   const containerRef = useRef(null);
   const [chartW, setChartW] = useState(0);
@@ -1987,6 +2042,16 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle
   const ExternalLabel = ({ bar, v, x, y, isNeg }) => {
     const { showTooltipFromEvent, hideTooltip } = useTooltip();
     const showTip = (e) => {
+      if (groupTooltip) {
+        const row = groupLookup[bar.data.indexValue] || {};
+        const rows = actualKeys.map((k) => ({
+          key: k,
+          color: keyColors[k] || bar.color,
+          value: `${Number(row[k] ?? 0).toLocaleString()}${valueSuffix || ""}`,
+        }));
+        showTooltipFromEvent(<GroupTooltip label={String(bar.data.indexValue)} rows={rows} />, e);
+        return;
+      }
       showTooltipFromEvent(
         <Tooltip label={`${bar.data.indexValue} — ${bar.data.id}`} value={`${Number(v).toLocaleString()}${valueSuffix || ""}`} />,
         e
@@ -2070,7 +2135,7 @@ export function GroupedBarChart({ data, keys, indexBy = "label", title, subtitle
           innerPadding={isStacked ? 0 : 4}
           borderRadius={0}
           barComponent={(props) => (
-            <GroupedBarItem {...props} isStacked={isStacked} actualKeys={actualKeys} valueSuffix={valueSuffix} />
+            <GroupedBarItem {...props} isStacked={isStacked} actualKeys={actualKeys} valueSuffix={valueSuffix} groupTooltip={groupTooltip} groupLookup={groupLookup} keyColors={keyColors} />
           )}
           enableLabel={false}
           animate

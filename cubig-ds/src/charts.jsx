@@ -2766,7 +2766,7 @@ function findCrossing(seriesA, seriesB) {
   return null;
 }
 
-export function PSMChart({ data, title, intersections: manualPts }) {
+export function PSMChart({ data, title, intersections: manualPts, height = 480 }) {
   // data: [0]Too Cheap, [1]Cheap, [2]Expensive, [3]Too Expensive
   const auto = data.length === 4 ? [
     { label: "PMC", fullLabel: "PMC (Point of Marginal Cheapness)", color: "#8EC5FF", ...findCrossing(data[0], data[2]) },
@@ -2779,7 +2779,7 @@ export function PSMChart({ data, title, intersections: manualPts }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ width: "100%", height: 380 }}>
+      <div style={{ width: "100%", height }}>
         <ResponsiveLine
           data={data}
           colors={PSM_COLORS}

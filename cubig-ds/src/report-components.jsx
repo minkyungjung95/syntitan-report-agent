@@ -1370,10 +1370,10 @@ export function StrategyRoadmapHorizontal({ periods = [], style, title }) {
       ...style,
     }}>
       {/* ── 1. 가로 타임라인 (라인 가운데, 위 뱃지 / 아래 기간) ── */}
-      <div style={{ ...innerCard, padding: "28px 32px" }}>
+      <div style={{ ...innerCard, padding: "28px 0" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* 위: 뱃지 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 0 }}>
             {periods.map((period, pi) => {
               const stage = stageMap[period.badge] || stageMap["중기"];
               return (
@@ -1398,7 +1398,7 @@ export function StrategyRoadmapHorizontal({ periods = [], style, title }) {
             </div>
           </div>
           {/* 아래: 기간 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 0 }}>
             {periods.map((period, pi) => (
               <div key={pi} style={{ display: "flex", justifyContent: "center" }}>
                 {period.period && (
@@ -1416,8 +1416,9 @@ export function StrategyRoadmapHorizontal({ periods = [], style, title }) {
           <div key={pi} style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
             {period.rows.map((row, ri) => {
               const stage = stageMap[period.badge] || stageMap["중기"];
+              const isLast = ri === period.rows.length - 1;
               return (
-                <div key={ri} style={{ ...innerCard, padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+                <div key={ri} style={{ ...innerCard, padding: 20, display: "flex", flexDirection: "column", gap: 16, ...(isLast ? { flex: 1 } : {}) }}>
               {/* 상단: 뱃지 */}
               <div>
                 <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />

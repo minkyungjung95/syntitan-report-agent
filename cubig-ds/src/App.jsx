@@ -156,15 +156,18 @@ function ModalPreview({ width = "100%", label, hasDescription = true, hasDivider
   );
 }
 
-// Production 링크 — 현재 환경이 production이 아닐 때만 우측에 노출
+// 환경 전환 링크 — production이면 Local로, 그 외면 Production으로 우측 상단 노출
 function ProdLink() {
   // eslint-disable-next-line no-undef
   const env = typeof __VERCEL_ENV__ !== "undefined" ? __VERCEL_ENV__ : "local";
-  if (env === "production") return null;
   const hash = typeof window !== "undefined" ? window.location.hash : "";
-  const prodUrl = `https://syntitan-report-agent.vercel.app/${hash}`;
+  const isProd = env === "production";
+  const targetUrl = isProd
+    ? `http://localhost:5173/${hash}`
+    : `https://syntitan-report-agent.vercel.app/${hash}`;
+  const label = isProd ? "Local 화면 보기 →" : "Production 화면 보기 →";
   return (
-    <a href={prodUrl} target="_blank" rel="noopener noreferrer" style={{
+    <a href={targetUrl} target="_blank" rel="noopener noreferrer" style={{
       marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6,
       fontSize: 12, fontWeight: 500, lineHeight: "18px",
       padding: "6px 12px", borderRadius: 8,
@@ -175,7 +178,7 @@ function ProdLink() {
     onMouseEnter={(e) => { e.currentTarget.style.background = "#F7F7F8"; }}
     onMouseLeave={(e) => { e.currentTarget.style.background = "#FFFFFF"; }}
     >
-      Production 화면 보기 →
+      {label}
     </a>
   );
 }

@@ -5,6 +5,7 @@ import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, M
 import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
 const AuditLog = lazy(() => import("./syntitan-UI/audit-log.jsx"));
+const AgentThumbnails = lazy(() => import("./agent-thumbnails.jsx"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -239,8 +240,8 @@ export default function App() {
   const [modalContent4colTab, setModalContent4colTab] = useState(1);
   const [modalContent4colChip, setModalContent4colChip] = useState(0);
 
-  const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","tooltip","icons","report","reports","ui"];
-  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", tooltip:"Tooltip", icons:"Icons", report:"Report Components", reports:"Reports", ui:"UI" };
+  const PAGES = ["charts","color","button","badge","callout","chip","tab","modal","tooltip","icons","report","reports","ui","thumbnails"];
+  const PAGE_LABELS = { charts:"Charts", color:"Color", button:"Button", badge:"Badge", callout:"Callout", chip:"Chip", tab:"Tab", modal:"Modal", tooltip:"Tooltip", icons:"Icons", report:"Report Components", reports:"Reports", ui:"UI", thumbnails:"Thumbnails" };
   const BTN_VARIANTS = Object.keys(BTN_STYLES);
   const RADII = ["sm","md","full"];
   const SIZES_BTN = ["lg","md","sm"];
@@ -264,7 +265,7 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding:"28px 24px", maxWidth: (page === "report" || page === "ui") ? "none" : 960, margin:"0 auto" }}>
+      <div style={{ padding:"28px 24px", maxWidth: (page === "report" || page === "ui" || page === "thumbnails") ? "none" : 960, margin:"0 auto" }}>
 
         {/* ══ COLOR ══ */}
         {page==="color" && <>
@@ -2163,6 +2164,8 @@ export default function App() {
         {page==="report" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><ReportDemo /></Suspense>}
 
         {page==="ui" && <UIPage />}
+
+        {page==="thumbnails" && <Suspense fallback={<div style={{padding:40,color:T.gray800}}>Loading...</div>}><AgentThumbnails /></Suspense>}
 
         {page==="reports" && <>
           <Card title="완료된 리포트" subtitle="토픽별 리포트 안에서 데이터 사례나 분석 변형을 골라 확인할 수 있습니다.">

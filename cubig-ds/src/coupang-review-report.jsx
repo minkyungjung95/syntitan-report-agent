@@ -10,6 +10,25 @@ import { VBarChart, HBarChart, GroupedBarChart } from "./charts";
 import { StarRateFilledIcon, DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  CoupangReviewReport — 쿠팡 캐리어 리뷰 분석 리포트
+ *
+ *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
+ *    src/components/report/CoupangReviewReport/
+ *      ├── index.tsx                       ← 메인 (이 파일의 CoupangReviewReport)
+ *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
+ *      ├── ReviewStatus.tsx                ← (Section 2) 리뷰 현황 (1,000건/별점 분포)
+ *      ├── SentimentBySegment.tsx          ← (Section 3) 영역별 긍정/부정 비율
+ *      ├── NegativeAnalysis.tsx            ← (Section 4) 부정 심층 분석
+ *      ├── PositiveAnalysis.tsx            ← (Section 5) 긍정 심층 분석
+ *      └── StrategyRoadmap.tsx             ← (Section 6) 개선 로드맵
+ *
+ *  데이터 소스: public/json/coupang.json
+ *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
+ *                StrategyRoadmapTable / VBarChart / HBarChart / GroupedBarChart
+ *  스타일: 우리 raw 토큰(T.gray990 등) → 개발자 시멘틱 토큰(fg-neutral-primary)으로 매핑
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
 // ─── Data (sample-coupang.json 원문) ────────────────────────────────────────
 
 const TOTAL_REVIEWS = 1000;

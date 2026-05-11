@@ -10,6 +10,26 @@ import { DonutChart, MultiLineChart, VBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  AdPerformanceReport — 광고 성과 분석 리포트 (ROAS 없는 케이스)
+ *
+ *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
+ *    src/components/report/AdPerformanceReport/
+ *      ├── index.tsx                       ← 메인 (이 파일의 AdPerformanceReport)
+ *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
+ *      ├── MediaCostMix.tsx                ← (Section 2) 매체 비용 구성 DonutChart
+ *      ├── EfficiencyKpis.tsx              ← (Section 3) 핵심 효율 KPI SignalCard 3개
+ *      ├── MediaComparison.tsx             ← (Section 4) 매체별 효율 비교 DataTable
+ *      ├── CampaignPerformance.tsx         ← (Section 5+6) 캠페인 CPA 랭킹 + 통합 테이블
+ *      ├── WeeklyTrend.tsx                 ← (Section 7) 주별 CPA 추이 MultiLineChart
+ *      └── StrategyRoadmap.tsx             ← (Section 8) 개선 로드맵
+ *
+ *  데이터 소스: 인라인 데이터 (원본: public/json/광고성과분석 1.json)
+ *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
+ *                SignalCard / StrategyCard / StrategyRoadmapHorizontal /
+ *                DonutChart / MultiLineChart / VBarChart / DataTable
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
 // ─── Data (광고성과분석 1.json 원문) ─────────────────────────────────────────
 
 // Section 3: 매체 비용 구성 — DonutChart

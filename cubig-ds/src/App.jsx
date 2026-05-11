@@ -6,6 +6,7 @@ import { IconsTab } from "./icons.jsx";
 const ReportDemo = lazy(() => import("./ReportDemo"));
 const AuditLog = lazy(() => import("./syntitan-UI/audit-log.jsx"));
 const AgentThumbnails = lazy(() => import("./agent-thumbnails.jsx"));
+const SyntitanPrototype = lazy(() => import("./syntitan-prototype.jsx"));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -52,43 +53,45 @@ function Col({ label, children }) {
 // ═══════════════════════════════════════════════════════════════════════════
 // UI PAGE (각 화면을 새 창으로 열기)
 // ═══════════════════════════════════════════════════════════════════════════
-const UI_ITEMS = [
-  { key: "audit", label: "감사 로그", description: "Owner / Admin 전용. 인증·데이터셋·전처리·릴리즈·Agent·Report·권한 활동 추적." },
+const UI_FLOWS = [
+  {
+    key: "syntitan",
+    label: "Syntitan 프로토타입 — 업로드 흐름",
+    description: "Edit Dataset → Upload data → Profiling → Datasets · 프로필 팝오버 Audit log 까지 전부 한 흐름. 새 창에서 풀스크린으로 열립니다.",
+  },
 ];
 
 function UIPage() {
   return (
-    <Card title="UI" subtitle="각 화면은 새 창에서 열립니다.">
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {UI_ITEMS.map((it) => (
-          <div
-            key={it.key}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 16,
-              padding: 16,
-              border: `1px solid ${T.gray200}`,
-              borderRadius: 12,
-              background: T.white,
-            }}
-          >
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: T.gray990, marginBottom: 4 }}>{it.label}</div>
-              <div style={{ fontSize: 12, color: T.gray800 }}>{it.description}</div>
-            </div>
-            <Btn
-              variant="solid-primary"
-              size="sm"
-              onClick={() => window.open(`${window.location.origin}/#/${it.key}`, "_blank")}
-            >
-              새 창으로 열기
-            </Btn>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {UI_FLOWS.map((it) => (
+        <div
+          key={it.key}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            padding: 16,
+            border: `1px solid ${T.gray200}`,
+            borderRadius: 12,
+            background: T.white,
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: T.gray990, marginBottom: 4 }}>{it.label}</div>
+            <div style={{ fontSize: 12, color: T.gray800 }}>{it.description}</div>
           </div>
-        ))}
-      </div>
-    </Card>
+          <Btn
+            variant="solid-primary"
+            size="sm"
+            onClick={() => window.open(`${window.location.origin}/#/${it.key}`, "_blank")}
+          >
+            새 창으로 열기
+          </Btn>
+        </div>
+      ))}
+    </div>
   );
 }
 

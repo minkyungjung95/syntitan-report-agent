@@ -10,6 +10,27 @@ import { DonutChart, MultiLineChart, VBarChart, GroupedBarChart, CHART_COLORS } 
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  AdRoasReport — 광고 ROAS 분석 리포트 (ROAS 포함 케이스)
+ *
+ *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
+ *    src/components/report/AdRoasReport/
+ *      ├── index.tsx                       ← 메인 (이 파일의 AdRoasReport)
+ *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
+ *      ├── MediaCostMix.tsx                ← (Section 2) 매체 비용 구성
+ *      ├── RevenueContribution.tsx         ← (Section 3) 매체별 매출 기여도
+ *      ├── EfficiencyKpis.tsx              ← (Section 4) 핵심 효율 KPI
+ *      ├── MediaComparison.tsx             ← (Section 5) 매체별 효율 비교 DataTable
+ *      ├── CampaignPerformance.tsx         ← (Section 6+7) 캠페인 통합 (ROAS 내림차순)
+ *      ├── WeeklyTrend.tsx                 ← (Section 8) 주별 ROAS 추이
+ *      └── StrategyRoadmap.tsx             ← (Section 9) 개선 로드맵
+ *
+ *  데이터 소스: 인라인 데이터 (원본: public/json/광고ROAS분석.json)
+ *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
+ *                SignalCard / StrategyCard / StrategyRoadmapHorizontal /
+ *                DonutChart / MultiLineChart / VBarChart / GroupedBarChart / DataTable
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
 // ─── Data (광고ROAS분석.json 원문) ─────────────────────────────────────────
 
 // Section 2: 매체 비용 구성

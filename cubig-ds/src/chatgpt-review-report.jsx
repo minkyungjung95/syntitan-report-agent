@@ -10,6 +10,24 @@ import { VBarChart, HBarChart, GroupedBarChart } from "./charts";
 import { StarRateFilledIcon, DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  ChatgptReviewReport — ChatGPT 한국어 리뷰 분석 리포트
+ *
+ *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
+ *    src/components/report/ChatgptReviewReport/
+ *      ├── index.tsx                       ← 메인 (이 파일의 ChatgptReviewReport)
+ *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
+ *      ├── ReviewStatus.tsx                ← (Section 2) 리뷰 현황
+ *      ├── SentimentBySegment.tsx          ← (Section 3) 영역별 긍정/부정
+ *      ├── NegativeAnalysis.tsx            ← (Section 4) 부정 심층 분석
+ *      ├── PositiveAnalysis.tsx            ← (Section 5) 긍정 심층 분석
+ *      └── StrategyRoadmap.tsx             ← (Section 6) 개선 로드맵
+ *
+ *  데이터 소스: public/json/chatgpt.json
+ *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
+ *                StrategyRoadmapTable / VBarChart / HBarChart / GroupedBarChart
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
 // ─── Data (sample-chatgpt.json 원문) ────────────────────────────────────────
 
 const TOTAL_REVIEWS = 500;

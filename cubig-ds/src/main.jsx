@@ -28,6 +28,7 @@ const CsTicketReport = lazy(() => import('./cs-ticket-report'))
 const AdPerformanceReport = lazy(() => import('./ad-performance-report'))
 const AdRoasReport = lazy(() => import('./ad-roas-report'))
 const AuditLog = lazy(() => import('./syntitan-UI/audit-log.jsx'))
+const SyntitanPrototype = lazy(() => import('./syntitan-prototype.jsx'))
 
 function Root() {
   const route = window.location.hash.replace(/^#\/?/, '')
@@ -76,6 +77,16 @@ function Root() {
     return (
       <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
         <AuditLog />
+      </Suspense>
+    )
+  }
+
+  if (route === 'syntitan') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+          <SyntitanPrototype />
+        </div>
       </Suspense>
     )
   }

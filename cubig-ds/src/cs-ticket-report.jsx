@@ -9,6 +9,25 @@ import { GroupedBarChart, LineChart, ComboChart, VBarChart, CHART_COLORS } from 
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  CsTicketReport — 고객센터 티켓 분석 리포트
+ *
+ *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
+ *    src/components/report/CsTicketReport/
+ *      ├── index.tsx                       ← 메인 (이 파일의 CsTicketReport)
+ *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
+ *      ├── KpiTrend.tsx                    ← (Section 2+3) NPS·처리시간 LineChart 2개
+ *      ├── CategoryAnalysis.tsx            ← (Section 4) 카테고리 ComboChart
+ *      ├── ChannelAnalysis.tsx             ← (Section 5) 채널 VBarChart 3개
+ *      ├── SatisfactionDistribution.tsx    ← (Section 6) 카테고리별 만족도 StackedBar
+ *      ├── RootCauseSignals.tsx            ← (Section 7) 근본 원인 SignalCard 3개
+ *      └── StrategyRoadmap.tsx             ← (Section 8) 개선 로드맵
+ *
+ *  데이터 소스: public/json/customer-support.json (또는 인라인 데이터)
+ *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
+ *                SignalCard / StrategyRoadmapTable / LineChart / ComboChart / VBarChart / DataTable
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
 
 const npsTrendData = [

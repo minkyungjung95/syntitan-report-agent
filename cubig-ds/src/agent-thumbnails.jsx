@@ -7,6 +7,9 @@
  *  - 총 12 에이전트
  * ========================================================= */
 
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
+
 const ALT = "#7B7E85"; // fg/neutral/alternative
 
 /* ─────────────────────── 카테고리 구조 ─────────────────────── */
@@ -100,17 +103,89 @@ export default function AgentThumbnails() {
  *  Shared Thumbnail Shell (430 x 150)
  * ========================================================= */
 function AgentThumb({ agent }) {
+  const ref = useRef(null);
+  const [hover, setHover] = useState(false);
+  const [busy, setBusy] = useState(null); // null | 'png' | 'svg'
+
+  const triggerDownload = (dataUrl, ext) => {
+    const a = document.createElement("a");
+    a.download = `${agent.key}.${ext}`;
+    a.href = dataUrl;
+    a.click();
+  };
+
+  const downloadPng = async () => {
+    if (!ref.current || busy) return;
+    setBusy("png");
+    try {
+      // 폰트/이미지 로드가 끝난 뒤 캡처해야 내부 SVG/텍스트가 깔끔하게 나옴
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+      // 한 프레임 더 대기 (React 렌더 → paint flush)
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      // 첫 캡처가 캐시 워밍업 역할 — 두 번째 캡처가 더 안정적
+      await toPng(ref.current, { cacheBust: true, pixelRatio: 1, width: 430, height: 150 });
+      const dataUrl = await toPng(ref.current, {
+        cacheBust: true,
+        pixelRatio: 4,           // 4배 (1720×600) — Figma 확대해도 깨끗
+        width: 430,
+        height: 150,
+        skipAutoScale: false,
+      });
+      triggerDownload(dataUrl, "png");
+    } catch (err) {
+      console.error("PNG 다운로드 실패:", err);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const btnStyle = {
+    display: "inline-flex", alignItems: "center", gap: 4,
+    padding: "5px 10px",
+    background: "rgba(23, 23, 25, 0.85)",
+    color: "#FFFFFF", border: "none", borderRadius: 8,
+    fontFamily: "Pretendard, sans-serif", fontSize: 11, fontWeight: 600,
+    cursor: busy ? "wait" : "pointer",
+    backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
+  };
+
   return (
-    <div style={{ ...THUMB.outer, background: agent.bg }}>
-      <div style={{ ...THUMB.card, background: agent.cardBg }}>
-        <div style={THUMB.title}>{agent.title}</div>
-        {agent.Body && (
-          <div style={THUMB.bodyArea}>
-            <agent.Body />
-          </div>
-        )}
+    <div
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div ref={ref} style={{ ...THUMB.outer, background: agent.bg }}>
+        <div style={{ ...THUMB.card, background: agent.cardBg }}>
+          <div style={THUMB.title}>{agent.title}</div>
+          {agent.Body && (
+            <div style={THUMB.bodyArea}>
+              <agent.Body />
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* 호버 시 우상단 PNG 다운로드 버튼 (4x 고해상도) */}
+      {hover && (
+        <button type="button" onClick={downloadPng} disabled={!!busy} style={{ ...btnStyle, position: "absolute", top: 10, right: 10 }} aria-label="PNG로 다운로드">
+          <DownloadIcon />
+          {busy === "png" ? "..." : "PNG"}
+        </button>
+      )}
     </div>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
   );
 }
 

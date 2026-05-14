@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "agentId": "new-pricing-product",
+    "agentName": "신제품 가격 전략",
+    "reportTitle": "신제품 가격 전략",
+    "reportSubtitle": "가격 민감도를 분석해 신제품 출시 가격을 권장하고 매출과 이탈 영향을 함께 진단합니다.",
+    "domain": "Consumer Electronics · Premium OLED TV",
+    "sourceFile": "voc_data.csv",
+    "version": "2",
+    "createdAt": "2026-05-12T09:00:00.000Z"
+  },
+  "executiveSummary": {
+    "headline": "수용 가격 범위 안에서 최적 가격(OPP)이 $1,421.79로 잡혀, 65인치 OLED 프리미엄 포지셔닝이 안정적으로 가능한 가격대입니다.",
+    "description": "본 보고서는 OLED 65인치 4K Smart TV에 대한 PSM 서베이 응답 200명을 자사 페르소나 DB와 매칭한 분석 결과이며, 핵심 가격 지표와 출시 전략을 함께 제시합니다.",
+    "keyFindings": [
+      "수용 가격 범위는 $1,328.95에서 $1,675.00 사이에 형성되고, 그 안에 최적 가격(OPP) $1,421.79가 자리잡아 65인치 OLED 게이밍·AI 수요층을 겨냥한 프리미엄 포지셔닝이 안정적으로 가능합니다.",
+      "OPP $1,421.79와 무관심 가격(IPP) $1,562.50 간 차이가 9.9%에 머물러, 소비자가 기능 차별화가 분명할 때 조금 더 지불할 의사가 있다는 가격 민감도를 보여줍니다.",
+      "소득·가격 인식 세그먼트별 '비쌈' 응답 평균이 $1,443에서 $1,875까지 벌어져 있어, 단일 가격보다 진입·메인·프리미엄 세 옵션으로 구성하는 편이 소비자 잉여를 흡수하기에 유리합니다.",
+      "정가는 IPP 부근 $1,599에 두고 카드 할인·번들로 실결제가를 OPP 수준 $1,449까지 내리는 두 트랙 전략으로, 표면상 프리미엄 인식과 실속 체감을 동시에 확보할 수 있습니다."
+    ]
+  },
+  "sections": [
+    {
+      "id": "product-brief",
+      "sectionName": "제품 정보 입력",
+      "componentType": "ProductBrief",
+      "data": {
+        "description": "PSM 분석은 아래 입력값을 기준으로 수행되며, 응답 페르소나 DB 매칭과 가격 곡선 시뮬레이션의 기반이 됩니다.",
+        "inputs": [
+          { "label": "신제품 카테고리", "value": "Electronics / Computers" },
+          { "label": "제품 유형", "value": "OLED 65인치 4K Smart TV" },
+          { "label": "예상 가격대 (USD)", "value": "$1,200 ~ $1,800" }
+        ],
+        "questionnaire": [
+          {
+            "question": "제품을 한 문장으로 설명해주세요. 핵심 기능이나 차별점에 초점을 맞춰주세요.",
+            "answer": "셀프-라이트 OLED 디스플레이, Dolby Vision IQ, 게이밍용 120Hz, AI 4K 업스케일링을 탑재한 65인치 TV입니다."
+          },
+          {
+            "question": "타겟 고객은 누구이며 어떤 문제를 겪고 있나요?",
+            "answer": "LCD 블루밍·모션 블러·제한된 스마트TV 생태계에 불만을 느끼는 홈 엔터테인먼트 마니아층입니다."
+          },
+          {
+            "question": "제품이 고객의 문제를 어떻게 해결하나요?",
+            "answer": "OLED의 완벽한 블랙 표현, 부드러운 120Hz 게이밍, AI 추천 기반 webOS 24로 해결합니다."
+          },
+          {
+            "question": "참고하고 싶은 경쟁 제품이 있다면 알려주세요.",
+            "answer": "Samsung 65-inch OLED 4K Smart TV"
+          }
+        ]
+      }
+    },
+    {
+      "id": "executive-summary",
+      "sectionName": "핵심 요약",
+      "headline": "수용 가격 범위 안에서 최적 가격(OPP)이 $1,421.79로 잡혀, 65인치 OLED 프리미엄 포지셔닝이 안정적으로 가능한 가격대입니다.",
+      "componentType": "ExecutiveSummary",
+      "data": {
+        "description": "본 보고서는 OLED 65인치 4K Smart TV에 대한 PSM 서베이 응답 200명을 자사 페르소나 DB와 매칭한 분석 결과이며, 핵심 가격 지표와 출시 전략을 함께 제시합니다.",
+        "keyFindings": [
+          "수용 가격 범위는 $1,328.95에서 $1,675.00 사이에 형성되고, 그 안에 최적 가격(OPP) $1,421.79가 자리잡아 65인치 OLED 게이밍·AI 수요층을 겨냥한 프리미엄 포지셔닝이 안정적으로 가능합니다.",
+          "OPP $1,421.79와 무관심 가격(IPP) $1,562.50 간 차이가 9.9%에 머물러, 소비자가 기능 차별화가 분명할 때 조금 더 지불할 의사가 있다는 가격 민감도를 보여줍니다.",
+          "소득·가격 인식 세그먼트별 '비쌈' 응답 평균이 $1,443에서 $1,875까지 벌어져 있어, 단일 가격보다 진입·메인·프리미엄 세 옵션으로 구성하는 편이 소비자 잉여를 흡수하기에 유리합니다.",
+          "정가는 IPP 부근 $1,599에 두고 카드 할인·번들로 실결제가를 OPP 수준 $1,449까지 내리는 두 트랙 전략으로, 표면상 프리미엄 인식과 실속 체감을 동시에 확보할 수 있습니다."
+        ]
+      }
+    },
+    {
+      "id": "persona-profile",
+      "sectionName": "페르소나 프로필",
+      "headline": "응답자 200명은 30-49세 남성 비중이 높고 가격 민감도는 2.9/5.0의 중간 수준이며, 정가보다 체감 가치에 반응하는 중상위 가구가 핵심 타겟입니다.",
+      "componentType": "PersonaProfile",
+      "data": {
+        "description": "PSM 서베이 응답자 200명을 자사 페르소나 DB와 매칭한 결과, 평균 월 소득 $6,268과 카테고리 예산 $1,175 수준의 중상위 가구가 OLED 프리미엄 라인의 핵심 코어 페르소나입니다.",
+        "donutCharts": [
+          {
+            "title": "성별 분포",
+            "highlightLabel": "남성 56%",
+            "segments": [
+              { "label": "남성", "value": 112, "percentage": 56, "color": "blue" },
+              { "label": "여성", "value": 88, "percentage": 44, "color": "green" }
+            ]
+          },
+          {
+            "title": "연령대 분포",
+            "highlightLabel": "30-49세 합 55%",
+            "segments": [
+              { "label": "20세 미만", "value": 4, "percentage": 2, "color": "blue" },
+              { "label": "20-29세", "value": 20, "percentage": 10, "color": "lightBlue" },
+              { "label": "30-39세", "value": 50, "percentage": 25, "color": "green" },
+              { "label": "40-49세", "value": 60, "percentage": 30, "color": "lightGreen" },
+              { "label": "50-59세", "value": 50, "percentage": 25, "color": "yellow" },
+              { "label": "60세 이상", "value": 16, "percentage": 8, "color": "gray" }
+            ]
+          },
+          {
+            "title": "구매 성향",
+            "highlightLabel": "가치 중시 60%",
+            "segments": [
+              { "label": "가치 중시", "value": 120, "percentage": 60, "color": "blue" },
+              { "label": "프리미엄 중시", "value": 80, "percentage": 40, "color": "green" }
+            ]
+          }
+        ],
+        "metricStats": [
+          {
+            "label": "표본 크기",
+            "value": "200",
+            "unit": "명"
+          },
+          {
+            "label": "월 평균 개인 소득",
+            "value": "$6,268",
+            "subtext": "최소 $2,700 ~ 최대 $12,000"
+          },
+          {
+            "label": "월 평균 카테고리 예산",
+            "value": "$1,175",
+            "subtext": "최소 $500 ~ 최대 $3,000"
+          },
+          {
+            "label": "가격 민감도",
+            "value": "2.9 / 5.0",
+            "subtext": "중간",
+            "levels": [
+              { "label": "낮음", "color": "green" },
+              { "label": "중간", "color": "yellow", "active": true },
+              { "label": "높음", "color": "red" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "psm-analysis",
+      "sectionName": "PSM 분석 결과",
+      "subSectionName": "PSM 가격-수요 곡선 기반 핵심 교차점",
+      "headline": "수용 가격 범위 $1,328.95에서 $1,675.00 구간이 IPP 대비 약 22.1% 폭으로 잡혀, 65인치 OLED 프리미엄 세그먼트가 너무 저렴하지도 과도하게 비싸지도 않은 실질적 플레이그라운드를 확보했습니다.",
+      "componentType": "PSMAnalysis",
+      "data": {
+        "description": "PSM의 4개 곡선(너무 저렴·저렴·비쌈·너무 비쌈) 교차점에서 도출된 PMC·OPP·IPP·PME를 기준으로 신제품의 수용 가격대와 권장 출시 가격을 분석합니다.",
+        "psmCurve": {
+          "xAxis": { "min": 900, "max": 2700, "step": 300, "unit": "USD" },
+          "yAxis": { "min": 0, "max": 100, "unit": "%" },
+          "lines": [
+            {
+              "label": "너무 저렴",
+              "color": "blue",
+              "points": [
+                { "x": 900, "y": 95 }, { "x": 1200, "y": 75 }, { "x": 1329, "y": 50 },
+                { "x": 1422, "y": 38 }, { "x": 1500, "y": 28 }, { "x": 1563, "y": 22 },
+                { "x": 1675, "y": 12 }, { "x": 1800, "y": 8 }, { "x": 2100, "y": 3 },
+                { "x": 2400, "y": 1 }, { "x": 2700, "y": 1 }
+              ]
+            },
+            {
+              "label": "저렴",
+              "color": "yellow",
+              "lineStyle": "dashed",
+              "points": [
+                { "x": 900, "y": 92 }, { "x": 1200, "y": 75 }, { "x": 1329, "y": 60 },
+                { "x": 1422, "y": 50 }, { "x": 1500, "y": 42 }, { "x": 1563, "y": 35 },
+                { "x": 1675, "y": 25 }, { "x": 1800, "y": 18 }, { "x": 2100, "y": 8 },
+                { "x": 2400, "y": 3 }, { "x": 2700, "y": 2 }
+              ]
+            },
+            {
+              "label": "비쌈",
+              "color": "purple",
+              "lineStyle": "dashed",
+              "points": [
+                { "x": 900, "y": 3 }, { "x": 1200, "y": 15 }, { "x": 1329, "y": 50 },
+                { "x": 1422, "y": 62 }, { "x": 1500, "y": 72 }, { "x": 1563, "y": 78 },
+                { "x": 1675, "y": 88 }, { "x": 1800, "y": 92 }, { "x": 2100, "y": 95 },
+                { "x": 2400, "y": 98 }, { "x": 2700, "y": 99 }
+              ]
+            },
+            {
+              "label": "너무 비쌈",
+              "color": "red",
+              "points": [
+                { "x": 900, "y": 1 }, { "x": 1200, "y": 5 }, { "x": 1329, "y": 12 },
+                { "x": 1422, "y": 38 }, { "x": 1500, "y": 50 }, { "x": 1563, "y": 60 },
+                { "x": 1675, "y": 75 }, { "x": 1800, "y": 82 }, { "x": 2100, "y": 88 },
+                { "x": 2400, "y": 92 }, { "x": 2700, "y": 95 }
+              ]
+            }
+          ]
+        },
+        "intersectionTable": {
+          "columns": [
+            { "key": "label", "label": "교차점" },
+            { "key": "definition", "label": "정의" },
+            { "key": "price", "label": "가격" }
+          ],
+          "rows": [
+            {
+              "label": "PMC",
+              "fullName": "최저 수용 한계점",
+              "definition": "최저 수용 가격. 이 아래에서는 품질이 의심됩니다.",
+              "price": "$1,328.95",
+              "dotColor": "blue"
+            },
+            {
+              "label": "OPP",
+              "fullName": "최적 가격점",
+              "definition": "저항이 가장 적은 최적 가격입니다.",
+              "price": "$1,421.79",
+              "dotColor": "yellow"
+            },
+            {
+              "label": "IPP",
+              "fullName": "무관심 가격점",
+              "definition": "강한 의견 없이 수용되는 가격입니다.",
+              "price": "$1,562.50",
+              "dotColor": "green"
+            },
+            {
+              "label": "PME",
+              "fullName": "최고 수용 한계점",
+              "definition": "최고 수용 가격. 이 위에서는 구매가 거부됩니다.",
+              "price": "$1,675.00",
+              "dotColor": "purple"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "pricing-strategy",
+      "sectionName": "가격 전략",
+      "subSectionName": "전략 인사이트",
+      "headline": "수용 가격 범위 상단에 가까운 IPP $1,562.50과 폭넓은 수용 폭을 활용해, 메인 라인은 프리미엄으로 두고 단기 침투는 한시 프로모션·번들로 흡수하는 분할 전략이 수익 극대화에 유리합니다.",
+      "componentType": "PricingStrategy",
+      "data": {
+        "description": "PMC에서 PME까지 약 $346 폭의 수용 가격 구간이 확보되어, 단일 정가보다 가격 인식 차이를 활용한 세그먼트별 차등 가격이 효과적입니다.",
+        "priceLadder": {
+          "points": [
+            { "label": "PMC", "value": "$1,328.95", "subtext": "최저 수용가", "color": "blue" },
+            { "label": "OPP", "value": "$1,421.79", "subtext": "최적 가격", "color": "yellow" },
+            { "label": "IPP", "value": "$1,562.50", "subtext": "무관심점", "color": "green" },
+            { "label": "PME", "value": "$1,675.00", "subtext": "최고 수용가", "color": "purple" }
+          ],
+          "leftZoneLabel": "← 품질 의심 구간",
+          "rightZoneLabel": "가격 저항 구간 →"
+        },
+        "insightCards": [
+          {
+            "icon": "info",
+            "label": "현재 가격 포지션",
+            "title": "OLED·게이밍·AI 업스케일링을 묶은 하이엔드 경험 포지셔닝을 유지할 수 있는지가 가격 설정의 기준이 됩니다.",
+            "description": "내부 벤치마크상 $1,500 안팎을 목표 가격대로 잡으면 '비쌈' 응답 비중이 약 22% 수준으로 통제되어 프리미엄 포지셔닝이 안정적으로 유지됩니다. 반대로 $1,300대 초반으로 내려가면 가격 매력은 올라가지만 하이엔드 인식이 약해져 브랜드 구축 단계에서 손해를 볼 가능성이 있습니다."
+          },
+          {
+            "icon": "strategy",
+            "label": "전략 방향",
+            "title": "메인 OLED 라인은 프리미엄 중심으로 고정하고 단기 침투는 가격 인하가 아닌 한시 프로모션·번들·할부 조건 강화로 대응합니다.",
+            "description": "PSM 구조상 OPP가 수용 가격 범위의 중하단이고 IPP가 그보다 약 9.9% 위에 있다는 사실은, 이 제품이 본질적으로 프리미엄 라인에 적합한 상품임을 보여줍니다. 콘텐츠 소비 시간이 긴 라이프스타일 페르소나에는 메인 라인 가격을 그대로 적용하고, 한시 패키지·번들로 OLED 진입 장벽을 낮추면 브랜드 피라미드 구축에도 유리합니다."
+          },
+          {
+            "icon": "warning",
+            "label": "가격 저항 구간",
+            "title": "$1,675(PME) 구간은 정가로 두더라도 실결제 체감가는 그 아래로 떨어뜨려야 하는 가격 저항 벨트로 보아야 안전합니다.",
+            "description": "실무적으로는 정가·소비자가를 $1,599에서 $1,649 사이에 두고 카드 할인·무이자·사은품을 통해 실결제가가 $1,500 안팎으로 내려가도록 설계하면, 표면상 프리미엄 이미지는 유지하면서 실결제 부담을 효과적으로 낮출 수 있습니다. IPP 이상 구간에서는 한시 특가나 멤버십 프로모션 형태로 결제 부담을 낮추면 수요를 특정 시점에 집중시킬 수 있습니다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "price-range-options",
+      "sectionName": "가격대별 옵션",
+      "headline": "PMC·OPP·PME를 축으로 진입·메인·프리미엄 세 옵션을 설계하면 서로 다른 가격 인식과 소득 세그먼트를 가격 차별로 포괄하면서도 전체 브랜드는 일관된 프리미엄 이미지를 유지할 수 있습니다.",
+      "componentType": "PriceRangeOptions",
+      "data": {
+        "description": "각 옵션은 PSM 교차점을 기준으로 설계해 진입은 PMC 부근, 메인은 OPP·IPP 사이, 프리미엄은 PME 직전에 위치하도록 정렬했습니다.",
+        "options": [
+          {
+            "label": "저가 전략",
+            "price": "$1,329",
+            "anchor": "PMC 기준 가격",
+            "color": "gray",
+            "description": "PMC 부근에 위치한 진입 라인으로, OLED 구매를 망설이는 가격 민감 LCD 사용자에게 OLED 전환 부담을 낮춰주는 진입 장벽 해소 옵션으로 활용할 수 있습니다."
+          },
+          {
+            "label": "균형 전략",
+            "price": "$1,499",
+            "anchor": "OPP·IPP 중간점",
+            "color": "green",
+            "description": "OPP와 IPP 사이 균형점에 위치한 메인 라인으로, 온·오프라인 채널과 리뷰 평점을 활용해 안정적인 매출 볼륨을 만드는 데 적합합니다."
+          },
+          {
+            "label": "프리미엄 전략",
+            "price": "$1,649",
+            "anchor": "PME 인접 가격",
+            "color": "blue",
+            "description": "PME 직전에 위치한 프리미엄 라인으로, 한정 수량·특별 에디션·번들 등을 결합해 브랜드 상단의 격을 단단하게 만드는 역할을 맡기에 적합합니다."
+          }
+        ]
+      }
+    }
+  ]
+}

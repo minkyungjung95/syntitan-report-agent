@@ -131,7 +131,7 @@ export function Legend({ items, gap, direction = "column", dotSize = 10 }) {
 //    - padAngle 0 (간격 없음), 호버 시 해당 슬라이스만 cornerRadius + 흰 stroke
 //    - 나머지 슬라이스 opacity 0.2
 // ═══════════════════════════════════════════════════════════════════════
-export function DonutChart({ data, title, size = 180, legendPosition = "right", hideValues = false }) {
+export function DonutChart({ data, title, size = 180, legendPosition = "right", hideValues = false, hideLegend = false }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   const [hoverActive, setHoverActive] = useState(false);
   const isBottom = legendPosition === "bottom";
@@ -199,30 +199,32 @@ export function DonutChart({ data, title, size = 180, legendPosition = "right", 
             )}
           />
         </div>
-        <div style={{
-          display: "flex",
-          flexDirection: isBottom ? "row" : "column",
-          flexWrap: isBottom ? "wrap" : "nowrap",
-          justifyContent: isBottom ? "center" : "flex-start",
-          gap: isBottom ? "8px 20px" : 10,
-          minWidth: 0,
-        }}>
-          {data.map((d, i) => (
-            <div key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
-              {d.hatched ? (
-                <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` }} />
-              ) : (
-                <LegendDot color={donutColors[i]} />
-              )}
-              <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800 }}>{d.id}</span>
-              {d.count != null && (
-                <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>
-                  ({d.count.toLocaleString()}원)
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+        {!hideLegend && (
+          <div style={{
+            display: "flex",
+            flexDirection: isBottom ? "row" : "column",
+            flexWrap: isBottom ? "wrap" : "nowrap",
+            justifyContent: isBottom ? "center" : "flex-start",
+            gap: isBottom ? "8px 20px" : 10,
+            minWidth: 0,
+          }}>
+            {data.map((d, i) => (
+              <div key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
+                {d.hatched ? (
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, background: `repeating-linear-gradient(45deg, ${GRAY100}, ${GRAY100} 2px, ${GRAY200} 2px, ${GRAY200} 4px)` }} />
+                ) : (
+                  <LegendDot color={donutColors[i]} />
+                )}
+                <span style={{ fontSize: 14, fontWeight: 400, color: GRAY800 }}>{d.id}</span>
+                {d.count != null && (
+                  <span style={{ fontSize: 13, fontWeight: 400, color: GRAY800 }}>
+                    ({d.count.toLocaleString()}원)
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -632,7 +634,7 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuf
         borderLeft: `1px solid ${GRAY200}`, padding: "4px 12px 4px 0",
         position: "relative", height: 48,
       }}>
-        <div style={{ flex: 1, minWidth: 0, position: "relative", height: 40 }}>
+        <div style={{ flex: 1, minWidth: 0, position: "relative", height: 40, display: "flex", alignItems: "center" }}>
           <div style={{
             width: `${Math.max(pct, 0.5)}%`, height: 40,
             background: displayColor,
@@ -641,15 +643,21 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuf
             display: valueInside ? "flex" : "block",
             alignItems: valueInside ? "center" : undefined,
             justifyContent: valueInside ? "flex-end" : undefined,
-            paddingRight: valueInside ? 12 : undefined,
+            paddingRight: valueInside && pct > 20 ? 12 : undefined,
             boxSizing: "border-box",
+            flexShrink: 0,
           }}>
-            {valueInside && pct > 5 && (
+            {valueInside && pct > 20 && (
               <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "20px", color: insideTextColor, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
                 {displayValue}{valueSuffix}{count != null ? ` (${count.toLocaleString()})` : ""}
               </span>
             )}
           </div>
+          {valueInside && pct <= 20 && (
+            <span style={{ marginLeft: 8, fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990, fontFamily: "Pretendard, sans-serif", whiteSpace: "nowrap" }}>
+              {displayValue}{valueSuffix}{count != null ? ` (${count.toLocaleString()})` : ""}
+            </span>
+          )}
           {hovered && pct > 0 && (
             <div style={{
               position: "absolute", top: 0, left: 0,
@@ -3326,6 +3334,116 @@ export function ComboChart({
           );
         })()}
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// NORMAL DISTRIBUTION / ANOMALY DETECTION CHART
+//   - 가우시안 종 곡선 + σ 구간(zone) 강조 — 이상치(anomaly) 분포 시각화
+//   - x축은 σ 단위(-sigmaRange ~ +sigmaRange)
+//   - zones: [{ from, to, label, color }] — from/to 는 σ 단위 경계
+//   - anomalyThreshold(σ) 경계 점선 표시 (선택)
+// ═══════════════════════════════════════════════════════════════════════
+export function NormalDistributionChart({
+  title,
+  zones = [],
+  sigmaRange = 4,
+  ticks,
+  anomalyThreshold,
+  width = 640,
+  height = 280,
+  curveColor = "#FB2C36",
+  style,
+}) {
+  const PAD = { top: 24, right: 32, bottom: 36, left: 32 };
+  const W = width;
+  const H = height;
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const tickValues = ticks || Array.from({ length: sigmaRange * 2 + 1 }, (_, i) => i - sigmaRange);
+
+  // 표준 정규분포 밀도 (μ=0, σ=1): f(x) = (1/√(2π)) * exp(-x²/2)
+  const phi = (x) => Math.exp(-(x * x) / 2) / Math.sqrt(2 * Math.PI);
+  const yMax = phi(0); // ≈ 0.3989
+  const xToPx = (x) => PAD.left + ((x + sigmaRange) / (sigmaRange * 2)) * plotW;
+  const yToPx = (y) => PAD.top + plotH - (y / yMax) * plotH * 0.9; // 곡선 상단 여백 10%
+
+  // 곡선 폴리라인 포인트 (1000 step)
+  const STEPS = 200;
+  const curvePts = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const x = -sigmaRange + (i / STEPS) * (sigmaRange * 2);
+    curvePts.push([xToPx(x), yToPx(phi(x))]);
+  }
+  const curvePath = curvePts.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
+
+  // zone path: from~to 사이 곡선 + baseline 으로 닫힌 영역
+  const zonePath = (from, to) => {
+    const segments = [];
+    const startIdx = Math.max(0, Math.round(((from + sigmaRange) / (sigmaRange * 2)) * STEPS));
+    const endIdx = Math.min(STEPS, Math.round(((to + sigmaRange) / (sigmaRange * 2)) * STEPS));
+    segments.push(`M ${xToPx(from)} ${PAD.top + plotH}`);
+    for (let i = startIdx; i <= endIdx; i++) {
+      segments.push(`L ${curvePts[i][0]} ${curvePts[i][1]}`);
+    }
+    segments.push(`L ${xToPx(to)} ${PAD.top + plotH}`);
+    segments.push("Z");
+    return segments.join(" ");
+  };
+
+  // 각 zone 의 중간 σ 위치에 라벨 표시
+  const zoneLabel = (z) => {
+    const mid = (z.from + z.to) / 2;
+    const midPxX = xToPx(mid);
+    const labelY = yToPx(phi(mid)) + 12; // 곡선 살짝 아래
+    return { x: midPxX, y: Math.min(labelY, PAD.top + plotH - 8), text: z.label };
+  };
+
+  return (
+    <div style={{ fontFamily: "Pretendard, sans-serif", ...style }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center", marginBottom: 16 }}>{title}</div>}
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: "block", margin: "0 auto" }}>
+        {/* baseline */}
+        <line x1={PAD.left} y1={PAD.top + plotH} x2={W - PAD.right} y2={PAD.top + plotH} stroke={GRAY200} strokeWidth={1} />
+
+        {/* zones */}
+        {zones.map((z, i) => (
+          <path key={i} d={zonePath(z.from, z.to)} fill={z.color || "#8EC5FF"} fillOpacity={0.7} />
+        ))}
+
+        {/* anomaly threshold lines (점선) */}
+        {anomalyThreshold != null && (
+          <>
+            <line x1={xToPx(-anomalyThreshold)} y1={PAD.top} x2={xToPx(-anomalyThreshold)} y2={PAD.top + plotH} stroke={GRAY500} strokeWidth={1} strokeDasharray="4 4" />
+            <line x1={xToPx(anomalyThreshold)} y1={PAD.top} x2={xToPx(anomalyThreshold)} y2={PAD.top + plotH} stroke={GRAY500} strokeWidth={1} strokeDasharray="4 4" />
+          </>
+        )}
+
+        {/* 곡선 */}
+        <path d={curvePath} fill="none" stroke={curveColor} strokeWidth={2} />
+
+        {/* x축 tick */}
+        {tickValues.map((t) => (
+          <g key={t}>
+            <line x1={xToPx(t)} y1={PAD.top + plotH} x2={xToPx(t)} y2={PAD.top + plotH + 4} stroke={GRAY500} strokeWidth={1} />
+            <text x={xToPx(t)} y={PAD.top + plotH + 20} textAnchor="middle" fontSize={12} fill={GRAY800}>
+              {t === 0 ? "0σ" : `${t > 0 ? "+" : ""}${t}σ`}
+            </text>
+          </g>
+        ))}
+
+        {/* zone 내 % 라벨 */}
+        {zones.map((z, i) => {
+          const lbl = zoneLabel(z);
+          return (
+            <text key={`l${i}`} x={lbl.x} y={lbl.y} textAnchor="middle" fontSize={13} fontWeight={600} fill={GRAY990}>
+              {lbl.text}
+            </text>
+          );
+        })}
+      </svg>
     </div>
   );
 }

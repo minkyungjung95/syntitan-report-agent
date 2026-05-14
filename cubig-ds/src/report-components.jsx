@@ -409,7 +409,7 @@ export function UserCard({
   // quote 타입: 사람 얼굴 아이콘 (Material face) — 공통 사용
   const Icon = icon || (isQuote
     ? <FaceIcon size={24} color={T.gray700} />
-    : <IdentityPlatformIcon size={24} color={T.gray800} />);
+    : <IdentityPlatformOutlineIcon size={24} color={T.gray800} />);
   // quote 타입 아바타 배경 — 통일 (gray25 + 테두리)
   const avatarBg = isQuote ? T.gray25 : T.gray50;
   const IconContainer = (
@@ -955,14 +955,25 @@ export function HorizontalBarChart({ items = [], style }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function ClusterHeader({ badge, name, description, icon, style }) {
+  const resolvedIcon = icon === undefined
+    ? <IdentityPlatformOutlineIcon size={28} color={T.gray800} />
+    : icon;
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 16, padding: 24, fontFamily: F, ...style }}>
-      {badge && <div style={{ marginBottom: 8 }}><Badge type="Solid" variant={badge.variant || "Cautionary"} size="Small" text={badge.text} /></div>}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {icon && <div style={{ width: 40, height: 40, borderRadius: 8, background: T.gray100, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 24, fontFamily: F, ...style }}>
+      {badge && (
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, lineHeight: "26px", color: T.gray990 }}>{name}</div>
-          {description && <div style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray900, marginTop: 4 }}>{description}</div>}
+          <Badge type={badge.type || "Solid"} variant={badge.variant || "Info"} size="Small" text={badge.text} />
+        </div>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        {resolvedIcon && (
+          <div style={{ width: 56, height: 56, borderRadius: 12, background: T.gray50, border: `1px solid ${T.gray200}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            {resolvedIcon}
+          </div>
+        )}
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{name}</div>
+          {description && <div style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray800, marginTop: 4 }}>{description}</div>}
         </div>
       </div>
     </div>
@@ -1066,30 +1077,36 @@ export function SignalCard({ number, title, items = [], alert, alertVariant = "C
   );
 }
 
-export function ScenarioCard({ title, badge, metrics = [], color = CHART_COLORS[0], footer, style }) {
+// ScenarioCard — 시나리오 카드 (뱃지 + metrics + 비례 막대 그래프 + 푸터 라벨)
+// barRatio: 0~1 사이 값으로 막대 채움 비율 결정. 채워지지 않은 상단은 해치 패턴.
+export function ScenarioCard({ title, badge, metrics = [], color = CHART_COLORS[0], footer, barRatio = 0.7, barHeight = 220, style }) {
+  const ratio = Math.max(0, Math.min(1, barRatio));
   return (
     <div style={{
       flex: "1 1 calc(33.33% - 12px)", minWidth: 240,
-      border: `1px solid ${T.gray200}`,
-      borderRadius: 12,
+      borderRadius: 16,
       overflow: "hidden",
       fontFamily: F,
       textAlign: "center",
+      background: T.white,
       ...style,
     }}>
-      <div style={{ padding: "16px 20px" }}>
-        {badge && <div style={{ marginBottom: 8 }}><Badge type="Outline" variant="Primary" size="Small" text={badge} /></div>}
+      <div style={{ padding: "24px 20px 16px" }}>
+        {badge && <div style={{ marginBottom: 16 }}><Badge type="Solid" variant="Secondary" size="Small" text={badge} /></div>}
         {metrics.map((m, i) => (
           <div key={i} style={{ marginBottom: 4 }}>
-            <span style={{ fontSize: 13, color: T.gray800 }}>{m.label}: </span>
-            <span style={{ fontSize: 14, fontWeight: m.bold ? 700 : 500, color: T.gray990 }}>{m.value}</span>
+            <span style={{ fontSize: 14, fontWeight: m.bold ? 700 : 400, color: m.bold ? T.gray990 : T.gray800 }}>
+              {m.label}: <span style={{ fontWeight: m.bold ? 700 : 500, color: T.gray990 }}>{m.value}</span>
+            </span>
           </div>
         ))}
       </div>
-      <div style={{ height: 100, margin: "0 24px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-        <div style={{ height: "70%", background: color, borderRadius: "4px 4px 0 0", opacity: 0.85 }} />
+      <div style={{ height: barHeight, margin: "12px 32px 16px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+        {ratio > 0 && (
+          <div style={{ height: `${ratio * 100}%`, background: color, borderRadius: "8px 8px 0 0" }} />
+        )}
       </div>
-      {footer && <div style={{ padding: "12px 16px", fontSize: 13, fontWeight: 500, color: T.gray800 }}>{footer}</div>}
+      {footer && <div style={{ padding: "0 16px 24px", fontSize: 14, fontWeight: 400, color: T.gray800 }}>{footer}</div>}
     </div>
   );
 }
@@ -1369,89 +1386,64 @@ export function StrategyRoadmapHorizontal({ periods = [], style, title }) {
       fontFamily: F,
       ...style,
     }}>
-      {/* ── 1. 가로 타임라인 (라인 가운데, 위 뱃지 / 아래 기간) ── */}
-      <div style={{ ...innerCard, padding: "28px 0" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {/* 위: 뱃지 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 0 }}>
-            {periods.map((period, pi) => {
-              const stage = stageMap[period.badge] || stageMap["중기"];
-              return (
-                <div key={pi} style={{ display: "flex", justifyContent: "center" }}>
-                  <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />
-                </div>
-              );
-            })}
-          </div>
-          {/* 가운데: 가로 라인 + 도트 */}
-          <div style={{ position: "relative", height: 16 }}>
-            <div style={{ position: "absolute", top: "50%", left: `calc(50% / ${N})`, right: `calc(50% / ${N})`, height: 1, background: T.gray200, transform: "translateY(-50%)" }} />
-            <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)` }}>
-              {periods.map((period, pi) => {
+      {/* 가로 타임라인 영역은 제거됨 — 액션 카드 그리드만 노출 */}
+
+      {/* ── 액션 카드 그리드 — 2D 그리드로 같은 행은 같은 높이 정렬 (단계별 컬럼 × maxRows 행) ── */}
+      {(() => {
+        const maxRows = Math.max(...periods.map((p) => (p.rows || []).length), 1);
+        return (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${maxRows}, 1fr)`,
+            gap: 8,
+            alignItems: "stretch",
+          }}>
+            {periods.flatMap((period, pi) => (
+              (period.rows || []).map((row, ri) => {
                 const stage = stageMap[period.badge] || stageMap["중기"];
                 return (
-                  <div key={pi} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: stage.dot, boxShadow: `0 0 0 3px ${T.white}` }} />
+                  <div key={`${pi}-${ri}`} style={{
+                    ...innerCard,
+                    padding: 20,
+                    display: "flex", flexDirection: "column", gap: 16,
+                    gridColumn: pi + 1,
+                    gridRow: ri + 1,
+                  }}>
+                    {/* 상단: 뱃지 */}
+                    <div>
+                      <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />
+                    </div>
+                    {/* 제목 + 부제 */}
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: T.gray990, lineHeight: "22px", letterSpacing: "-0.3px", marginBottom: row.objective ? 4 : 0 }}>
+                        {row.strategy}
+                      </div>
+                      {row.objective && (
+                        <div style={{ fontSize: 13, color: T.gray800, lineHeight: "19px", letterSpacing: "-0.2px" }}>
+                          {row.objective}
+                        </div>
+                      )}
+                    </div>
+                    {/* divider */}
+                    <div style={{ height: 1, background: T.gray100 }} />
+                    {/* 액션 */}
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: T.gray800, marginBottom: 6, letterSpacing: "-0.2px" }}>액션</div>
+                      {renderBullets(row.actionPlan)}
+                    </div>
+                    {/* 임팩트 — 액션과 동일한 라벨 컬러 */}
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: T.gray800, marginBottom: 6, letterSpacing: "-0.2px" }}>임팩트</div>
+                      {renderBullets(row.expectedImpact)}
+                    </div>
                   </div>
                 );
-              })}
-            </div>
-          </div>
-          {/* 아래: 기간 */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 0 }}>
-            {periods.map((period, pi) => (
-              <div key={pi} style={{ display: "flex", justifyContent: "center" }}>
-                {period.period && (
-                  <span style={{ fontSize: 12, color: T.gray800, lineHeight: "18px", letterSpacing: "-0.2px" }}>{period.period}</span>
-                )}
-              </div>
+              })
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* ── 3. 액션 카드 그리드 — 단계별 컬럼 (같은 단계는 위아래로 쌓임, 컬럼 높이 통일) ── */}
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`, gap: 8, alignItems: "stretch" }}>
-        {periods.map((period, pi) => (
-          <div key={pi} style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
-            {period.rows.map((row, ri) => {
-              const stage = stageMap[period.badge] || stageMap["중기"];
-              const isLast = ri === period.rows.length - 1;
-              return (
-                <div key={ri} style={{ ...innerCard, padding: 20, display: "flex", flexDirection: "column", gap: 16, ...(isLast ? { flex: 1 } : {}) }}>
-              {/* 상단: 뱃지 */}
-              <div>
-                <Badge type="Solid" variant={stage.badgeVariant} size="Small" text={period.badge} />
-              </div>
-              {/* 제목 + 부제 */}
-              <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: T.gray990, lineHeight: "22px", letterSpacing: "-0.3px", marginBottom: row.objective ? 4 : 0 }}>
-                  {row.strategy}
-                </div>
-                {row.objective && (
-                  <div style={{ fontSize: 13, color: T.gray800, lineHeight: "19px", letterSpacing: "-0.2px" }}>
-                    {row.objective}
-                  </div>
-                )}
-              </div>
-              {/* divider */}
-              <div style={{ height: 1, background: T.gray100 }} />
-              {/* 액션 */}
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: T.gray800, marginBottom: 6, letterSpacing: "-0.2px" }}>액션</div>
-                {renderBullets(row.actionPlan)}
-              </div>
-              {/* 임팩트 — ACCENT 컬러로 강조 */}
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: ACCENT, marginBottom: 6, letterSpacing: "-0.2px" }}>임팩트</div>
-                {renderBullets(row.expectedImpact)}
-              </div>
-            </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+        );
+      })()}
     </div>
   );
 }

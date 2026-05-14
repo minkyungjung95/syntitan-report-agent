@@ -1,0 +1,1316 @@
+{
+  "PageWrapper": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ReportPage": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "SectionHeading": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "overline",
+      "title",
+      "description",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ReportSection": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "gap",
+      "style"
+    ],
+    "defaults": {
+      "gap": "24"
+    }
+  },
+  "ContentHeader": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "overline",
+      "title",
+      "description",
+      "actions",
+      "badges",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "SectionCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ContentCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "padding",
+      "style"
+    ],
+    "defaults": {
+      "padding": "0"
+    }
+  },
+  "InsightContent": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "layout",
+      "icon",
+      "header",
+      "title",
+      "description",
+      "label",
+      "value",
+      "items",
+      "wrap",
+      "style"
+    ],
+    "defaults": {
+      "layout": "\"vertical\"",
+      "wrap": "true"
+    }
+  },
+  "ContentArea": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "wrap",
+      "gap",
+      "style"
+    ],
+    "defaults": {
+      "wrap": "true",
+      "gap": "8"
+    }
+  },
+  "Divider": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "spacing",
+      "vertical",
+      "color",
+      "style"
+    ],
+    "defaults": {
+      "spacing": "0",
+      "vertical": "false",
+      "color": "T.gray200"
+    }
+  },
+  "SectionTitle": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "description",
+      "titleSize",
+      "style"
+    ],
+    "defaults": {
+      "titleSize": "28"
+    }
+  },
+  "CardTitle": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "size",
+      "style"
+    ],
+    "defaults": {
+      "size": "18"
+    }
+  },
+  "QuestionTitle": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "number",
+      "text",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "InfoCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "label",
+      "value",
+      "suffix",
+      "description",
+      "variant",
+      "size",
+      "icon",
+      "style"
+    ],
+    "defaults": {
+      "variant": "\"solid\"",
+      "size": "\"lg\""
+    }
+  },
+  "InfoCardRow": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ScoreCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "label",
+      "score",
+      "total",
+      "variant",
+      "style"
+    ],
+    "defaults": {
+      "total": "10",
+      "variant": "\"solid\""
+    }
+  },
+  "MetricCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "label",
+      "value",
+      "change",
+      "changeLabel",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "InvestmentCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "PersonaCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "name",
+      "subtitle",
+      "metrics",
+      "icon",
+      "style"
+    ],
+    "defaults": {
+      "metrics": "[]"
+    }
+  },
+  "UserCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "type",
+      "icon",
+      "name",
+      "subtitle",
+      "subtitleColor",
+      "badge",
+      "description",
+      "quote",
+      "sentiment",
+      "reverse",
+      "details",
+      "stats",
+      "buttonLabel",
+      "onButtonClick",
+      "style"
+    ],
+    "defaults": {
+      "type": "\"simple\"",
+      "reverse": "false",
+      "details": "[]",
+      "stats": "[]",
+      "buttonLabel": "\"View Detail\""
+    }
+  },
+  "PersonaSummaryCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "name",
+      "trait",
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "MiniStatGrid": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "columns",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]",
+      "columns": "2"
+    }
+  },
+  "GrowthCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "label",
+      "amount",
+      "color",
+      "percentage",
+      "style"
+    ],
+    "defaults": {
+      "color": "CHART_COLORS[0]",
+      "percentage": "100"
+    }
+  },
+  "TextBlock": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "icon",
+      "children",
+      "items",
+      "bordered",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]",
+      "bordered": "true"
+    }
+  },
+  "KeyFindings": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "props"
+    ],
+    "defaults": {}
+  },
+  "Interpretation": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "props"
+    ],
+    "defaults": {}
+  },
+  "DataTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "columns",
+      "data",
+      "style"
+    ],
+    "defaults": {
+      "columns": "[]",
+      "data": "[]"
+    }
+  },
+  "QATable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "columns",
+      "rows",
+      "bordered",
+      "style"
+    ],
+    "defaults": {
+      "columns": "[\"Question\", \"Answer\"]",
+      "rows": "[]",
+      "bordered": "true"
+    }
+  },
+  "GroupedTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "columns",
+      "groups",
+      "style"
+    ],
+    "defaults": {
+      "columns": "[]",
+      "groups": "[]"
+    }
+  },
+  "DefinitionTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "PriceRangeBar": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "points",
+      "leftZone",
+      "rightZone",
+      "style"
+    ],
+    "defaults": {
+      "points": "[]"
+    }
+  },
+  "ROIComparisonChart": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "HorizontalBarChart": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "ClusterHeader": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "badge",
+      "name",
+      "description",
+      "icon",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "StatRowGroup": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "StatRow": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "label",
+      "value",
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "SignalCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "number",
+      "title",
+      "items",
+      "alert",
+      "alertVariant",
+      "variant",
+      "badgePrefix",
+      "badgeVariant: badgeVariantOverride",
+      "bordered",
+      "showDivider",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]",
+      "alertVariant": "\"Cautionary\"",
+      "badgePrefix": "\"Insight\"",
+      "bordered": "true",
+      "showDivider": "true"
+    }
+  },
+  "ScenarioCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "badge",
+      "metrics",
+      "color",
+      "footer",
+      "barRatio",
+      "barHeight",
+      "style"
+    ],
+    "defaults": {
+      "metrics": "[]",
+      "color": "CHART_COLORS[0]",
+      "barRatio": "0.7",
+      "barHeight": "220"
+    }
+  },
+  "ScenarioComparisonCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "scenarios",
+      "style"
+    ],
+    "defaults": {
+      "scenarios": "[]"
+    }
+  },
+  "InsightCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "icon",
+      "title",
+      "children",
+      "items",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "StrategyCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "badge",
+      "price",
+      "priceLabel",
+      "children",
+      "bordered",
+      "style"
+    ],
+    "defaults": {
+      "bordered": "true"
+    }
+  },
+  "RespondentCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "name",
+      "profile",
+      "response",
+      "onViewDetail",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "StrategyRoadmapTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "periods",
+      "style"
+    ],
+    "defaults": {
+      "periods": "[]"
+    }
+  },
+  "StrategyRoadmapHorizontal": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "periods",
+      "style",
+      "title"
+    ],
+    "defaults": {
+      "periods": "[]"
+    }
+  },
+  "ActionList": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "TaskItem": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "priority",
+      "items",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]"
+    }
+  },
+  "AlertBanner": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "message",
+      "variant",
+      "style"
+    ],
+    "defaults": {
+      "variant": "\"Negative\""
+    }
+  },
+  "LegendTag": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "color",
+      "label",
+      "value",
+      "count",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "WeekTabs": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "weeks",
+      "activeWeek",
+      "onChange",
+      "style"
+    ],
+    "defaults": {
+      "weeks": "4",
+      "activeWeek": "1"
+    }
+  },
+  "ExpectedResultsGrid": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "items",
+      "columns",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]",
+      "columns": "2"
+    }
+  },
+  "ExecutiveSummaryCard": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "summaryItems",
+      "findings",
+      "style"
+    ],
+    "defaults": {
+      "title": "\"Executive Summary\"",
+      "summaryItems": "[]"
+    }
+  },
+  "ExecutionRoadmap": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "subtitle",
+      "weeks",
+      "style"
+    ],
+    "defaults": {
+      "weeks": "[]"
+    }
+  },
+  "WeeklyPlanTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "weeks",
+      "columns",
+      "style"
+    ],
+    "defaults": {
+      "weeks": "[]",
+      "columns": "[\"Owner\", \"Define\", \"Output\"]"
+    }
+  },
+  "ClusterProfileTable": {
+    "source": "report-components.jsx",
+    "category": "report",
+    "props": [
+      "title",
+      "data"
+    ],
+    "defaults": {}
+  },
+  "Legend": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "items",
+      "gap",
+      "direction",
+      "dotSize"
+    ],
+    "defaults": {
+      "direction": "\"column\"",
+      "dotSize": "10"
+    }
+  },
+  "DonutChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "size",
+      "legendPosition",
+      "hideValues",
+      "hideLegend"
+    ],
+    "defaults": {
+      "size": "180",
+      "legendPosition": "\"right\"",
+      "hideValues": "false",
+      "hideLegend": "false"
+    }
+  },
+  "PieChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "size",
+      "showInnerLabels",
+      "hideValues",
+      "legendPosition"
+    ],
+    "defaults": {
+      "size": "180",
+      "showInnerLabels": "false",
+      "hideValues": "false",
+      "legendPosition": "\"right\""
+    }
+  },
+  "SemiDonutChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "size"
+    ],
+    "defaults": {
+      "size": "320"
+    }
+  },
+  "HBarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "maxValue",
+      "valueInside",
+      "minRows",
+      "variant",
+      "valueSuffix",
+      "valueFormat"
+    ],
+    "defaults": {
+      "valueInside": "false",
+      "minRows": "0",
+      "variant": "\"default\"",
+      "valueSuffix": "\"%\""
+    }
+  },
+  "VBarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "keys",
+      "indexBy",
+      "title",
+      "groupMode",
+      "layout",
+      "stacked",
+      "valueFormat",
+      "height",
+      "colors",
+      "hideLegend"
+    ],
+    "defaults": {
+      "indexBy": "\"label\"",
+      "groupMode": "\"grouped\"",
+      "layout": "\"vertical\"",
+      "stacked": "false",
+      "height": "320",
+      "hideLegend": "false"
+    }
+  },
+  "StackedHBar": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "keys",
+      "indexBy",
+      "title",
+      "colors"
+    ],
+    "defaults": {
+      "indexBy": "\"label\""
+    }
+  },
+  "LineChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "enableArea",
+      "curve",
+      "variant",
+      "valuePrefix",
+      "valueSuffix",
+      "badgeFormatter",
+      "badgeLabel",
+      "disableTooltip",
+      "disableBadge",
+      "yMin: yMinOverride",
+      "yMax: yMaxOverride",
+      "tickStep",
+      "metricType"
+    ],
+    "defaults": {
+      "enableArea": "true",
+      "curve": "\"monotoneX\"",
+      "variant": "\"blue\"",
+      "valuePrefix": "\"\"",
+      "valueSuffix": "\"\"",
+      "disableTooltip": "false",
+      "disableBadge": "false"
+    }
+  },
+  "MultiLineChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "curve",
+      "height",
+      "colors",
+      "valueFormat"
+    ],
+    "defaults": {
+      "curve": "\"linear\"",
+      "height": "280"
+    }
+  },
+  "LabeledLineChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "subtitle",
+      "series",
+      "categories",
+      "highlightFirst",
+      "height: chartH",
+      "annotations"
+    ],
+    "defaults": {
+      "highlightFirst": "false",
+      "height: chartH": "260"
+    }
+  },
+  "FlowTable": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "subtitle",
+      "groups",
+      "data",
+      "columns",
+      "style"
+    ],
+    "defaults": {
+      "groups": "[]",
+      "data": "[]",
+      "columns": "{ left: \"사용해 본 기능\", right: \"사용 중인 기능\" }"
+    }
+  },
+  "QuadrantChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "subtitle",
+      "xAxis",
+      "yAxis",
+      "quadrants",
+      "footnote",
+      "style"
+    ],
+    "defaults": {
+      "xAxis": "{ label: \"X Axis\", low: \"Low\", high: \"High\" }",
+      "yAxis": "{ label: \"Y Axis\", low: \"Low\", high: \"High\" }",
+      "quadrants": "[]"
+    }
+  },
+  "GroupedBarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "keys",
+      "indexBy",
+      "title",
+      "subtitle",
+      "stacked",
+      "layout",
+      "colors",
+      "showValueLabels",
+      "valueSuffix",
+      "groupTooltip"
+    ],
+    "defaults": {
+      "indexBy": "\"label\"",
+      "stacked": "false",
+      "layout": "\"vertical\"",
+      "showValueLabels": "true",
+      "valueSuffix": "\"\"",
+      "groupTooltip": "false"
+    }
+  },
+  "DivergingBarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "valueSuffix",
+      "colors",
+      "height"
+    ],
+    "defaults": {
+      "valueSuffix": "\"%\"",
+      "colors": "{ detractor: \"#FF6467\", neutral: \"#E6E7E9\", promoter: \"#7CCF00\" }",
+      "height": "380"
+    }
+  },
+  "KPITrendCard": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "subtitle",
+      "value",
+      "delta",
+      "data",
+      "variant",
+      "suffix",
+      "style"
+    ],
+    "defaults": {
+      "variant": "\"blue\"",
+      "suffix": "\"\""
+    }
+  },
+  "TimelineBarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "valueSuffix",
+      "height",
+      "colors"
+    ],
+    "defaults": {
+      "valueSuffix": "\"\"",
+      "height": "340",
+      "colors": "{\n    past:     { bar: \"#E6E7E9\", bg: \"transparent\",            tagText: \"\""
+    }
+  },
+  "RadarChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "keys",
+      "indexBy",
+      "title",
+      "color"
+    ],
+    "defaults": {
+      "indexBy": "\"category\"",
+      "color": "\"#2B7FFF\""
+    }
+  },
+  "PSMChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "data",
+      "title",
+      "intersections: manualPts",
+      "height"
+    ],
+    "defaults": {
+      "height": "480"
+    }
+  },
+  "FunnelChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "steps",
+      "height: chartHeight",
+      "groupLabel",
+      "style"
+    ],
+    "defaults": {
+      "steps": "[]",
+      "height: chartHeight": "440",
+      "groupLabel": "\"전환\""
+    }
+  },
+  "ComboChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "data",
+      "barKey",
+      "lineKey",
+      "barLabel",
+      "lineLabel",
+      "barAxisLabel",
+      "lineAxisLabel",
+      "barColor",
+      "lineColor",
+      "height: chartHeight",
+      "style"
+    ],
+    "defaults": {
+      "data": "[]",
+      "barKey": "\"bar\"",
+      "lineKey": "\"line\"",
+      "barLabel": "\"bar\"",
+      "lineLabel": "\"line\"",
+      "height: chartHeight": "420"
+    }
+  },
+  "NormalDistributionChart": {
+    "source": "charts.jsx",
+    "category": "chart",
+    "props": [
+      "title",
+      "zones",
+      "sigmaRange",
+      "ticks",
+      "anomalyThreshold",
+      "width",
+      "height",
+      "curveColor",
+      "style"
+    ],
+    "defaults": {
+      "zones": "[]",
+      "sigmaRange": "4",
+      "width": "640",
+      "height": "280",
+      "curveColor": "\"#FB2C36\""
+    }
+  },
+  "Btn": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "variant",
+      "size",
+      "radius",
+      "disabled",
+      "icon",
+      "children",
+      "onClick",
+      "style:extStyle"
+    ],
+    "defaults": {
+      "variant": "\"solid-primary\"",
+      "size": "\"lg\"",
+      "radius": "\"sm\"",
+      "disabled": "false",
+      "icon": "false"
+    }
+  },
+  "Badge": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "type",
+      "variant",
+      "size",
+      "radius",
+      "text",
+      "leadingIcon",
+      "trailingIcon"
+    ],
+    "defaults": {
+      "type": "\"Solid\"",
+      "variant": "\"Primary\"",
+      "size": "\"Medium\"",
+      "radius": "\"Small\"",
+      "text": "\"텍스트\"",
+      "leadingIcon": "false",
+      "trailingIcon": "false"
+    }
+  },
+  "Callout": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "variant",
+      "size",
+      "title",
+      "description",
+      "showDesc",
+      "showIcon",
+      "width"
+    ],
+    "defaults": {
+      "variant": "\"Primary\"",
+      "size": "\"Medium\"",
+      "title": "\"텍스트를 입력해 주세요.\"",
+      "description": "\"안내 텍스트를 입력해 주세요.\"",
+      "showDesc": "true",
+      "showIcon": "true",
+      "width": "240"
+    }
+  },
+  "Chip": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "type",
+      "size",
+      "disabled",
+      "active",
+      "label",
+      "showTrailing",
+      "onClick"
+    ],
+    "defaults": {
+      "type": "\"Solid\"",
+      "size": "\"Medium\"",
+      "disabled": "false",
+      "active": "false",
+      "label": "\"텍스트\"",
+      "showTrailing": "false"
+    }
+  },
+  "TabBar": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "tabs",
+      "activeIndex",
+      "onChange"
+    ],
+    "defaults": {}
+  },
+  "ChipTabs": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "tabs",
+      "activeIndex",
+      "onChange",
+      "size",
+      "type"
+    ],
+    "defaults": {
+      "size": "\"Medium\"",
+      "type": "\"Solid\""
+    }
+  },
+  "SegmentedControl": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "items",
+      "activeIndex",
+      "onChange",
+      "size",
+      "style"
+    ],
+    "defaults": {
+      "items": "[]",
+      "activeIndex": "0",
+      "size": "\"md\""
+    }
+  },
+  "Modal": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "open",
+      "onClose",
+      "title",
+      "description",
+      "children",
+      "onConfirm",
+      "confirmLabel",
+      "cancelLabel",
+      "size",
+      "width",
+      "showFooter",
+      "closeOnBackdrop",
+      "actionType",
+      "buttonLayout",
+      "buttonAlignment",
+      "divider",
+      "bodyStyle",
+      "style"
+    ],
+    "defaults": {
+      "confirmLabel": "\"확인\"",
+      "cancelLabel": "\"취소\"",
+      "size": "\"sm\"",
+      "showFooter": "true",
+      "closeOnBackdrop": "true",
+      "actionType": "\"dual\"",
+      "buttonLayout": "\"hug\"",
+      "buttonAlignment": "\"end\"",
+      "divider": "false"
+    }
+  },
+  "ModalUserCard": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "icon",
+      "name",
+      "subtitle",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ModalField": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "label",
+      "children",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ModalStat": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "label",
+      "value",
+      "unit",
+      "style"
+    ],
+    "defaults": {}
+  },
+  "ModalGrid": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "columns",
+      "gap",
+      "children",
+      "style"
+    ],
+    "defaults": {
+      "columns": "2",
+      "gap": "8"
+    }
+  },
+  "Tooltip": {
+    "source": "ui-components.jsx",
+    "category": "ui",
+    "props": [
+      "children",
+      "content",
+      "title",
+      "description",
+      "shortcut",
+      "image",
+      "imageHeight",
+      "placement",
+      "variant",
+      "open: controlledOpen",
+      "style"
+    ],
+    "defaults": {
+      "imageHeight": "126",
+      "variant": "\"dark\""
+    }
+  }
+}

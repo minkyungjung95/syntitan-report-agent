@@ -1,0 +1,229 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="Pretendard, -apple-system, sans-serif">
+  <!-- Background -->
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+
+  <!-- Title -->
+  <text x="800" y="60" text-anchor="middle" font-size="28" font-weight="700" fill="#171719">CUBIG Design System · Reports Portfolio</text>
+  <text x="800" y="88" text-anchor="middle" font-size="14" fill="#7B7E85">JSON-spec 기반 컴포넌트 시스템으로 7종 리포트 생성</text>
+
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#0F0F10" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- ─── Card 1: Coupang Review ─── -->
+  <g transform="translate(40, 130)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#FEE2E2"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#C10007">Review</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">쿠팡 캐리어 리뷰</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">긍정/부정 분포 + 영역별 언급률</text>
+    <!-- mini donut -->
+    <g transform="translate(80, 160)">
+      <circle r="48" fill="none" stroke="#E6E7E9" stroke-width="18"/>
+      <path d="M 0 -48 A 48 48 0 0 1 41.6 24 L 0 0 Z" fill="#FB2C36"/>
+      <path d="M 41.6 24 A 48 48 0 0 1 -41.6 24 L 0 0 Z" fill="#7CCF00"/>
+    </g>
+    <!-- mini bars -->
+    <g transform="translate(200, 130)">
+      <rect x="0" y="40" width="120" height="10" rx="2" fill="#FB2C36"/>
+      <rect x="0" y="60" width="90" height="10" rx="2" fill="#FB2C36" opacity="0.7"/>
+      <rect x="0" y="80" width="65" height="10" rx="2" fill="#FB2C36" opacity="0.5"/>
+      <rect x="0" y="100" width="40" height="10" rx="2" fill="#C5C6CA"/>
+    </g>
+    <!-- table strip -->
+    <rect x="20" y="270" width="320" height="50" rx="8" fill="#F7F8FA"/>
+    <line x1="20" y1="290" x2="340" y2="290" stroke="#E6E7E9"/>
+    <line x1="100" y1="270" x2="100" y2="320" stroke="#E6E7E9"/>
+    <line x1="200" y1="270" x2="200" y2="320" stroke="#E6E7E9"/>
+  </g>
+
+  <!-- ─── Card 2: ChatGPT Review ─── -->
+  <g transform="translate(420, 130)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#FEE2E2"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#C10007">Review</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">ChatGPT 앱 리뷰</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">긍부정 양분 + 부정 심층 분석</text>
+    <!-- diverging bar -->
+    <g transform="translate(20, 130)">
+      <line x1="160" y1="0" x2="160" y2="130" stroke="#C5C6CA" stroke-dasharray="2 2"/>
+      <rect x="80" y="10" width="80" height="14" rx="2" fill="#FB2C36"/>
+      <rect x="160" y="10" width="50" height="14" rx="2" fill="#7CCF00"/>
+      <rect x="100" y="34" width="60" height="14" rx="2" fill="#FB2C36"/>
+      <rect x="160" y="34" width="90" height="14" rx="2" fill="#7CCF00"/>
+      <rect x="110" y="58" width="50" height="14" rx="2" fill="#FB2C36"/>
+      <rect x="160" y="58" width="120" height="14" rx="2" fill="#7CCF00"/>
+      <rect x="50" y="82" width="110" height="14" rx="2" fill="#FB2C36"/>
+      <rect x="160" y="82" width="40" height="14" rx="2" fill="#7CCF00"/>
+    </g>
+    <rect x="20" y="270" width="320" height="50" rx="8" fill="#F7F8FA"/>
+    <line x1="20" y1="290" x2="340" y2="290" stroke="#E6E7E9"/>
+  </g>
+
+  <!-- ─── Card 3: CS Ticket ─── -->
+  <g transform="translate(800, 130)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#FEF3C6"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#A65F00">Operations</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">CS 티켓 분석</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">카테고리·채널별 분포 + 추세</text>
+    <!-- line chart -->
+    <g transform="translate(20, 120)">
+      <polyline points="0,80 60,60 120,70 180,40 240,30 300,15" fill="none" stroke="#2B7FFF" stroke-width="2.5"/>
+      <polyline points="0,80 60,60 120,70 180,40 240,30 300,15 300,100 0,100" fill="#2B7FFF" fill-opacity="0.1"/>
+      <line x1="0" y1="100" x2="320" y2="100" stroke="#E6E7E9"/>
+    </g>
+    <!-- bars -->
+    <g transform="translate(20, 240)">
+      <rect x="0" y="20" width="60" height="40" rx="4" fill="#2B7FFF"/>
+      <rect x="80" y="35" width="60" height="25" rx="4" fill="#2B7FFF" opacity="0.7"/>
+      <rect x="160" y="10" width="60" height="50" rx="4" fill="#FB2C36"/>
+      <rect x="240" y="40" width="60" height="20" rx="4" fill="#C5C6CA"/>
+      <line x1="0" y1="60" x2="310" y2="60" stroke="#E6E7E9"/>
+    </g>
+  </g>
+
+  <!-- ─── Card 4: Ad Performance (CPA) ─── -->
+  <g transform="translate(1180, 130)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#F0FDF4"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#16803D">Marketing</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">광고 성과 (CPA)</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">매체별 효율 + 캠페인 ROAS 무</text>
+    <!-- donut -->
+    <g transform="translate(80, 170)">
+      <circle r="48" fill="none" stroke="#E6E7E9" stroke-width="18"/>
+      <path d="M 0 -48 A 48 48 0 0 1 47 -10 L 0 0 Z" fill="#2B7FFF"/>
+      <path d="M 47 -10 A 48 48 0 0 1 10 47 L 0 0 Z" fill="#7CCF00"/>
+      <path d="M 10 47 A 48 48 0 0 1 -47 -10 L 0 0 Z" fill="#8EC5FF"/>
+    </g>
+    <!-- multi-line -->
+    <g transform="translate(190, 140)">
+      <polyline points="0,80 35,60 70,70 105,40 140,55" fill="none" stroke="#2B7FFF" stroke-width="2"/>
+      <polyline points="0,90 35,75 70,80 105,60 140,75" fill="none" stroke="#7CCF00" stroke-width="2"/>
+      <polyline points="0,70 35,75 70,55 105,70 140,40" fill="none" stroke="#FB2C36" stroke-width="2"/>
+      <line x1="0" y1="100" x2="150" y2="100" stroke="#E6E7E9"/>
+    </g>
+    <rect x="20" y="270" width="320" height="50" rx="8" fill="#F7F8FA"/>
+  </g>
+
+  <!-- ─── Card 5: Ad ROAS ─── -->
+  <g transform="translate(40, 500)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#F0FDF4"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#16803D">Marketing</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">광고 ROAS</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">매출 기여 + 매체 비교</text>
+    <!-- grouped bars -->
+    <g transform="translate(20, 130)">
+      <rect x="0" y="60" width="30" height="40" rx="2" fill="#2B7FFF"/>
+      <rect x="35" y="40" width="30" height="60" rx="2" fill="#7CCF00"/>
+      <rect x="80" y="50" width="30" height="50" rx="2" fill="#2B7FFF"/>
+      <rect x="115" y="30" width="30" height="70" rx="2" fill="#7CCF00"/>
+      <rect x="160" y="70" width="30" height="30" rx="2" fill="#2B7FFF"/>
+      <rect x="195" y="55" width="30" height="45" rx="2" fill="#7CCF00"/>
+      <rect x="240" y="80" width="30" height="20" rx="2" fill="#2B7FFF"/>
+      <rect x="275" y="65" width="30" height="35" rx="2" fill="#7CCF00"/>
+      <line x1="0" y1="100" x2="310" y2="100" stroke="#E6E7E9"/>
+    </g>
+    <!-- table strip -->
+    <g transform="translate(20, 250)">
+      <rect width="320" height="70" rx="8" fill="#F7F8FA"/>
+      <line x1="0" y1="22" x2="320" y2="22" stroke="#E6E7E9"/>
+      <line x1="0" y1="46" x2="320" y2="46" stroke="#E6E7E9"/>
+      <line x1="100" y1="0" x2="100" y2="70" stroke="#E6E7E9"/>
+      <line x1="200" y1="0" x2="200" y2="70" stroke="#E6E7E9"/>
+    </g>
+  </g>
+
+  <!-- ─── Card 6: Churn Prediction ─── -->
+  <g transform="translate(420, 500)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#FEE2E2"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#C10007">Negative Case</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">이탈 예측 (Churn)</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">군집·신호·전략·매출 시나리오</text>
+    <!-- donut + vbar -->
+    <g transform="translate(70, 170)">
+      <circle r="42" fill="none" stroke="#E6E7E9" stroke-width="16"/>
+      <path d="M 0 -42 A 42 42 0 0 1 36.4 20 L 0 0 Z" fill="#2B7FFF"/>
+      <path d="M 36.4 20 A 42 42 0 0 1 -36.4 20 L 0 0 Z" fill="#7CCF00"/>
+      <path d="M -36.4 20 A 42 42 0 0 1 0 -42 L 0 0 Z" fill="#8EC5FF"/>
+    </g>
+    <g transform="translate(180, 130)">
+      <rect x="0" y="40" width="40" height="80" rx="4" fill="#2B7FFF"/>
+      <rect x="50" y="20" width="40" height="100" rx="4" fill="#7CCF00"/>
+      <rect x="100" y="90" width="40" height="30" rx="4" fill="#8EC5FF"/>
+      <line x1="0" y1="120" x2="150" y2="120" stroke="#E6E7E9"/>
+    </g>
+    <!-- mini StrategyTable -->
+    <g transform="translate(20, 270)">
+      <rect width="320" height="50" rx="8" fill="#F7F8FA"/>
+      <rect x="8" y="8" width="40" height="14" rx="7" fill="#FB2C36"/>
+      <rect x="8" y="28" width="40" height="14" rx="7" fill="#FDC700"/>
+      <line x1="60" y1="0" x2="60" y2="50" stroke="#E6E7E9"/>
+      <line x1="180" y1="0" x2="180" y2="50" stroke="#E6E7E9"/>
+    </g>
+  </g>
+
+  <!-- ─── Card 7: Persona Survey ─── -->
+  <g transform="translate(800, 500)">
+    <rect width="360" height="340" rx="16" fill="#FFFFFF" stroke="#E6E7E9" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#EFF6FF"/>
+    <text x="60" y="34" text-anchor="middle" font-size="11" font-weight="500" fill="#2B7FFF">Survey</text>
+    <text x="20" y="68" font-size="16" font-weight="700" fill="#171719">페르소나 서베이</text>
+    <text x="20" y="88" font-size="12" fill="#7B7E85">5K 가상 응답자 + 질문 분석</text>
+    <!-- 2 donuts -->
+    <g transform="translate(60, 170)">
+      <circle r="36" fill="none" stroke="#E6E7E9" stroke-width="14"/>
+      <path d="M 0 -36 A 36 36 0 0 1 31 18 L 0 0 Z" fill="#2B7FFF"/>
+      <path d="M 31 18 A 36 36 0 0 1 -31 18 L 0 0 Z" fill="#7CCF00"/>
+    </g>
+    <g transform="translate(170, 170)">
+      <circle r="36" fill="none" stroke="#E6E7E9" stroke-width="14"/>
+      <path d="M 0 -36 A 36 36 0 1 1 -10 35 L 0 0 Z" fill="#2B7FFF"/>
+      <path d="M -10 35 A 36 36 0 0 1 0 -36 L 0 0 Z" fill="#7CCF00"/>
+    </g>
+    <!-- HBar (survey) -->
+    <g transform="translate(240, 130)">
+      <rect x="0" y="30" width="90" height="10" rx="2" fill="#2B7FFF"/>
+      <rect x="0" y="50" width="70" height="10" rx="2" fill="#7CCF00"/>
+      <rect x="0" y="70" width="40" height="10" rx="2" fill="#C5C6CA"/>
+      <rect x="0" y="90" width="25" height="10" rx="2" fill="#C5C6CA"/>
+    </g>
+    <!-- respondent cards -->
+    <g transform="translate(20, 260)">
+      <rect width="155" height="60" rx="8" fill="#F7F8FA" stroke="#E6E7E9"/>
+      <circle cx="22" cy="22" r="12" fill="#E6E7E9"/>
+      <rect x="42" y="14" width="80" height="6" rx="3" fill="#7B7E85"/>
+      <rect x="42" y="26" width="60" height="4" rx="2" fill="#C5C6CA"/>
+      <rect x="8" y="42" width="140" height="12" rx="6" fill="#171719"/>
+      <text x="78" y="51" text-anchor="middle" font-size="9" fill="#FFFFFF">View Detail</text>
+    </g>
+    <g transform="translate(185, 260)">
+      <rect width="155" height="60" rx="8" fill="#F7F8FA" stroke="#E6E7E9"/>
+      <circle cx="22" cy="22" r="12" fill="#E6E7E9"/>
+      <rect x="42" y="14" width="80" height="6" rx="3" fill="#7B7E85"/>
+      <rect x="42" y="26" width="60" height="4" rx="2" fill="#C5C6CA"/>
+      <rect x="8" y="42" width="140" height="12" rx="6" fill="#171719"/>
+      <text x="78" y="51" text-anchor="middle" font-size="9" fill="#FFFFFF">View Detail</text>
+    </g>
+  </g>
+
+  <!-- ─── Card 8: 시스템 요약 (Tagline) ─── -->
+  <g transform="translate(1180, 500)">
+    <rect width="360" height="340" rx="16" fill="#171719"/>
+    <text x="180" y="100" text-anchor="middle" font-size="14" fill="#B6B8BD">CUBIG Design System</text>
+    <text x="180" y="140" text-anchor="middle" font-size="22" font-weight="700" fill="#FFFFFF">88 Components</text>
+    <text x="180" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#FFFFFF">19 Charts</text>
+    <text x="180" y="204" text-anchor="middle" font-size="22" font-weight="700" fill="#FFFFFF">7 Reports</text>
+    <line x1="80" y1="230" x2="280" y2="230" stroke="#3A3A3D"/>
+    <text x="180" y="262" text-anchor="middle" font-size="12" fill="#7B7E85">JSON → Component → Validate</text>
+    <text x="180" y="282" text-anchor="middle" font-size="12" fill="#7B7E85">스펙 기반 자동 생성 파이프라인</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="800" y="880" text-anchor="middle" font-size="11" fill="#7B7E85">cubig-ds · React + Vite · @nivo/charts · public/json/*.json + src/*-report.jsx</text>
+</svg>

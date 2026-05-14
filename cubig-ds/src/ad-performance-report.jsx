@@ -4,7 +4,7 @@ import {
   StrategyCard,
   SignalCard,
   DataTable,
-  StrategyRoadmapHorizontal,
+  StrategyRoadmapTable,
 } from "./report-components";
 import { DonutChart, MultiLineChart, VBarChart, CHART_COLORS } from "./charts";
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
@@ -26,7 +26,7 @@ import { Btn, Badge } from "./ui-components.jsx";
  *
  *  데이터 소스: 인라인 데이터 (원본: public/json/광고성과분석 1.json)
  *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
- *                SignalCard / StrategyCard / StrategyRoadmapHorizontal /
+ *                SignalCard / StrategyCard / StrategyRoadmapTable /
  *                DonutChart / MultiLineChart / VBarChart / DataTable
  * ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -347,7 +347,9 @@ export default function AdPerformanceReport() {
             description="비효율은 두 군데에서 나오고 있습니다. 카카오는 매체·캠페인 모두 지표가 가장 낮고, 메타는 CTR이 4주 내내 내려갔습니다. 가장 먼저 카카오 캠페인 2개를 정리해 얻은 약 335만 원을 이미 효율이 확인된 구글 디스플레이 리마케팅으로 일단 옮기고, 메타 브랜드인지 영상 소재를 교체합니다. 이어서 네이버 브랜드 키워드 구조를 정비하고, 길게는 매체별 비중을 다시 조정해 구글에 집중된 59.9%를 45%까지 낮춥니다."
           />
           <ReportSection>
-            <StrategyRoadmapHorizontal periods={[
+            <SectionCard>
+              <ContentCard padding={0}>
+                <StrategyRoadmapTable periods={[
                   {
                     badge: "즉시", period: "1주 이내",
                     rows: [
@@ -388,6 +390,8 @@ export default function AdPerformanceReport() {
                     ],
                   },
                 ]} />
+              </ContentCard>
+            </SectionCard>
           </ReportSection>
         </div>
 

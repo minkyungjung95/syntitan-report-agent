@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "agentId": "churn-prediction",
+    "agentName": "고객 이탈 예측",
+    "reportTitle": "Churn Prediction · Global SVOD New Subscribers",
+    "reportSubtitle": "Identify at-risk subscribers from behavioral signals, predict churn, and recommend retention actions.",
+    "domain": "Global SVOD Streaming",
+    "sourceFile": "voc_data.csv",
+    "version": "4",
+    "createdAt": "2026-05-12T09:00:00.000Z"
+  },
+  "executiveSummary": {
+    "headline": "신규 가입자 60,000명 중 절반 이상의 이탈이 한 편도 완주하지 못한 데서 시작되며, 18-29세 가입자 군집을 중심으로 즉각적인 리텐션 개입이 필요합니다.",
+    "description": "본 보고서는 2025년 6월부터 2026년 4월까지 약 11개월간 수집된 신규 가입자 60,000명의 시청 행동 데이터를 기반으로, 이탈 예측과 군집 분석 결과를 종합하여 제시합니다.",
+    "keyFindings": [
+      "가입 첫 주에 한 편이라도 완주하지 못한 가입자가 서비스에 정착하는 데 실패하는 가장 결정적인 단계이며, 이 단계를 넘기지 못한 가입자의 86%가 결국 구독을 취소합니다.",
+      "18-29세 신규 가입자는 콘텐츠 탐색 욕구가 가장 강하지만 이탈 위험에는 가장 크게 노출되어 있어, 60,000명 중 24,000명이 이 군집에 속하며 이탈률 86.8%를 기록합니다.",
+      "마지막 시청 이후 4-5일이 지나면 다음 접속이 끊어지는 비율이 급격히 상승하며, 이 기간이 이탈을 막을 수 있는 마지막 골든타임입니다.",
+      "가입 첫 주 안에 첫 완주를 유도하는 온보딩 큐레이션 강화와 4일 이상 미접속 가입자에게 맞춤 추천을 전송하는 두 트랙으로 매출 방어 효과를 기대할 수 있습니다."
+    ]
+  },
+  "sections": [
+    {
+      "id": "executive-summary",
+      "sectionName": "Executive Summary",
+      "headline": "신규 가입자가 한 편도 완주하지 못하는 현상이 모든 군집에 공통으로 작용하는 가장 강력한 이탈 신호입니다.",
+      "componentType": "ExecutiveSummary",
+      "data": {
+        "description": "본 보고서는 2025년 6월부터 2026년 4월까지 약 11개월간 수집된 신규 가입자 60,000명의 시청 행동 데이터를 기반으로, 이탈 예측과 군집 분석 결과를 종합하여 제시합니다.",
+        "keyFindings": [
+          "가입 첫 주에 한 편이라도 완주하지 못한 가입자가 서비스에 정착하는 데 실패하는 가장 결정적인 단계이며, 이 단계를 넘기지 못한 가입자의 86%가 결국 구독을 취소합니다.",
+          "18-29세 신규 가입자는 콘텐츠 탐색 욕구가 가장 강하지만 이탈 위험에는 가장 크게 노출되어 있어, 60,000명 중 24,000명이 이 군집에 속하며 이탈률 86.8%를 기록합니다.",
+          "마지막 시청 이후 4-5일이 지나면 다음 접속이 끊어지는 비율이 급격히 상승하며, 이 기간이 이탈을 막을 수 있는 마지막 골든타임입니다.",
+          "가입 첫 주 안에 첫 완주를 유도하는 온보딩 큐레이션 강화와 4일 이상 미접속 가입자에게 맞춤 추천을 전송하는 두 트랙으로 매출 방어 효과를 기대할 수 있습니다."
+        ],
+        "atRiskCount": 32000,
+        "totalCustomers": 60000,
+        "overallChurnRate": 53.3
+      }
+    },
+    {
+      "id": "cluster-overview",
+      "sectionName": "Cluster Overview",
+      "headline": "한 편도 완주하지 못할 경우 이탈률이 86%까지 치솟으며, 단순 탐색이 시청 완주로 이어지지 못한 채 대다수 가입자가 이탈하는 패턴이 모든 군집에 공통으로 작용합니다.",
+      "componentType": "ClusterOverview",
+      "data": {
+        "description": "신규 가입자 60,000명을 시청 행동 패턴 기준으로 3개 군집으로 분류한 결과, 이탈률은 군집별로 18.5%에서 91.9%까지 분포하며 첫 완주 경험 여부가 군집 간 차이를 가르는 핵심 변수입니다.",
+        "donutChart": {
+          "title": "Cluster Distribution",
+          "highlightLabel": "18-29세 신규 가입자",
+          "highlightValue": "40.0% (24,000명)",
+          "segments": [
+            { "label": "18-29세 신규 가입자", "value": 24000, "percentage": 40.0, "color": "blue" },
+            { "label": "단일 시리즈 폭주 30대 남성 시청자", "value": 8000, "percentage": 13.3, "color": "green" },
+            { "label": "30-49세 정착 가입자", "value": 28000, "percentage": 46.7, "color": "lightBlue" }
+          ]
+        },
+        "barChart": {
+          "title": "Period Avg Churn Rate",
+          "yMax": 100,
+          "yUnit": "%",
+          "highlightLabel": "30-49세 정착 가입자 이탈률 18.5%",
+          "bars": [
+            { "label": "18-29세 신규 가입자", "value": 86.8, "color": "blue" },
+            { "label": "단일 시리즈 폭주 30대 남성 시청자", "value": 91.9, "color": "green" },
+            { "label": "30-49세 정착 가입자", "value": 18.5, "color": "lightBlue" }
+          ]
+        },
+        "comparisonTable": {
+          "columns": [
+            { "key": "metric", "label": "" },
+            { "key": "cluster1", "label": "18-29세 신규 가입자", "dotColor": "blue" },
+            { "key": "cluster2", "label": "단일 시리즈 폭주 30대 남성 시청자", "dotColor": "green" },
+            { "key": "cluster3", "label": "30-49세 정착 가입자", "dotColor": "lightBlue" }
+          ],
+          "rows": [
+            { "metric": "Cluster distribution", "cluster1": "40.0% (24,000명)", "cluster2": "13.3% (8,000명)", "cluster3": "46.7% (28,000명)" },
+            { "metric": "Average churn rate", "cluster1": "86.8%", "cluster2": "91.9%", "cluster3": "18.5%" },
+            { "metric": "Cluster summary", "cluster1": "1인 평균 시청 세션 20.2회", "cluster2": "1인 평균 시청 세션 22.2회", "cluster3": "1인 평균 시청 세션 28.6회" },
+            { "metric": "Main issue", "cluster1": "시청 세션 간 평균 간격 5.25일", "cluster2": "시청 세션 간 평균 간격 3.9일", "cluster3": "시청 세션 간 평균 간격 4.16일" },
+            { "metric": "CRM Strategy", "cluster1": "한 편도 완주하지 못한 채 시청이 오래 끊어집니다.", "cluster2": "단일 시리즈를 폭주 시청한 직후 이탈하므로 즉시 재유치가 필요합니다.", "cluster3": "정착 후 안정적으로 시청하므로 충성도 강화가 효과적입니다." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "high-risk-deep-dive",
+      "sectionName": "High-Risk Cluster Deep Dive",
+      "headline": "전체 신규 가입자 중 40%를 차지하는 18-29세 신규 가입자 군집이 이탈률 86.8%로 가장 시급한 리텐션 개입 대상입니다.",
+      "componentType": "HighRiskDeepDive",
+      "data": {
+        "description": "18-29세 신규 가입자 군집은 가입 직후 콘텐츠 탐색은 활발하지만 첫 완주 단계를 넘기지 못한 채 이탈하는 패턴이 두드러져, 리텐션을 개선하면 가장 큰 매출 방어 효과를 기대할 수 있는 집단입니다.",
+        "clusterBadge": {
+          "label": "High-Risk Cluster",
+          "color": "red"
+        },
+        "clusterName": "18-29세 신규 가입자",
+        "clusterSummary": "이 군집은 가입 직후 가장 활발하게 콘텐츠를 탐색하지만 한 편도 완주하지 못한 채 이탈하는 층으로, 리텐션 개선을 위해 가장 먼저 집중해야 할 타겟입니다.",
+        "metrics": [
+          {
+            "label": "고위험 가입자 수",
+            "value": "24,000",
+            "unit": "명",
+            "bullets": [
+              "전체 신규 가입자의 약 40%를 차지하는 대규모 이탈 위험군으로, 가입자 기반 안정성에 직접적인 영향을 미칩니다.",
+              "24,000명 규모이므로 전체 60,000명 코호트에서 가장 큰 비중을 차지합니다.",
+              "대규모 군집인 만큼 군집 특성에 맞춘 큐레이션 전략을 설계하는 것이 효과적입니다."
+            ]
+          },
+          {
+            "label": "1인당 평균 시청 세션 수",
+            "value": "20.2",
+            "unit": "회",
+            "bullets": [
+              "중간 수준의 시청 활동량으로 초기 관심은 있으나 습관적 시청 단계로 진입하지 못하고 있습니다.",
+              "20.2회는 중간 범위에 해당하며, 무료 체험 종료 시점에 이탈할 가능성이 큽니다.",
+              "탐색은 발생하지만 한 편도 완주하지 못하므로, 추천 콘텐츠 큐레이션을 강화해야 합니다."
+            ]
+          },
+          {
+            "label": "시청 세션 간 평균 간격",
+            "value": "5.25",
+            "unit": "일",
+            "bullets": [
+              "주 1회 이하의 시청 빈도로 이탈 가능성이 높아지는 구간입니다.",
+              "전체 평균보다 17.8%p 길어 재접속 주기가 늦어지고 있습니다.",
+              "재접속 빈도를 끌어올리기 위한 신규 콘텐츠 알림과 개인화 추천 전략이 필요합니다."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "signal-cards",
+      "sectionName": "Churn Risk: Signals & Impact",
+      "headline": "마지막 시청 이후 4-5일 이내 다음 접속이 끊어지는 시점이 가입자가 서비스를 떠나기 직전의 위험 신호이며, 이 기간이 이탈을 막을 수 있는 마지막 골든타임입니다.",
+      "componentType": "SignalCard",
+      "data": {
+        "description": "고위험 군집을 정의하는 행동 신호 세 가지를 도출했으며, 각 신호는 구독 취소 직전 단계에서 공통적으로 보이는 변화이므로 즉시 재시청 알림이나 온보딩 큐레이션 강화가 필요합니다.",
+        "items": [
+          {
+            "signalLabel": "Signal 1",
+            "signalName": "미접속일수 증가",
+            "featureCode": "days_inactive",
+            "bullets": [
+              "미접속일수가 평균 19.4일로 전체 평균보다 약 2배 깁니다.",
+              "7일 시점에 전체 이탈의 약 30%가 발생하므로, 60일에 도달하기 전 단계별 재시청 알림으로 전환해야 합니다."
+            ],
+            "warning": "장기간 재접속을 유도할 유인이 부족하고, 기존 채널의 추천이 반복적으로 실패하고 있습니다.",
+            "badge": "Signal 1",
+            "badgeColor": "gray"
+          },
+          {
+            "signalLabel": "Signal 2",
+            "signalName": "시청 세션 수 감소",
+            "featureCode": "total_sessions",
+            "bullets": [
+              "시청 세션 수가 평균 6.25회로 전체 평균보다 낮고, 군집 평균은 5.84회입니다.",
+              "시청 임계 수준을 회복하기 위한 추가 리타게팅과 혜택을 강조하는 알림이 필요합니다."
+            ],
+            "warning": "최근 시청 경험이 부족하고, 신규 콘텐츠 알림 전달이 약합니다.",
+            "badge": "Signal 2",
+            "badgeColor": "gray"
+          },
+          {
+            "signalLabel": "Signal 3",
+            "signalName": "첫 콘텐츠 완주 저조",
+            "featureCode": "first_title_completion",
+            "bullets": [
+              "첫 콘텐츠 완주 도달률이 6.22%에 그쳐, 첫 세션 안에 완주 유도 단계를 강화하거나 명확한 CTA를 제공해야 합니다."
+            ],
+            "warning": "활성화 전환을 유도할 UI와 CTA가 부족하거나, 콘텐츠 가치 전달이 약합니다.",
+            "badge": "Signal 3",
+            "badgeColor": "gray"
+          }
+        ],
+        "trendChart": {
+          "title": "Churn Rate Trend",
+          "yMax": 100,
+          "yMin": 70,
+          "yUnit": "%",
+          "highlightPoint": { "x": "2025-12", "label": "이탈률 90%", "badge": "이탈 가속화 시점" },
+          "points": [
+            { "x": "2025-10", "y": 70 },
+            { "x": "2025-11", "y": 78 },
+            { "x": "2025-12", "y": 90 },
+            { "x": "2026-01", "y": 93 },
+            { "x": "2026-02", "y": 96 }
+          ]
+        },
+        "projection": {
+          "label": "Projected Churn Rate",
+          "text": "동일한 추세가 지속되면 3개월 뒤 이탈률이 95%에 도달하고, 6개월 안에 군집 잔존 가입자가 0에 수렴할 가능성이 큽니다."
+        }
+      }
+    },
+    {
+      "id": "strategy-table",
+      "sectionName": "Strategy & Execution Plan",
+      "subSectionName": "CRM Strategy",
+      "headline": "가입 첫 주 안에 첫 완주를 유도하는 온보딩 큐레이션 강화와 4일 이상 미접속 가입자에게 맞춤 추천을 보내 재접속을 유도하는 두 트랙을 핵심 실행 방향으로 제시합니다.",
+      "componentType": "StrategyTable",
+      "data": {
+        "description": "단기·중기·중장기 3단계로 구성된 실행 계획이며, 각 단계는 실행 즉시 측정할 수 있는 효과와 명확한 책임 트랙을 가지도록 설계했습니다.",
+        "columns": [
+          { "key": "strategy", "label": "Strategy" },
+          { "key": "objective", "label": "Objective" },
+          { "key": "actionPlan", "label": "Action Plan" },
+          { "key": "expectedImpact", "label": "Expected Impact" }
+        ],
+        "phases": [
+          {
+            "phase": "Immediate",
+            "phaseLabel": "within 1 week",
+            "phaseBadge": "blue",
+            "rows": [
+              {
+                "strategy": "긴급 재유치 캠페인",
+                "objective": "가입 후 7일간 미시청인 가입자가 첫 완주를 경험하도록 유도한다.",
+                "actionPlan": "개인화 푸시와 이메일로 가입자 취향 기반의 단편 콘텐츠 추천을 발송한다.",
+                "expectedImpact": "재시청 전환율을 20%p 이상 끌어올린다."
+              },
+              {
+                "strategy": "온보딩 큐레이션 재설계",
+                "objective": "가입 첫 세션에서 첫 완주에 도달하는 비율을 끌어올린다.",
+                "actionPlan": "홈 화면 상단에 30분 이하로 완주 가능한 콘텐츠 큐레이션 모듈을 도입한다.",
+                "expectedImpact": "첫 완주 도달률을 2배 이상 끌어올린다."
+              }
+            ]
+          },
+          {
+            "phase": "Short-term",
+            "phaseLabel": "within 1 month",
+            "phaseBadge": "blue",
+            "rows": [
+              {
+                "strategy": "장기 미시청 알림 시스템 도입",
+                "objective": "시청 간격이 4일을 넘으면 자동으로 리마인드 알림을 보낸다.",
+                "actionPlan": "앱 푸시와 이메일을 다채널로 묶어 신작·추천 알림 트리거를 자동화한다.",
+                "expectedImpact": "시청 간격을 평균 30% 줄인다."
+              },
+              {
+                "strategy": "맞춤 추천 강화",
+                "objective": "다양한 장르를 체험하도록 탐색을 지원한다.",
+                "actionPlan": "장르별 추천 슬롯을 확장하고 가입자 행동 데이터로 추천 모델을 재학습한다.",
+                "expectedImpact": "콘텐츠 다양성 지수를 유지하거나 끌어올린다."
+              }
+            ]
+          },
+          {
+            "phase": "Mid-term",
+            "phaseLabel": "within 3 months",
+            "phaseBadge": "blue",
+            "rows": [
+              {
+                "strategy": "단일 시리즈 폭주 후 이탈 재유치 트랙",
+                "objective": "단일 시리즈 완료 직후 이탈하는 가입자를 방어한다.",
+                "actionPlan": "시리즈 완주 후 24시간 이내에 유사 장르나 후속작 알림을 자동으로 발송한다.",
+                "expectedImpact": "시리즈 완료 후 30일 이내 해지율을 40% 이상 줄인다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "revenue-scenario",
+      "sectionName": "Revenue Exposure",
+      "headline": "적극적인 리텐션 캠페인을 실행하면 방치 시나리오 대비 월 최대 약 $120,000의 매출 손실을 안정적으로 방어할 수 있습니다.",
+      "componentType": "RevenueScenarioBar",
+      "data": {
+        "description": "고위험 가입자 32,000명을 모집단으로, 캠페인 적극성에 따른 retention rate 시나리오 3종을 글로벌 SVOD 평균 ARPU $14.99 기준으로 산정한 결과입니다.",
+        "assumptions": {
+          "arpu": 14.99,
+          "arpuUnit": "USD/month",
+          "horizonMonths": 12,
+          "atRiskBase": 32000,
+          "atRiskNote": "18-29세 신규 가입자 24,000명과 단일 시리즈 폭주 30대 남성 시청자 8,000명을 합산한 모집단입니다."
+        },
+        "scenarios": [
+          {
+            "label": "Upside scenario",
+            "caseName": "30% Retention Case",
+            "arpu": 14.99,
+            "retainedUsers": 9600,
+            "monthlyRevenue": 143904,
+            "annualRevenue": 1726848,
+            "currency": "USD",
+            "color": "blue",
+            "description": "온보딩 큐레이션과 장기 미시청 알림이 모두 안착하면 32,000명 중 9,600명을 방어할 수 있습니다."
+          },
+          {
+            "label": "Base scenario",
+            "caseName": "15% Retention Case",
+            "arpu": 14.99,
+            "retainedUsers": 4800,
+            "monthlyRevenue": 71952,
+            "annualRevenue": 863424,
+            "currency": "USD",
+            "color": "green",
+            "description": "재유치 캠페인만 단독으로 실행하면 32,000명 중 4,800명을 방어할 수 있습니다."
+          },
+          {
+            "label": "Downside scenario",
+            "caseName": "5% Retention Case",
+            "arpu": 14.99,
+            "retainedUsers": 1600,
+            "monthlyRevenue": 23984,
+            "annualRevenue": 287808,
+            "currency": "USD",
+            "color": "gray",
+            "description": "별도의 개입 없이 현 상태가 유지되면 32,000명 중 1,600명만 자연 잔존합니다."
+          }
+        ]
+      }
+    }
+  ]
+}

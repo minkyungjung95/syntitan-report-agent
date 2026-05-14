@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, TimelineBarChart, KPITrendCard, CHART_COLORS } from "./charts";
+import { DonutChart, PieChart, MaleIcon, FemaleIcon, SemiDonutChart, HBarChart, VBarChart, StackedHBar, LineChart, MultiLineChart, LabeledLineChart, FlowTable, QuadrantChart, GroupedBarChart, RadarChart, PSMChart, FunnelChart, ComboChart, TimelineBarChart, KPITrendCard, NormalDistributionChart, CHART_COLORS } from "./charts";
 import { T, Semantic, Radius, Gap, Opacity, InfoIcon, WarnIcon, CloseIcon, PlusIcon, DownIcon, ChevronR, StarIcon, StarRateFilledIcon, IdentityPlatformOutlineIcon } from "./tokens.jsx";
 import { Btn, Badge, Callout, Chip, ChipTabs, TabBar, Modal, SegmentedControl, ModalUserCard, ModalField, ModalStat, ModalGrid, Tooltip, BTN_STYLES, BADGE_COLORS, BADGE_SIZE, BADGE_RADIUS } from "./ui-components.jsx";
 import { IconsTab } from "./icons.jsx";
@@ -768,7 +768,6 @@ export default function App() {
             <p style={{ fontSize:13, color:T.gray800 }}>리포트에 사용되는 Nivo 기반 차트 컴포넌트입니다.</p>
           </div>
 
-
           {/* Color Palette */}
           <Card title="Chart 색상 팔레트" subtitle="데이터 시리즈에 순서대로 적용">
             <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
@@ -1356,6 +1355,34 @@ export default function App() {
                 { label: "결제 완료", value: 38420 },
               ]}
             />
+          </Card>
+
+          {/* Normal Distribution Chart - 이상치(Anomaly) 분포 */}
+          <Card title="Normal Distribution Chart" subtitle="가우시안 종 곡선 + σ 구간 강조 — 이상치 예측·분포 시각화">
+            <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+              <NormalDistributionChart
+                title="68-95-99.7 룰 (1σ / 2σ / 3σ)"
+                sigmaRange={4}
+                anomalyThreshold={2}
+                zones={[
+                  { from: -1, to: 1,  label: "68.27%", color: "#2B7FFF" },
+                  { from: -2, to: -1, label: "13.59%", color: "#8EC5FF" },
+                  { from: 1,  to: 2,  label: "13.59%", color: "#8EC5FF" },
+                  { from: -3, to: -2, label: "2.14%",  color: "#C5C6CA" },
+                  { from: 2,  to: 3,  label: "2.14%",  color: "#C5C6CA" },
+                ]}
+              />
+              <NormalDistributionChart
+                title="중앙 50% 구간 (-0.6745σ ~ +0.6745σ)"
+                sigmaRange={4}
+                zones={[
+                  { from: -0.6745, to: 0.6745, label: "50%",   color: "#2B7FFF" },
+                  { from: -2.698,  to: -0.6745, label: "24.65%", color: "#8EC5FF" },
+                  { from: 0.6745,  to: 2.698,   label: "24.65%", color: "#8EC5FF" },
+                ]}
+                ticks={[-4, -3, -2.698, -1, -0.6745, 0, 0.6745, 1, 2.698, 3, 4]}
+              />
+            </div>
           </Card>
 
           {/* Combo Chart - 바 + 선 (이중 Y축) */}
@@ -2209,6 +2236,28 @@ export default function App() {
                     variants: [
                       { name: "CPA 중심",   subtitle: "전환수만 있을 때 — 비용 효율(CPA·CTR·CVR) 기반", route: "/#/ad",      jsonPath: "/json/ad-performance.json" },
                       { name: "ROAS 포함", subtitle: "매출 데이터까지 있을 때 — 수익성(ROAS) 추가 진단", route: "/#/ad-roas", jsonPath: "/json/ad-roas.json" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Negative Case",
+                  badgeVariant: "Negative",
+                  topics: [{
+                    title: "이탈 예측 (Churn)",
+                    description: "신규 가입자의 시청 행동 신호로 이탈 위험 군집 식별 + 리텐션 시나리오 제시",
+                    variants: [
+                      { name: "Global SVOD", subtitle: "OTT 신규 가입자 60K — 군집·신호·전략·매출 시나리오", route: "/#/churn", jsonPath: "/json/churn-prediction.json" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Persona Survey",
+                  badgeVariant: "Info",
+                  topics: [{
+                    title: "페르소나 서베이",
+                    description: "CUBIG DB 연동 가상 인구 시뮬레이션 기반 응답 분포·해석·합성 응답자 카드 + 상관 패턴",
+                    variants: [
+                      { name: "AI Wellness Membership", subtitle: "5K 가상 응답자 — 인구 분포 / 질문별 분석 / 패턴 교차", route: "/#/persona", jsonPath: "/json/persona-survey.json" },
                     ],
                   }],
                 },

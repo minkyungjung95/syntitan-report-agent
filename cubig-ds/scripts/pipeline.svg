@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 720" font-family="Pretendard, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7B7E85"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#FB2C36"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="700" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#171719">CUBIG Report Generation Pipeline</text>
+  <text x="700" y="64" text-anchor="middle" font-size="13" fill="#7B7E85">JSON spec → Component Catalog → Report Builder → Validator → Output</text>
+
+  <!-- Phase 0: Input -->
+  <g>
+    <rect x="40" y="120" width="200" height="380" rx="12" fill="#EFF6FF" stroke="#8EC5FF" stroke-width="1.5"/>
+    <text x="140" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#2B7FFF">Phase 0 · 입력</text>
+
+    <rect x="60" y="180" width="160" height="80" rx="8" fill="#FFFFFF" stroke="#8EC5FF"/>
+    <text x="140" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">JSON Spec</text>
+    <text x="140" y="228" text-anchor="middle" font-size="11" fill="#7B7E85">public/json/*.json</text>
+    <text x="140" y="246" text-anchor="middle" font-size="11" fill="#7B7E85">meta · sections · data</text>
+
+    <rect x="60" y="280" width="160" height="80" rx="8" fill="#FFFFFF" stroke="#8EC5FF"/>
+    <text x="140" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">Report Components</text>
+    <text x="140" y="328" text-anchor="middle" font-size="11" fill="#7B7E85">report-components.jsx</text>
+    <text x="140" y="346" text-anchor="middle" font-size="11" fill="#7B7E85">charts.jsx · ui-components.jsx</text>
+
+    <rect x="60" y="380" width="160" height="80" rx="8" fill="#FFFFFF" stroke="#8EC5FF"/>
+    <text x="140" y="408" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">Wrapping Rules</text>
+    <text x="140" y="428" text-anchor="middle" font-size="11" fill="#7B7E85">SectionCard &gt; ContentCard</text>
+    <text x="140" y="446" text-anchor="middle" font-size="11" fill="#7B7E85">no double padding</text>
+  </g>
+
+  <!-- Phase 1: Catalog -->
+  <g>
+    <rect x="280" y="120" width="220" height="380" rx="12" fill="#F7FEE7" stroke="#BBF451" stroke-width="1.5"/>
+    <text x="390" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#5EA500">Phase 1 · 카탈로그 생성</text>
+
+    <rect x="300" y="180" width="180" height="100" rx="8" fill="#FFFFFF" stroke="#BBF451"/>
+    <text x="390" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">build-component-catalog</text>
+    <text x="390" y="228" text-anchor="middle" font-size="11" fill="#7B7E85">.mjs (Node script)</text>
+    <text x="390" y="252" text-anchor="middle" font-size="11" fill="#171719">export function 파싱</text>
+    <text x="390" y="270" text-anchor="middle" font-size="11" fill="#171719">→ props · defaults 추출</text>
+
+    <rect x="300" y="300" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#BBF451"/>
+    <text x="390" y="328" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">component-catalog.json</text>
+    <text x="390" y="348" text-anchor="middle" font-size="11" fill="#7B7E85">88 components</text>
+    <text x="390" y="366" text-anchor="middle" font-size="11" fill="#7B7E85">single source of truth</text>
+
+    <rect x="300" y="400" width="180" height="70" rx="8" fill="#FFFFFF" stroke="#BBF451" stroke-dasharray="4 3"/>
+    <text x="390" y="426" text-anchor="middle" font-size="12" font-weight="500" fill="#7B7E85">npm run catalog</text>
+    <text x="390" y="448" text-anchor="middle" font-size="11" fill="#7B7E85">컴포넌트 변경 시 재실행</text>
+  </g>
+
+  <!-- Phase 2: Builder -->
+  <g>
+    <rect x="540" y="120" width="240" height="380" rx="12" fill="#FEFCE8" stroke="#FDC700" stroke-width="1.5"/>
+    <text x="660" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#A65F00">Phase 2 · 리포트 작성</text>
+
+    <rect x="560" y="180" width="200" height="100" rx="8" fill="#FFFFFF" stroke="#FDC700"/>
+    <text x="660" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">Builder</text>
+    <text x="660" y="228" text-anchor="middle" font-size="11" fill="#7B7E85">src/&lt;name&gt;-report.jsx</text>
+    <text x="660" y="252" text-anchor="middle" font-size="11" fill="#171719">1. 카탈로그 조회</text>
+    <text x="660" y="270" text-anchor="middle" font-size="11" fill="#171719">2. JSON → prop 매핑</text>
+
+    <rect x="560" y="300" width="200" height="100" rx="8" fill="#FFFFFF" stroke="#FDC700"/>
+    <text x="660" y="324" text-anchor="middle" font-size="12" font-weight="600" fill="#171719">제약</text>
+    <text x="660" y="344" text-anchor="middle" font-size="11" fill="#7B7E85">· 카탈로그 외 컴포넌트 금지</text>
+    <text x="660" y="360" text-anchor="middle" font-size="11" fill="#7B7E85">· 신규 prop 임의 추가 금지</text>
+    <text x="660" y="376" text-anchor="middle" font-size="11" fill="#7B7E85">· report-components.jsx</text>
+    <text x="660" y="390" text-anchor="middle" font-size="11" fill="#7B7E85">  수정은 별도 워크플로</text>
+
+    <rect x="560" y="420" width="200" height="60" rx="8" fill="#FEF3C6" stroke="#FDC700" stroke-dasharray="4 3"/>
+    <text x="660" y="445" text-anchor="middle" font-size="12" font-weight="500" fill="#A65F00">Output: report.jsx</text>
+    <text x="660" y="463" text-anchor="middle" font-size="11" fill="#7B7E85">JSON fetch + JSX 렌더</text>
+  </g>
+
+  <!-- Phase 3: Validator -->
+  <g>
+    <rect x="820" y="120" width="280" height="380" rx="12" fill="#FEE2E2" stroke="#FFA2A2" stroke-width="1.5"/>
+    <text x="960" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#C10007">Phase 3 · 검증 (Critic)</text>
+
+    <rect x="840" y="180" width="240" height="65" rx="8" fill="#FFFFFF" stroke="#FFA2A2"/>
+    <text x="960" y="204" text-anchor="middle" font-size="12" font-weight="600" fill="#171719">① Component 존재 검증</text>
+    <text x="960" y="225" text-anchor="middle" font-size="11" fill="#7B7E85">사용 컴포넌트가 카탈로그에 존재?</text>
+
+    <rect x="840" y="255" width="240" height="65" rx="8" fill="#FFFFFF" stroke="#FFA2A2"/>
+    <text x="960" y="279" text-anchor="middle" font-size="12" font-weight="600" fill="#171719">② Prop 시그니처 검증</text>
+    <text x="960" y="300" text-anchor="middle" font-size="11" fill="#7B7E85">prop 이름이 카탈로그 props 집합에?</text>
+
+    <rect x="840" y="330" width="240" height="65" rx="8" fill="#FFFFFF" stroke="#FFA2A2"/>
+    <text x="960" y="354" text-anchor="middle" font-size="12" font-weight="600" fill="#171719">③ 래핑·이중 패딩 검증</text>
+    <text x="960" y="375" text-anchor="middle" font-size="11" fill="#7B7E85">self-padded → ContentCard padding=0?</text>
+
+    <rect x="840" y="405" width="240" height="75" rx="8" fill="#FFFFFF" stroke="#FFA2A2"/>
+    <text x="960" y="429" text-anchor="middle" font-size="12" font-weight="600" fill="#171719">④ JSON 정합성 검증</text>
+    <text x="960" y="450" text-anchor="middle" font-size="11" fill="#7B7E85">JSON leaf path ↔ JSX 참조 diff</text>
+    <text x="960" y="466" text-anchor="middle" font-size="11" fill="#7B7E85">미사용 필드 / 오타 path 리포트</text>
+  </g>
+
+  <!-- Phase 4: Output -->
+  <g>
+    <rect x="1140" y="120" width="220" height="380" rx="12" fill="#F0FDF4" stroke="#7BF1A8" stroke-width="1.5"/>
+    <text x="1250" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#16803D">Phase 4 · 산출</text>
+
+    <rect x="1160" y="180" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#7BF1A8"/>
+    <text x="1250" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#171719">PASS</text>
+    <text x="1250" y="228" text-anchor="middle" font-size="11" fill="#7B7E85">검증 통과 시 머지</text>
+    <text x="1250" y="246" text-anchor="middle" font-size="11" fill="#7B7E85">/#/&lt;route&gt; 노출</text>
+
+    <rect x="1160" y="280" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#FFA2A2"/>
+    <text x="1250" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#C10007">FAIL</text>
+    <text x="1250" y="328" text-anchor="middle" font-size="11" fill="#7B7E85">error 시 Phase 2 로 회귀</text>
+    <text x="1250" y="346" text-anchor="middle" font-size="11" fill="#7B7E85">warning 은 검토</text>
+
+    <rect x="1160" y="380" width="180" height="100" rx="8" fill="#FFFFFF" stroke="#7BF1A8" stroke-dasharray="4 3"/>
+    <text x="1250" y="406" text-anchor="middle" font-size="12" font-weight="500" fill="#16803D">실행 명령</text>
+    <text x="1250" y="428" text-anchor="middle" font-size="11" fill="#171719" font-family="monospace">npm run catalog</text>
+    <text x="1250" y="448" text-anchor="middle" font-size="11" fill="#171719" font-family="monospace">npm run validate \</text>
+    <text x="1250" y="464" text-anchor="middle" font-size="11" fill="#171719" font-family="monospace">  &lt;.jsx&gt; &lt;.json&gt;</text>
+  </g>
+
+  <!-- Arrows between phases -->
+  <line x1="240" y1="310" x2="280" y2="310" stroke="#7B7E85" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="310" x2="540" y2="310" stroke="#7B7E85" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="780" y1="310" x2="820" y2="310" stroke="#7B7E85" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1100" y1="310" x2="1140" y2="310" stroke="#7B7E85" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Feedback loop: Phase 4 FAIL → Phase 2 -->
+  <path d="M 1160 320 Q 1100 580 660 580 Q 540 580 540 480" fill="none" stroke="#FB2C36" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow-red)"/>
+  <text x="900" y="600" text-anchor="middle" font-size="12" font-weight="500" fill="#FB2C36">검증 실패 시 회귀 (수정 → 재검증)</text>
+
+  <!-- Footer -->
+  <text x="700" y="680" text-anchor="middle" font-size="11" fill="#7B7E85">scripts/build-component-catalog.mjs · scripts/validate-report.mjs · scripts/component-catalog.json</text>
+  <text x="700" y="700" text-anchor="middle" font-size="11" fill="#7B7E85">컴포넌트 임의 변경 차단 + JSON 미사용 필드 노출 = 리포트 생성 안전망</text>
+</svg>

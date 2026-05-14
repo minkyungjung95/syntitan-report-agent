@@ -1,0 +1,139 @@
+{
+  "_doc": "차트 컴포넌트별 데이터 shape 룰. recommend-chart.mjs · validate-report.mjs가 사용. 각 항목은 (1) shape 탐지 패턴 (2) 적합 차트 (3) 비적합 시 경고 메시지를 정의.",
+
+  "shapes": {
+    "PartOfWhole": {
+      "doc": "구성비 — 합이 100% 또는 단일 전체의 부분",
+      "detect": "array of {label, percentage} OR {label, value} where sum(value) ≈ 100",
+      "recommend": ["DonutChart", "PieChart", "SemiDonutChart"],
+      "warnIf": {
+        "tooManySegments": { "threshold": 8, "msg": "8개 초과 segment — HBarChart 추천" },
+        "single": { "threshold": 1, "msg": "단일 segment — InfoCard/StatCard 권장" }
+      }
+    },
+
+    "CategoryRanking": {
+      "doc": "카테고리 순위 비교 — 합이 100% 아님, 단순 값 비교",
+      "detect": "array of {label, value} where values are independent magnitudes",
+      "recommend": ["HBarChart", "VBarChart"],
+      "warnIf": {
+        "tooFew": { "threshold": 2, "msg": "비교 대상 1개 — bar chart 부적합, InfoCard 권장" }
+      }
+    },
+
+    "SurveyResponse": {
+      "doc": "설문 응답 분포 — Likert/다중선택, label + value(%)",
+      "detect": "array of {label, value, count?} with response option labels",
+      "recommend": ["HBarChart"],
+      "constraints": [
+        "valueInside=true 권장 (응답률 % 인라인 표시)",
+        "상위 2개만 컬러, 나머지 gray (설문 차트 룰)"
+      ]
+    },
+
+    "TimeSeries": {
+      "doc": "시계열 — x축이 날짜·기간, y가 값",
+      "detect": "array of {x, y} where x is date-like string",
+      "recommend": ["LineChart", "LabeledLineChart"],
+      "warnIf": {
+        "tooFew": { "threshold": 2, "msg": "포인트 2개 이하 — LineChart 부적합" }
+      }
+    },
+
+    "MultiSeriesTimeSeries": {
+      "doc": "다중 시리즈 시계열 — 여러 라인 비교",
+      "detect": "array of {id, data: [{x, y}]}",
+      "recommend": ["MultiLineChart"],
+      "warnIf": {
+        "tooManySeries": { "threshold": 6, "msg": "라인 6개 초과 — 색상 구분 어려움" }
+      }
+    },
+
+    "GroupedCategorical": {
+      "doc": "그룹화된 카테고리 — 같은 axis에 여러 key값",
+      "detect": "array of {label/category, ...multiple value keys}",
+      "recommend": ["VBarChart", "GroupedBarChart", "StackedHBar"],
+      "constraints": ["keys[] 배열로 표시할 series 명시 필요"]
+    },
+
+    "Sentiment": {
+      "doc": "긍/부정·양/음 양방향",
+      "detect": "data with positive/negative split or sentiment field",
+      "recommend": ["DivergingBarChart", "GroupedBarChart"]
+    },
+
+    "TwoDimensional": {
+      "doc": "2축 산점 — x/y 모두 수치, 4분면 비교",
+      "detect": "array of items with x + y both numeric (not date)",
+      "recommend": ["QuadrantChart"]
+    },
+
+    "Funnel": {
+      "doc": "퍼널 — 단계별 감소",
+      "detect": "ordered stages where each value ≤ previous",
+      "recommend": ["FunnelChart"]
+    },
+
+    "RadarComparison": {
+      "doc": "다축 비교 — 한두 엔티티의 다축 점수",
+      "detect": "array of {category, ...attribute_scores}",
+      "recommend": ["RadarChart"]
+    },
+
+    "PriceSensitivity": {
+      "doc": "가격 민감도 — PSM 4 곡선 교차",
+      "detect": "PSM 데이터 (too_cheap/cheap/expensive/too_expensive)",
+      "recommend": ["PSMChart"]
+    },
+
+    "KPITrend": {
+      "doc": "KPI 추세 + 현재/이전 비교",
+      "detect": "single metric with current + prev + trend points",
+      "recommend": ["KPITrendCard", "ComboChart"]
+    },
+
+    "Timeline": {
+      "doc": "일정 — 시간 축에 작업/이벤트 막대",
+      "detect": "array of {label, start, end} on time axis",
+      "recommend": ["TimelineBarChart"]
+    },
+
+    "ScalarMetrics": {
+      "doc": "단일 수치 묶음 — 차트 없이 카드로 표시",
+      "detect": "object with named scalar fields (not array)",
+      "recommend": ["InfoCard", "MetricCard", "ExecutiveSummaryCard", "ScenarioCard"]
+    },
+
+    "Distribution": {
+      "doc": "정규분포 / 이상치 — σ 단위 구간별 비중, 가우시안 종 곡선",
+      "detect": "{ zones: [{from, to, label, color}], sigmaRange? } 또는 anomaly/outlier 라벨이 붙은 데이터",
+      "recommend": ["NormalDistributionChart"],
+      "constraints": [
+        "from/to 는 σ 단위 수치",
+        "zones 합은 ~100% 또는 부분 강조용으로 자유"
+      ]
+    }
+  },
+
+  "chartExpects": {
+    "DonutChart":     { "shapes": ["PartOfWhole"], "dataField": "data[]" },
+    "PieChart":       { "shapes": ["PartOfWhole"], "dataField": "data[]" },
+    "SemiDonutChart": { "shapes": ["PartOfWhole"], "dataField": "data[]" },
+    "HBarChart":      { "shapes": ["CategoryRanking", "SurveyResponse"], "dataField": "data[]" },
+    "VBarChart":      { "shapes": ["CategoryRanking", "GroupedCategorical"], "dataField": "data[]" },
+    "GroupedBarChart":{ "shapes": ["GroupedCategorical", "Sentiment"], "dataField": "data[]" },
+    "StackedHBar":    { "shapes": ["GroupedCategorical"], "dataField": "data[]" },
+    "LineChart":      { "shapes": ["TimeSeries"], "dataField": "data[].data[]" },
+    "MultiLineChart": { "shapes": ["MultiSeriesTimeSeries"], "dataField": "data[].data[]" },
+    "LabeledLineChart": { "shapes": ["TimeSeries"], "dataField": "data[]" },
+    "DivergingBarChart": { "shapes": ["Sentiment"], "dataField": "data[]" },
+    "QuadrantChart":  { "shapes": ["TwoDimensional"], "dataField": "data[]" },
+    "FunnelChart":    { "shapes": ["Funnel"], "dataField": "data[]" },
+    "RadarChart":     { "shapes": ["RadarComparison"], "dataField": "data[]" },
+    "PSMChart":       { "shapes": ["PriceSensitivity"], "dataField": "data[]" },
+    "KPITrendCard":   { "shapes": ["KPITrend"], "dataField": "props" },
+    "TimelineBarChart": { "shapes": ["Timeline"], "dataField": "data[]" },
+    "ComboChart":     { "shapes": ["KPITrend", "GroupedCategorical"], "dataField": "data[]" },
+    "NormalDistributionChart": { "shapes": ["Distribution"], "dataField": "zones[]" }
+  }
+}

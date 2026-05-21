@@ -85,13 +85,44 @@ const PREPROCESSING_MOTIONS = [
 function PreprocessingMotions() {
   return (
     <section style={S.section}>
-      <div style={S.sectionTitle}>Data Preprocessing Motions</div>
-      <div style={{ fontSize: 12, color: "#7B7E85", marginTop: -8, marginBottom: 16 }}>
-        전처리 6단계 모션 · 5초 루프 · 416 × 186
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+        <div style={S.sectionTitle}>Data Preprocessing Motions</div>
+        <a
+          href="/animations/feature-derivation.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 12, color: "#2B7FFF", textDecoration: "none", fontWeight: 600 }}
+        >
+          전체 데모 새 창에서 열기 ↗
+        </a>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
+      <div style={{ fontSize: 12, color: "#7B7E85", marginTop: -8, marginBottom: 16 }}>
+        전처리 6단계 모션 · 5초 루프 · CSS 애니메이션 (영상 아님, 무한 화질)
+      </div>
+
+      {/* 1) HTML 원본 임베드 — 인터랙티브, 가벼움 */}
+      <div style={{ marginBottom: 28 }}>
+        <iframe
+          src="/animations/feature-derivation.html"
+          title="Data Preprocessing Motions"
+          style={{
+            width: "100%",
+            height: 820,
+            border: "1px solid #E5E5E5",
+            borderRadius: 14,
+            background: "#f6f7f9",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.05)",
+          }}
+        />
+      </div>
+
+      {/* 2) MP4 백업 갤러리 — 영상 전달용 */}
+      <div style={{ fontSize: 11.5, color: "#7B7E85", marginBottom: 10, fontWeight: 500 }}>
+        영상 파일 (MP4 · 개발자 전달용)
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
         {PREPROCESSING_MOTIONS.map((m) => (
-          <div key={m.src} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div key={m.src} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <video
               src={m.src}
               autoPlay
@@ -101,15 +132,21 @@ function PreprocessingMotions() {
               style={{
                 width: "100%",
                 aspectRatio: "520 / 260",
-                borderRadius: 12,
+                borderRadius: 10,
                 background: "#f6f7f9",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.04)",
                 objectFit: "cover",
               }}
             />
             <div style={{ paddingLeft: 2 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 600, color: "#171719", letterSpacing: "-0.01em" }}>{m.ko}</div>
-              <div style={{ fontSize: 11.5, color: "#7B7E85", marginTop: 2 }}>{m.en}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#171719", letterSpacing: "-0.01em" }}>{m.ko}</div>
+              <a
+                href={m.src}
+                download
+                style={{ fontSize: 11, color: "#7B7E85", textDecoration: "none", marginTop: 2, display: "inline-block" }}
+              >
+                {m.en} · ⬇
+              </a>
             </div>
           </div>
         ))}

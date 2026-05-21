@@ -1,0 +1,1396 @@
+{
+  "meta": {
+    "agentId": "audience-strategy",
+    "agentName": "오디언스 전략",
+    "reportTitle": "오디언스 전략 리포트",
+    "reportSubtitle": "분석이 완료되었습니다. 인터뷰에서 도출된 인사이트와 제안을 활용해 전략적 의사결정에 적용해보세요.",
+    "domain": "Global Luxury Beauty & Fashion Multi-Brand E-commerce",
+    "sourceFile": "voc_data.csv",
+    "version": "1",
+    "createdAt": "2026-05-12T09:00:00.000Z"
+  },
+  "executiveSummary": {
+    "totalCustomers": 120000,
+    "mainTargetPersona": "프리미엄 애호가",
+    "description": "120,000명 고객 데이터를 4개 페르소나로 분류해 분석한 결과, 자원의 40-50%를 프리미엄 애호가에 집중하는 전략이 가장 높은 ROI를 만들어 냅니다. 이 군집은 전체 고객의 23.7%에 불과하지만 매출의 약 42%를 차지하며 안정적인 재구매 패턴을 유지합니다. 가치 최적화 군집는 PB(Private Brand) 상품 개발 중심, 간헐적 구매자는 시즌 전략, 휴면 잠재 군집은 저비용 재유치 캠페인으로 효과적으로 접근할 수 있습니다.",
+    "keyFindings": [
+      "전체 고객 120,000명 중 프리미엄 애호가 28,400명(23.7%)이 전체 매출의 42%를 차지하며 1인당 매출이 가치 최적화 군집 대비 3.0배 높아, 자원 집중 우선순위가 가장 명확합니다.",
+      "가치 최적화 군집 35,900명(29.9%)은 가격 대비 가치를 중시하는 안정 코어 군집으로, PB 라인 확장과 멤버십 혜택 최적화로 ARPU를 끌어올릴 수 있습니다.",
+      "간헐적 구매자 31,100명(25.9%)은 시즌·세일 시점에 활성화되는 패턴으로, 비수기 미사용 알림과 트리거 캠페인을 통해 활성화 빈도를 끌어올릴 수 있습니다.",
+      "휴면 잠재 군집 24,600명(20.5%)은 평균 180일 이상 미접속 상태이지만 36% 재유치 가능성이 있어, 저비용 개인화 재유치 캠페인으로 추가 매출 $8.5M을 회수할 수 있습니다."
+    ]
+  },
+  "tabs": [
+    {
+      "id": "analysis-report",
+      "tabName": "분석 리포트",
+      "sections": [
+        {
+          "id": "analysis-reliability",
+          "sectionName": "분석 신뢰도",
+          "componentType": "MetricCard",
+          "data": {
+            "items": [
+              { "label": "종합 신뢰도", "value": "8", "unit": "/10" },
+              { "label": "클러스터 품질", "value": "9", "unit": "/10" },
+              { "label": "변수 설명력", "value": "8", "unit": "/10" },
+              { "label": "분석 기법", "value": "9", "unit": "/10" }
+            ]
+          }
+        },
+        {
+          "id": "executive-summary",
+          "sectionName": "핵심 요약",
+          "headline": "전체 고객의 23.7%를 차지하는 프리미엄 애호가가 매출의 42%를 만들어내며, 이 군집을 메인 타겟으로 두는 전략이 ROI를 가장 빠르게 끌어올립니다.",
+          "componentType": "ExecutiveSummary",
+          "data": {
+            "mainTargetBadge": "메인 타겟 페르소나",
+            "mainTargetName": "프리미엄 애호가",
+            "description": "120,000명 고객 데이터를 4개 페르소나로 분류해 분석한 결과, 자원의 40-50%를 프리미엄 애호가에 집중하는 전략이 가장 높은 ROI를 만들어 냅니다. 이 군집은 전체 고객의 23.7%에 불과하지만 매출의 약 42%를 차지하며 안정적인 재구매 패턴을 유지합니다. 가치 최적화 군집는 PB(Private Brand) 상품 개발 중심, 간헐적 구매자는 시즌 전략, 휴면 잠재 군집은 저비용 재유치 캠페인으로 효과적으로 접근할 수 있습니다.",
+            "keyFindings": [
+              "전체 고객 120,000명 중 프리미엄 애호가 28,400명(23.7%)이 전체 매출의 42%를 차지하며 1인당 매출이 가치 최적화 군집 대비 3.0배 높아, 자원 집중 우선순위가 가장 명확합니다.",
+              "가치 최적화 군집 35,900명(29.9%)은 가격 대비 가치를 중시하는 안정 코어 군집으로, PB 라인 확장과 멤버십 혜택 최적화로 ARPU를 끌어올릴 수 있습니다.",
+              "간헐적 구매자 31,100명(25.9%)은 시즌·세일 시점에 활성화되는 패턴으로, 비수기 미사용 알림과 트리거 캠페인을 통해 활성화 빈도를 끌어올릴 수 있습니다.",
+              "휴면 잠재 군집 24,600명(20.5%)은 평균 180일 이상 미접속 상태이지만 36% 재유치 가능성이 있어, 저비용 개인화 재유치 캠페인으로 추가 매출 $8.5M을 회수할 수 있습니다."
+            ]
+          }
+        },
+        {
+          "id": "expected-effects",
+          "sectionName": "기대 효과",
+          "headline": "프리미엄 집중 전략과 4개 페르소나 맞춤 액션을 함께 실행하면, 분기 매출 +$24M과 재구매율 +8%p를 동시에 확보할 수 있습니다.",
+          "componentType": "MetricHighlight",
+          "data": {
+            "description": "기대 효과는 각 군집별 맞춤 액션을 합쳐 1분기 내 누적 효과로 산정한 결과이며, 매출·고객·재구매 세 축의 핵심 지표로 구성됩니다.",
+            "items": [
+              {
+                "label": "분기 매출 증가",
+                "value": "+$24M",
+                "subtext": "vs Q1 2026 기준",
+                "color": "green"
+              },
+              {
+                "label": "추가 매출",
+                "value": "$5.8M",
+                "subtext": "신규 액션 누적",
+                "color": "blue"
+              },
+              {
+                "label": "재구매율",
+                "value": "46%",
+                "subtext": "+8%p 상승",
+                "color": "blue"
+              },
+              {
+                "label": "객단가 (프리미엄)",
+                "value": "+12%",
+                "subtext": "$487 → $545",
+                "color": "blue"
+              },
+              {
+                "label": "평균 주문 금액",
+                "value": "$470",
+                "subtext": "전체 평균",
+                "color": "gray"
+              },
+              {
+                "label": "활성 고객 증가",
+                "value": "+2,400명",
+                "subtext": "휴면 재유치",
+                "color": "green"
+              }
+            ]
+          }
+        },
+        {
+          "id": "recommended-actions",
+          "sectionName": "권장 액션",
+          "headline": "각 페르소나의 핵심 동인을 겨냥한 4개 액션을 1분기 내 동시 실행하면 가장 빠른 ROI 회수가 가능합니다.",
+          "componentType": "RecommendedActions",
+          "data": {
+            "description": "4개 페르소나 각각에 대응하는 단일 액션을 설계해, 자원 분산을 막고 효과를 명확하게 측정할 수 있도록 구성했습니다.",
+            "actions": [
+              {
+                "number": 1,
+                "title": "프리미엄 VIP 프로그램 출시",
+                "objective": "프리미엄 애호가의 충성도를 단단히 하고 객단가를 끌어올린다.",
+                "expectedEffects": "객단가 +12%, 재구매 빈도 1.2배p 상승",
+                "execution": "전담 스타일리스트 배정·VIP 라운지·신상품 2주 우선 액세스·맞춤 큐레이션 서비스를 단계적으로 도입합니다."
+              },
+              {
+                "number": 2,
+                "title": "Private Brand(PB) 라인 개발 착수",
+                "objective": "가치 최적화 군집의 가격 대비 가치 인식을 충족하는 자체 라인을 만든다.",
+                "expectedEffects": "객단가 +30-40%, 군집 LTV +25%",
+                "execution": "뷰티·패션 카테고리에서 자체 PB 상품을 개발해 멤버십 회원에게 우선 공급하고, 라인 차별성과 품질 인증을 함께 강조합니다."
+              },
+              {
+                "number": 3,
+                "title": "휴면 재유치 캠페인 가동",
+                "objective": "휴면 고객을 저비용 개인화 캠페인으로 회복한다.",
+                "expectedEffects": "재유치율 20-30%, 1인당 첫 회수 매출 $345",
+                "execution": "최근 180일 이상 미접속 고객을 대상으로 개인 취향 기반 상품 추천 알림과 한시 복귀 혜택을 다채널로 발송합니다."
+              },
+              {
+                "number": 4,
+                "title": "간헐 구매자 시즌 프로모션 기획",
+                "objective": "간헐 구매자의 활성화 빈도를 12회/연 수준으로 끌어올린다.",
+                "execution": "시즌 한정 컬렉션·트렌드 큐레이션 콘텐츠와 함께 비수기 미사용 알림을 자동화로 발송합니다.",
+                "expectedEffects": "시즌별 구매 빈도 +50%, 군집 활성 비율 +18%p"
+              }
+            ]
+          }
+        },
+        {
+          "id": "initial-investment",
+          "sectionName": "초기 투자 및 회수",
+          "componentType": "MetricCard",
+          "data": {
+            "items": [
+              { "label": "초기 투자", "value": "$5.8M", "subtext": "캠페인·시스템·콘텐츠 총합" },
+              { "label": "투자 회수 기간", "value": "2.3개월", "subtext": "분기 매출 +$24M 기준" },
+              { "label": "연간 ROI", "value": "524%", "subtext": "1년 누적 효과 기준" }
+            ]
+          }
+        },
+        {
+          "id": "persona-clusters",
+          "sectionName": "페르소나 군집",
+          "headline": "4개 페르소나는 객단가·구매 빈도·LTV·이탈 점수 4축에서 명확하게 구분되며, 각각 다른 전략 방향이 필요합니다.",
+          "componentType": "PersonaClusters",
+          "data": {
+            "description": "각 페르소나의 핵심 지표(객단가·구매 빈도·12개월 LTV·이탈 점수)를 한눈에 비교할 수 있도록 정리했습니다.",
+            "items": [
+              {
+                "name": "프리미엄 애호가",
+                "label": "프리미엄 애호가",
+                "size": "28,400명 (23.7%)",
+                "metrics": [
+                  { "label": "평균 주문 금액", "value": "$487" },
+                  { "label": "구매 빈도", "value": "월 2.3회" },
+                  { "label": "12개월 LTV", "value": "$8,450" },
+                  { "label": "이탈 점수", "value": "12점 (매우 낮음)" }
+                ],
+                "color": "blue"
+              },
+              {
+                "name": "가치 최적화 군집",
+                "label": "가치 최적화 군집",
+                "size": "35,900명 (29.9%)",
+                "metrics": [
+                  { "label": "평균 주문 금액", "value": "$185" },
+                  { "label": "구매 빈도", "value": "월 1.5회" },
+                  { "label": "12개월 LTV", "value": "$2,090" },
+                  { "label": "이탈 점수", "value": "34점 (중간)" }
+                ],
+                "color": "green"
+              },
+              {
+                "name": "간헐적 구매자",
+                "label": "간헐적 구매자",
+                "size": "31,100명 (25.9%)",
+                "metrics": [
+                  { "label": "평균 주문 금액", "value": "$98" },
+                  { "label": "구매 빈도", "value": "분기 1.2회" },
+                  { "label": "12개월 LTV", "value": "$1,200" },
+                  { "label": "이탈 점수", "value": "56점 (높음)" }
+                ],
+                "color": "yellow"
+              },
+              {
+                "name": "휴면 잠재 군집",
+                "label": "휴면 잠재 군집",
+                "size": "24,600명 (20.5%)",
+                "metrics": [
+                  { "label": "마지막 주문 금액", "value": "$340" },
+                  { "label": "비활동 기간", "value": "180일 이상" },
+                  { "label": "예상 회복 매출", "value": "$345" },
+                  { "label": "재유치 가능성", "value": "36%" }
+                ],
+                "color": "gray"
+              }
+            ]
+          }
+        },
+        {
+          "id": "structure-analysis",
+          "sectionName": "페르소나 기반 구조 분석",
+          "headline": "프리미엄 애호가는 전체 고객의 23.7%로 매출의 42%를 만들어내며, 1인 평균 매출이 가치 최적화 군집 대비 3.0배 높습니다.",
+          "componentType": "StructureAnalysis",
+          "data": {
+            "description": "고객 수 분포와 매출 기여 분포를 함께 비교하면, 프리미엄 군집의 효율성과 휴면 군집의 잠재 회수 가치를 동시에 확인할 수 있습니다.",
+            "donutCharts": [
+              {
+                "title": "고객 수 분포",
+                "segments": [
+                  { "label": "프리미엄 애호가", "value": 28400, "percentage": 23.7, "color": "blue" },
+                  { "label": "가치 최적화 군집", "value": 35900, "percentage": 29.9, "color": "green" },
+                  { "label": "간헐적 구매자", "value": 31100, "percentage": 25.9, "color": "yellow" },
+                  { "label": "휴면 잠재 군집", "value": 24600, "percentage": 20.5, "color": "gray" }
+                ]
+              },
+              {
+                "title": "현재 매출 기여도",
+                "segments": [
+                  { "label": "프리미엄 애호가", "value": 42, "percentage": 42, "color": "blue" },
+                  { "label": "가치 최적화 군집", "value": 32, "percentage": 32, "color": "green" },
+                  { "label": "간헐적 구매자", "value": 22, "percentage": 22, "color": "yellow" },
+                  { "label": "휴면 잠재 군집", "value": 4, "percentage": 4, "color": "gray" }
+                ]
+              }
+            ],
+            "segmentStats": [
+              { "segment": "프리미엄 애호가", "customerShare": "23.7%", "revenueShare": "42%" },
+              { "segment": "가치 최적화 군집", "customerShare": "29.9%", "revenueShare": "32%" },
+              { "segment": "간헐적 구매자", "customerShare": "25.9%", "revenueShare": "22%" },
+              { "segment": "휴면 잠재 군집", "customerShare": "20.5%", "revenueShare": "4%" }
+            ],
+            "keyInsights": "프리미엄 애호가는 전체 고객의 23.7%만 차지하지만 매출의 42%를 기여하며, 1인당 평균 매출이 가치 최적화 군집 대비 3.0배 높습니다. 자원 우선순위를 프리미엄 집중에 두는 것이 매출 극대화에 가장 명확한 우선순위 전략입니다."
+          }
+        },
+        {
+          "id": "growth-potential",
+          "sectionName": "페르소나 기반 성장 잠재력",
+          "headline": "프리미엄·가치 최적화 군집은 현재 매출 기반에서 직접 확장이 가능하고, 휴면·간헐은 재유치·활성화 트랙으로 잠재 매출을 회수할 수 있습니다.",
+          "componentType": "GrowthPotential",
+          "data": {
+            "description": "각 페르소나의 단기(3개월) 매출 성장 잠재력을 추정한 결과이며, 군집별 우선순위 전략을 함께 제시합니다.",
+            "growthBars": [
+              { "segment": "프리미엄 애호가", "value": 6.5, "unit": "$M", "color": "blue", "note": "VIP 프로그램 + 라인 확장 효과" },
+              { "segment": "가치 최적화 군집", "value": 6.5, "unit": "$M", "color": "green", "note": "PB 라인 + 멤버십 강화 효과" },
+              { "segment": "간헐적 구매자", "value": 6.5, "unit": "$M", "color": "yellow", "note": "시즌 캠페인 + 활성화 알림 효과" },
+              { "segment": "휴면 잠재 군집", "value": 6.5, "unit": "$M", "color": "gray", "note": "재유치 캠페인 회복 매출 (1회성)" }
+            ],
+            "strategyCards": [
+              {
+                "segment": "프리미엄 애호가",
+                "category": "낮은 리스크 · 높은 가치",
+                "bullets": [
+                  "Chanel·Dior·Hermès·Burberry·Gucci 라인 우선 큐레이션",
+                  "최상위 VIP 라운지·전담 스타일리스트 운영",
+                  "신상품 2주 우선 액세스로 충성도 강화"
+                ]
+              },
+              {
+                "segment": "휴면 잠재 군집",
+                "category": "높은 ROI 잠재력",
+                "bullets": [
+                  "CRM 자동화 기반 개인화 재유치 메시지 발송",
+                  "한시 복귀 혜택 (15-20% 멤버십 할인) 제공",
+                  "다채널 알림으로 재유치 가능성 극대화"
+                ]
+              },
+              {
+                "segment": "가치 최적화 군집",
+                "category": "중간 리스크 · 중간 수익",
+                "bullets": [
+                  "PB 라인 전용 멤버십 + 가격 우대 정책 도입",
+                  "장기 멤버십(연간) 전용 PB 상품 우선 공급",
+                  "리뷰·평점 기반 신뢰도 강화 콘텐츠 확장"
+                ]
+              },
+              {
+                "segment": "간헐적 구매자",
+                "category": "낮은 가치 · 시즌 집중",
+                "bullets": [
+                  "Black Friday·홀리데이 시즌 핵심 캠페인 집중",
+                  "비수기 미사용 알림 자동화 트리거 도입",
+                  "시즌 한정 컬렉션과 친구 추천 프로그램 결합"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "scenario-comparison",
+          "sectionName": "시나리오 비교 (3 Cases)",
+          "headline": "기준 시나리오가 ROI 324%로 성장과 리스크 간 균형이 가장 안정적이며, 1분기 권장 실행안입니다.",
+          "componentType": "ScenarioComparison",
+          "data": {
+            "description": "보수·기준·공격 세 시나리오를 자원 배분과 성장 기대값 기준으로 비교한 결과입니다.",
+            "scenarios": [
+              {
+                "label": "보수 시나리오",
+                "labelKo": "보수 시나리오",
+                "focus": "프리미엄 80% · 가치 최적화 15% · 간헐 구매자 5% · 휴면 잠재 0%",
+                "strategicFocus": "기존 프리미엄 군집의 안정 매출 보호에 집중합니다.",
+                "expectedResult": "총 매출 +9% (~$45M), 객단가 +6%, 신뢰도 95%",
+                "risk": "저위험 안정 성과"
+              },
+              {
+                "label": "기준 시나리오",
+                "labelKo": "기준 시나리오 (권장)",
+                "focus": "프리미엄 50% · 가치 최적화 25% · 간헐 구매자 15% · 휴면 잠재 10%",
+                "strategicFocus": "프리미엄 집중 + 휴면 재유치 + 시즌 활성화의 균형 잡힌 분산입니다.",
+                "expectedResult": "총 매출 +14% (~$70M), 객단가 +12%, 신뢰도 85%",
+                "risk": "ROI +12% / 안정 신뢰도 95% / 신중 진행",
+                "recommended": true
+              },
+              {
+                "label": "공격 시나리오",
+                "labelKo": "공격 시나리오",
+                "focus": "프리미엄 40% · 가치 최적화 20% · 간헐 구매자 25% · 휴면 잠재 15%",
+                "strategicFocus": "신규 세그먼트와 휴면 회복에 적극 투자해 성장 폭을 극대화합니다.",
+                "expectedResult": "총 매출 +20% (~$103M), 객단가 +20%, 신뢰도 70%",
+                "risk": "ROI +12% / 안정 신뢰도 95% / 신중 진행"
+              }
+            ]
+          }
+        },
+        {
+          "id": "scenario-metrics",
+          "sectionName": "시나리오별 핵심 지표 비교",
+          "componentType": "ScenarioMetrics",
+          "data": {
+            "title": "통합 ROI",
+            "bars": [
+              { "scenario": "보수", "value": 287, "unit": "%", "color": "gray" },
+              { "scenario": "기준 (권장)", "value": 324, "unit": "%", "color": "green", "highlighted": true },
+              { "scenario": "공격", "value": 398, "unit": "%", "color": "blue" }
+            ]
+          }
+        },
+        {
+          "id": "scenario-recommendation",
+          "sectionName": "시나리오 선택 권고",
+          "headline": "기준 시나리오를 1분기 실행안으로 권장하며, 공격 시나리오 대비 신뢰도가 13%p 높고 보수 시나리오 대비 매출 성장이 +37%p 큽니다.",
+          "componentType": "Recommendation",
+          "data": {
+            "description": "기준 시나리오는 ROI·신뢰도·실행 가능성의 균형이 가장 안정적이며, 자원 배분이 4개 페르소나에 골고루 분산되어 단일 군집 리스크가 낮습니다. 프리미엄 집중도와 휴면 재유치 비중을 함께 확보하므로 안정 성장과 신규 매출 회수를 동시에 노릴 수 있는 권장안입니다."
+          }
+        },
+        {
+          "id": "execution-roadmap",
+          "sectionName": "30일 실행 로드맵",
+          "subSectionName": "기준 시나리오 기준",
+          "componentType": "ExecutionRoadmap",
+          "data": {
+            "description": "기준 시나리오를 4주 동안 단계별로 실행하기 위한 주차별 액션과 책임 트랙입니다.",
+            "weeks": [
+              {
+                "weekLabel": "Week 1",
+                "weekTitle": "(D+1 ~ D+7) 기반 셋업 및 설계",
+                "tasks": [
+                  {
+                    "title": "프리미엄 멤버십 디자인 확정",
+                    "priority": "High",
+                    "owner": "프로덕트팀 + CRM팀",
+                    "description": "프리미엄 애호가 대상 신규 VIP 멤버십 등급·혜택 패키지 설계를 마무리합니다.",
+                    "deliverable": "확정된 멤버십 등급 안"
+                  },
+                  {
+                    "title": "PB 상품 초기 라인업 결정",
+                    "priority": "High",
+                    "owner": "프로덕트팀 + 구매팀",
+                    "description": "가치 최적화 군집를 위한 자체 PB 카테고리 5종을 선정하고 공급망 파트너와 협의를 개시합니다.",
+                    "deliverable": "PB 초기 상품 기획안"
+                  },
+                  {
+                    "title": "IT 시스템 개발 범위 정의",
+                    "priority": "Medium",
+                    "owner": "엔지니어링팀 + 데이터팀",
+                    "description": "맞춤 추천 엔진·멤버십 관리 모듈·CRM 통합 등 개인화 추천 엔진 구축 범위를 확정합니다.",
+                    "deliverable": "개발 요구사항 정의서"
+                  }
+                ]
+              },
+              {
+                "weekLabel": "Week 2",
+                "weekTitle": "(D+8 ~ D+14) 콘텐츠와 캠페인 제작",
+                "tasks": [
+                  {
+                    "title": "VIP 라운지 콘텐츠 패키지 제작",
+                    "priority": "High",
+                    "owner": "콘텐츠팀 + 디자인팀",
+                    "description": "프리미엄 애호가 대상 브랜드 스토리·스타일링 가이드 콘텐츠 12편을 제작합니다.",
+                    "deliverable": "VIP 라운지 콘텐츠 12편"
+                  },
+                  {
+                    "title": "재유치 캠페인 소재 개발",
+                    "priority": "High",
+                    "owner": "마케팅팀",
+                    "description": "휴면 잠재 군집을 위한 개인화 알림·복귀 혜택 콘텐츠 4종 변형을 제작합니다.",
+                    "deliverable": "재유치 캠페인 소재 4종"
+                  }
+                ]
+              },
+              {
+                "weekLabel": "Week 3",
+                "weekTitle": "(D+15 ~ D+21) 선행 출시",
+                "tasks": [
+                  {
+                    "title": "프리미엄 VIP 멤버십 시범 출시",
+                    "priority": "High",
+                    "owner": "프로덕트팀 + 운영팀",
+                    "description": "최상위 프리미엄 애호가 1,000명을 대상으로 멤버십 시범 운영을 진행하며 피드백을 수집합니다.",
+                    "deliverable": "시범 운영 만족도 NPS 결과"
+                  },
+                  {
+                    "title": "휴면 재유치 1차 배치 발송",
+                    "priority": "High",
+                    "owner": "CRM팀",
+                    "description": "휴면 잠재 군집 5,000명을 대상으로 1차 개인화 알림을 다채널로 발송합니다.",
+                    "deliverable": "1차 발송 응답률 측정"
+                  }
+                ]
+              },
+              {
+                "weekLabel": "Week 4",
+                "weekTitle": "(D+22 ~ D+30) 전체 출시와 운영 모니터링",
+                "tasks": [
+                  {
+                    "title": "프리미엄 VIP 멤버십 전체 출시",
+                    "priority": "High",
+                    "owner": "프로덕트팀 + 마케팅팀",
+                    "description": "프리미엄 애호가 전체를 대상으로 VIP 멤버십을 정식 오픈하고 신상품 2주 우선 액세스 권한을 부여합니다.",
+                    "deliverable": "프리미엄 전체 활성화 비율"
+                  },
+                  {
+                    "title": "성과 KPI 대시보드 가동",
+                    "priority": "Medium",
+                    "owner": "데이터팀",
+                    "description": "분기 매출·재구매율·재유치율 등 핵심 지표를 주간 자동 리포팅하는 대시보드를 가동합니다.",
+                    "deliverable": "주간 KPI 대시보드"
+                  }
+                ]
+              }
+            ],
+            "expectedOutcomes": {
+              "title": "30일 누적 기대 효과",
+              "metrics": [
+                { "label": "VIP 멤버십 가입", "value": "10,000명 이상", "subtext": "프리미엄 전체의 35% 이상" },
+                { "label": "재유치 도달", "value": "5,000명 이상", "subtext": "휴면 잠재 군집의 약 20%" },
+                { "label": "휴면 군집 활성화율", "value": "약 36%", "subtext": "재유치 대상자 기준" },
+                { "label": "추가 분기 매출", "value": "$8M 이상", "subtext": "Week 4까지 누적" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "population-expansion",
+      "tabName": "오디언스 확장",
+      "sections": [
+        {
+          "id": "market-expansion-opportunities",
+          "sectionName": "시장 확장 기회",
+          "headline": "4개 페르소나 각각의 인접 시장에서 추가 28,000명 규모의 확장 후보를 확인했으며, 총 매출 +$31M 추가 잠재력이 있습니다.",
+          "componentType": "MarketExpansionOpportunities",
+          "data": {
+            "description": "각 페르소나의 라이프스타일·소비 패턴과 유사한 인접 오디언스를 식별한 결과이며, 카드를 클릭하면 세그먼트별 상세 분석 모달이 열립니다.",
+            "opportunities": [
+              {
+                "segmentId": "premium",
+                "name": "프리미엄 애호가",
+                "label": "프리미엄 애호가",
+                "users": "28.4K명",
+                "share": "23.7%",
+                "color": "blue"
+              },
+              {
+                "segmentId": "value",
+                "name": "가치 최적화 군집",
+                "label": "가치 최적화 군집",
+                "users": "35.9K명",
+                "share": "29.9%",
+                "color": "green"
+              },
+              {
+                "segmentId": "occasional",
+                "name": "간헐적 구매자",
+                "label": "간헐적 구매자",
+                "users": "31.1K명",
+                "share": "25.9%",
+                "color": "yellow"
+              },
+              {
+                "segmentId": "dormant",
+                "name": "휴면 잠재 군집",
+                "label": "휴면 잠재 군집",
+                "users": "24.6K명",
+                "share": "20.5%",
+                "color": "gray"
+              }
+            ]
+          }
+        },
+        {
+          "id": "segment-comparison",
+          "sectionName": "세그먼트 비교",
+          "componentType": "SegmentComparisonTable",
+          "data": {
+            "columns": [
+              { "key": "metric", "label": "지표" },
+              { "key": "premium", "label": "프리미엄" },
+              { "key": "value", "label": "가치 최적화" },
+              { "key": "occasional", "label": "간헐 구매자" },
+              { "key": "dormant", "label": "휴면 잠재" }
+            ],
+            "rows": [
+              { "metric": "세그먼트 규모", "premium": "28.4K명 (23.7%)", "value": "35.9K명 (29.9%)", "occasional": "31.1K명 (25.9%)", "dormant": "24.6K명 (20.5%)" },
+              { "metric": "평균 주문 금액", "premium": "$487", "value": "$185", "occasional": "$98", "dormant": "$340 (마지막)" },
+              { "metric": "구매 빈도", "premium": "월 2.3회", "value": "월 1.5회", "occasional": "분기 1.2회", "dormant": "180일 이상 무" },
+              { "metric": "12개월 LTV", "premium": "$8,450", "value": "$2,090", "occasional": "$1,200", "dormant": "$345 (회복)" },
+              { "metric": "ROI", "premium": "524%", "value": "312%", "occasional": "188%", "dormant": "245%" }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "segmentDetailModals": [
+    {
+      "segmentId": "premium",
+      "modalTitle": "상세 분석",
+      "personaName": "프리미엄 애호가",
+      "personaDescription": "품질과 브랜드 가치를 중시하는 얼리 어답터입니다.",
+      "tabs": [
+        {
+          "id": "customer-overview",
+          "tabLabel": "고객 개요",
+          "data": {
+            "personaCard": {
+              "name": "프리미엄 애호가",
+              "description": "품질과 브랜드 가치를 중시하는 얼리 어답터입니다."
+            },
+            "overview": {
+              "size": { "value": "28.4K", "unit": "명" },
+              "averageAge": { "value": "35-45", "unit": "세" },
+              "genderDistribution": { "female": 62, "male": 38, "unit": "%" }
+            }
+          }
+        },
+        {
+          "id": "behavior-insights",
+          "tabLabel": "행동 인사이트",
+          "subTabs": [
+            {
+              "id": "purchase-behavior-metrics",
+              "label": "구매 행동 지표",
+              "data": {
+                "items": [
+                  { "label": "평균 주문 금액", "value": "$487" },
+                  { "label": "구매 빈도", "value": "월 2.3회", "subtext": "연 27.6회" },
+                  { "label": "연 총 지출", "value": "$13,440" },
+                  { "label": "예측 LTV (12개월)", "value": "$8,450" }
+                ]
+              }
+            },
+            {
+              "id": "preference-patterns",
+              "label": "선호도와 패턴",
+              "data": {
+                "preferredCategories": {
+                  "title": "선호 카테고리 (구매 비중)",
+                  "items": [
+                    { "label": "Fashion", "percentage": 42 },
+                    { "label": "Beauty", "percentage": 28 },
+                    { "label": "Home Décor", "percentage": 18 },
+                    { "label": "Electronics", "percentage": 8 },
+                    { "label": "기타", "percentage": 4 }
+                  ]
+                },
+                "brandPreferences": {
+                  "title": "브랜드 선호도",
+                  "topBrands": "Chanel, Dior, Hermès, Burberry, Gucci",
+                  "brandLoyalty": "높음",
+                  "newBrandAdoption": "34% (얼리 어답터)"
+                },
+                "purchaseTiming": {
+                  "title": "구매 시간대",
+                  "items": [
+                    { "label": "평일 저녁", "percentage": 45, "note": "(저녁 7시-10시)" },
+                    { "label": "주말", "percentage": 38, "note": "(토·일 오후)" },
+                    { "label": "평일 낮", "percentage": 12, "note": "(점심시간)" },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                },
+                "seasonalityTrends": {
+                  "title": "시즌 트렌드",
+                  "items": [
+                    { "label": "봄·가을 활동도 상승", "percentage": 45 },
+                    { "label": "세일 시즌 지출 감소", "percentage": 38, "note": "(정가 구매 선호)" },
+                    { "label": "정가 구매 우세", "percentage": 12 }
+                  ]
+                },
+                "channelPreference": {
+                  "title": "채널 선호도",
+                  "items": [
+                    { "label": "온라인", "percentage": 78, "note": "(모바일 앱 62%, 웹 16%)" },
+                    { "label": "오프라인", "percentage": 22, "note": "(프리미엄 스토어 방문)" }
+                  ]
+                },
+                "deviceUsage": {
+                  "title": "디바이스 사용",
+                  "items": [
+                    { "label": "iOS", "percentage": 84, "note": "(iPhone, iPad)" },
+                    { "label": "Android", "percentage": 12 },
+                    { "label": "PC", "percentage": 4 }
+                  ]
+                },
+                "paymentMethods": {
+                  "title": "결제 수단",
+                  "items": [
+                    { "label": "프리미엄 신용카드", "percentage": 67, "note": "(Platinum / Black Cards)" },
+                    { "label": "디지털 지갑", "percentage": 28, "note": "(Apple Pay, Samsung Pay)" },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "behavioral-traits",
+              "label": "행동 특성과 사이코그래픽 프로필",
+              "data": {
+                "coreValues": {
+                  "title": "핵심 가치관",
+                  "items": [
+                    { "value": "품질은 투자다", "description": "가치가 명확할 때 추가 지불 의사가 높음" },
+                    { "value": "브랜드 스토리와 헤리티지 중시" },
+                    { "value": "독점성과 차별화된 경험 추구" },
+                    { "value": "자기 표현과 사회적 정체성으로서의 소비" }
+                  ]
+                },
+                "purchaseConsistency": {
+                  "title": "구매 일관성",
+                  "score": "0.89",
+                  "level": "매우 높음",
+                  "bullets": [
+                    { "value": "규칙적 구매 패턴", "description": "월 2-3회 정기 구매" },
+                    { "value": "예측 가능한 안정적 소비 행동" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "strategic-analysis",
+          "tabLabel": "전략 분석",
+          "subTabs": [
+            {
+              "id": "risk-opportunity",
+              "label": "리스크와 기회 분석",
+              "data": {
+                "churnRisk": {
+                  "title": "이탈 위험",
+                  "score": 12,
+                  "maxScore": 100,
+                  "earlyWarningSignals": {
+                    "title": "조기 경고 신호",
+                    "items": [
+                      { "label": "구매 빈도 감소", "note": "(-15% 이상)" },
+                      { "label": "방문 빈도 감소", "note": "(주 2회 → 주 1회 미만)" },
+                      { "label": "세션 길이 단축" },
+                      { "label": "경쟁사 앱 설치", "note": "(추적 가능 시)" }
+                    ]
+                  }
+                },
+                "growthOpportunities": {
+                  "title": "성장 기회",
+                  "subtitle": "추가 판매 잠재력",
+                  "items": [
+                    "VIP 멤버십 업그레이드 가능성 높음",
+                    "럭셔리 라인 확장 시 매출 상승 기대",
+                    "독점 브랜드 출시 사전 구매 의향"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "engagement-strategy",
+              "label": "권장 인게이지먼트 전략",
+              "data": {
+                "dos": {
+                  "title": "DO (권장 액션)",
+                  "items": [
+                    "VIP 전용 프로그램과 혜택 제공",
+                    "신상품 우선 액세스 (정기 고객 대비 2주 우선)",
+                    "브랜드 스토리와 헤리티지 강조",
+                    "프리미엄 경험 제공 (전담 스타일리스트, VIP 라운지)",
+                    "한정판 및 독점 상품 우선 안내",
+                    "럭셔리 브랜드 라인 지속 확장",
+                    "맞춤 큐레이션 서비스 제공",
+                    "프리미엄 무료 배송과 반품 서비스 제공"
+                  ]
+                },
+                "donts": {
+                  "title": "DON'T (지양)",
+                  "items": [
+                    "과도한 할인 제공 (브랜드 가치 훼손)",
+                    "대량 프로모션 메시지 발송",
+                    "저가 상품 추천",
+                    "세일 시즌에만 집중하는 마케팅",
+                    "VIP 고객을 일반 고객과 동일하게 처리"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "sample-customers",
+              "label": "샘플 고객(익명화)",
+              "data": {
+                "items": [
+                  {
+                    "id": "#12847",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$487 (평균 대비 +16%)" },
+                      { "label": "구매 빈도", "value": "월 2.8회" },
+                      { "label": "최근 구매", "value": "Chanel 핸드백 $5,200, Dior 립스틱 세트" },
+                      { "label": "노트", "value": "신상품 출시 당일 구매 활동이 높음" }
+                    ]
+                  },
+                  {
+                    "id": "#12848",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$395" },
+                      { "label": "구매 빈도", "value": "월 2.1회" },
+                      { "label": "최근 구매", "value": "프리미엄 스킨케어 세트, 디자이너 조명" },
+                      { "label": "노트", "value": "동일 브랜드 80% 반복 구매로 강한 브랜드 충성도" }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "segmentId": "value",
+      "modalTitle": "상세 분석",
+      "personaName": "가치 최적화 군집",
+      "personaDescription": "가격 대비 가치를 중시하는 안정 코어 군집입니다.",
+      "tabs": [
+        {
+          "id": "customer-overview",
+          "tabLabel": "고객 개요",
+          "data": {
+            "personaCard": {
+              "name": "가치 최적화 군집",
+              "description": "가격 대비 가치를 중시하는 안정 코어 군집입니다."
+            },
+            "overview": {
+              "size": { "value": "35.9K", "unit": "명" },
+              "averageAge": { "value": "28-38", "unit": "세" },
+              "genderDistribution": { "female": 70, "male": 30, "unit": "%" }
+            }
+          }
+        },
+        {
+          "id": "behavior-insights",
+          "tabLabel": "행동 인사이트",
+          "subTabs": [
+            {
+              "id": "purchase-behavior-metrics",
+              "label": "구매 행동 지표",
+              "data": {
+                "items": [
+                  { "label": "평균 주문 금액", "value": "$185" },
+                  { "label": "구매 빈도", "value": "월 1.5회", "subtext": "연 18회" },
+                  { "label": "연 총 지출", "value": "$3,330" },
+                  { "label": "예측 LTV (12개월)", "value": "$2,090" }
+                ]
+              }
+            },
+            {
+              "id": "preference-patterns",
+              "label": "선호도와 패턴",
+              "data": {
+                "preferredCategories": {
+                  "title": "선호 카테고리 (구매 비중)",
+                  "items": [
+                    { "label": "Beauty", "percentage": 38 },
+                    { "label": "Fashion", "percentage": 32 },
+                    { "label": "Wellness", "percentage": 15 },
+                    { "label": "Home Décor", "percentage": 10 },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                },
+                "brandPreferences": {
+                  "title": "브랜드 선호도",
+                  "topBrands": "Sephora, Lancôme, Estée Lauder, Coach, Michael Kors",
+                  "brandLoyalty": "중간",
+                  "newBrandAdoption": "22% (얼리 매스)"
+                },
+                "purchaseTiming": {
+                  "title": "구매 시간대",
+                  "items": [
+                    { "label": "주말", "percentage": 50, "note": "(토·일 오후)" },
+                    { "label": "평일 저녁", "percentage": 30 },
+                    { "label": "평일 낮", "percentage": 15 },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                },
+                "seasonalityTrends": {
+                  "title": "시즌 트렌드",
+                  "items": [
+                    { "label": "세일 시즌 지출 집중", "percentage": 55 },
+                    { "label": "연말 시즌 구매 증가", "percentage": 28 },
+                    { "label": "정가 구매", "percentage": 17 }
+                  ]
+                },
+                "channelPreference": {
+                  "title": "채널 선호도",
+                  "items": [
+                    { "label": "온라인", "percentage": 90, "note": "(모바일 앱 70%, 웹 20%)" },
+                    { "label": "오프라인", "percentage": 10 }
+                  ]
+                },
+                "deviceUsage": {
+                  "title": "디바이스 사용",
+                  "items": [
+                    { "label": "iOS", "percentage": 65 },
+                    { "label": "Android", "percentage": 30 },
+                    { "label": "PC", "percentage": 5 }
+                  ]
+                },
+                "paymentMethods": {
+                  "title": "결제 수단",
+                  "items": [
+                    { "label": "신용카드", "percentage": 60 },
+                    { "label": "디지털 지갑", "percentage": 35, "note": "(Apple Pay, Samsung Pay)" },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "behavioral-traits",
+              "label": "행동 특성과 사이코그래픽 프로필",
+              "data": {
+                "coreValues": {
+                  "title": "핵심 가치관",
+                  "items": [
+                    { "value": "현명한 소비를 추구한다", "description": "가격 대비 가치를 꼼꼼히 비교" },
+                    { "value": "리뷰와 평점 기반 의사결정" },
+                    { "value": "트렌드와 실용성 모두 중시" },
+                    { "value": "멤버십 혜택과 누적 적립 활용" }
+                  ]
+                },
+                "purchaseConsistency": {
+                  "title": "구매 일관성",
+                  "score": "0.65",
+                  "level": "높음",
+                  "bullets": [
+                    { "value": "규칙적이지만 시즌 영향 큰 패턴", "description": "세일·연말에 집중" },
+                    { "value": "프로모션·할인에 반응이 빠른 행동" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "strategic-analysis",
+          "tabLabel": "전략 분석",
+          "subTabs": [
+            {
+              "id": "risk-opportunity",
+              "label": "리스크와 기회 분석",
+              "data": {
+                "churnRisk": {
+                  "title": "이탈 위험",
+                  "score": 34,
+                  "maxScore": 100,
+                  "earlyWarningSignals": {
+                    "title": "조기 경고 신호",
+                    "items": [
+                      { "label": "장바구니 방치 증가" },
+                      { "label": "할인 알림 무반응", "note": "(3회 이상 연속)" },
+                      { "label": "리뷰 작성 빈도 감소" },
+                      { "label": "경쟁사 가격 비교 증가" }
+                    ]
+                  }
+                },
+                "growthOpportunities": {
+                  "title": "성장 기회",
+                  "subtitle": "교차·추가 판매 잠재력",
+                  "items": [
+                    "PB 라인 구매 전환 가능성 높음",
+                    "연간 멤버십 가입 시 ARPU 25% 상승 기대",
+                    "프리미엄 군집으로의 점진적 이동 잠재력"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "engagement-strategy",
+              "label": "권장 인게이지먼트 전략",
+              "data": {
+                "dos": {
+                  "title": "DO (권장 액션)",
+                  "items": [
+                    "PB 라인 멤버 전용 우선 공급",
+                    "장기 멤버십(연간) 할인 우대 제공",
+                    "리뷰·평점 콘텐츠와 데이터 기반 추천 강화",
+                    "포인트 적립과 누적 보상 프로그램 운영",
+                    "친구 추천 보너스 캠페인 활성화"
+                  ]
+                },
+                "donts": {
+                  "title": "DON'T (지양)",
+                  "items": [
+                    "프리미엄 전용 정가 마케팅 일변도",
+                    "가격 비교 정보 차단",
+                    "리뷰·평점 미공개 상품 우선 추천",
+                    "잦은 가격 인상 통보"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "sample-customers",
+              "label": "샘플 고객(익명화)",
+              "data": {
+                "items": [
+                  {
+                    "id": "#28453",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$178" },
+                      { "label": "구매 빈도", "value": "월 1.7회" },
+                      { "label": "최근 구매", "value": "Sephora 스킨케어 세트, Coach 미니백" },
+                      { "label": "노트", "value": "리뷰 평점 4.5 이상만 구매하는 신중한 의사결정자" }
+                    ]
+                  },
+                  {
+                    "id": "#28454",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$195" },
+                      { "label": "구매 빈도", "value": "월 1.4회" },
+                      { "label": "최근 구매", "value": "Lancôme 립스틱 3종, 멤버십 연간 결제" },
+                      { "label": "노트", "value": "포인트 누적·할인 알림 활용도 매우 높음" }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "segmentId": "occasional",
+      "modalTitle": "상세 분석",
+      "personaName": "간헐적 구매자",
+      "personaDescription": "시즌·세일·트렌드 시점에 활성화되는 간헐 구매자입니다.",
+      "tabs": [
+        {
+          "id": "customer-overview",
+          "tabLabel": "고객 개요",
+          "data": {
+            "personaCard": {
+              "name": "간헐적 구매자",
+              "description": "시즌·세일·트렌드 시점에 활성화되는 간헐 구매자입니다."
+            },
+            "overview": {
+              "size": { "value": "31.1K", "unit": "명" },
+              "averageAge": { "value": "22-32", "unit": "세" },
+              "genderDistribution": { "female": 55, "male": 45, "unit": "%" }
+            }
+          }
+        },
+        {
+          "id": "behavior-insights",
+          "tabLabel": "행동 인사이트",
+          "subTabs": [
+            {
+              "id": "purchase-behavior-metrics",
+              "label": "구매 행동 지표",
+              "data": {
+                "items": [
+                  { "label": "평균 주문 금액", "value": "$98" },
+                  { "label": "구매 빈도", "value": "분기 1.2회", "subtext": "연 4.8회" },
+                  { "label": "연 총 지출", "value": "$470" },
+                  { "label": "예측 LTV (12개월)", "value": "$1,200" }
+                ]
+              }
+            },
+            {
+              "id": "preference-patterns",
+              "label": "선호도와 패턴",
+              "data": {
+                "preferredCategories": {
+                  "title": "선호 카테고리 (구매 비중)",
+                  "items": [
+                    { "label": "Fashion", "percentage": 35 },
+                    { "label": "Beauty", "percentage": 30 },
+                    { "label": "Accessories", "percentage": 20 },
+                    { "label": "기타", "percentage": 15 }
+                  ]
+                },
+                "brandPreferences": {
+                  "title": "브랜드 선호도",
+                  "topBrands": "H&M, Zara, Uniqlo, MAC, 드러그스토어 뷰티",
+                  "brandLoyalty": "낮음",
+                  "newBrandAdoption": "48% (트렌드 추종)"
+                },
+                "purchaseTiming": {
+                  "title": "구매 시간대",
+                  "items": [
+                    { "label": "주말", "percentage": 60 },
+                    { "label": "세일 기간 집중", "percentage": 30 },
+                    { "label": "기타", "percentage": 10 }
+                  ]
+                },
+                "seasonalityTrends": {
+                  "title": "시즌 트렌드",
+                  "items": [
+                    { "label": "Black Friday·홀리데이", "percentage": 65, "note": "(연 매출의 65%)" },
+                    { "label": "시즌 한정 컬렉션 출시", "percentage": 25 },
+                    { "label": "비수기", "percentage": 10 }
+                  ]
+                },
+                "channelPreference": {
+                  "title": "채널 선호도",
+                  "items": [
+                    { "label": "온라인", "percentage": 95, "note": "(모바일 앱 80%, 웹 15%)" },
+                    { "label": "오프라인", "percentage": 5 }
+                  ]
+                },
+                "deviceUsage": {
+                  "title": "디바이스 사용",
+                  "items": [
+                    { "label": "Android", "percentage": 55 },
+                    { "label": "iOS", "percentage": 40 },
+                    { "label": "PC", "percentage": 5 }
+                  ]
+                },
+                "paymentMethods": {
+                  "title": "결제 수단",
+                  "items": [
+                    { "label": "디지털 지갑", "percentage": 50, "note": "(Apple Pay, Samsung Pay)" },
+                    { "label": "신용카드", "percentage": 40 },
+                    { "label": "후불 결제", "percentage": 10, "note": "(BNPL)" }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "behavioral-traits",
+              "label": "행동 특성과 사이코그래픽 프로필",
+              "data": {
+                "coreValues": {
+                  "title": "핵심 가치관",
+                  "items": [
+                    { "value": "필요할 때만 구매", "description": "충동·시즌 의존형 소비" },
+                    { "value": "트렌드와 SNS 입소문에 민감" },
+                    { "value": "편리함과 빠른 배송 우선" },
+                    { "value": "가격 비교와 할인 활용에 적극적" }
+                  ]
+                },
+                "purchaseConsistency": {
+                  "title": "구매 일관성",
+                  "score": "0.35",
+                  "level": "낮음",
+                  "bullets": [
+                    { "value": "시즌·이벤트 의존 패턴", "description": "비수기에는 거의 비활성" },
+                    { "value": "예측이 어려운 산발적 구매 행동" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "strategic-analysis",
+          "tabLabel": "전략 분석",
+          "subTabs": [
+            {
+              "id": "risk-opportunity",
+              "label": "리스크와 기회 분석",
+              "data": {
+                "churnRisk": {
+                  "title": "이탈 위험",
+                  "score": 56,
+                  "maxScore": 100,
+                  "earlyWarningSignals": {
+                    "title": "조기 경고 신호",
+                    "items": [
+                      { "label": "비수기 미사용 기간 90일 이상" },
+                      { "label": "앱 푸시 비활성화" },
+                      { "label": "장바구니 방치 후 미구매" },
+                      { "label": "친구 추천 응답 무반응" }
+                    ]
+                  }
+                },
+                "growthOpportunities": {
+                  "title": "성장 기회",
+                  "subtitle": "활성화 잠재력",
+                  "items": [
+                    "비수기 미사용 알림 트리거로 활성화 빈도 +18%p 가능",
+                    "시즌 한정 컬렉션 사전 구매 유도",
+                    "친구 추천 보너스로 신규 유입과 동시 활성화 가능"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "engagement-strategy",
+              "label": "권장 인게이지먼트 전략",
+              "data": {
+                "dos": {
+                  "title": "DO (권장 액션)",
+                  "items": [
+                    "Black Friday·홀리데이 시즌 핵심 캠페인 집중",
+                    "비수기 미사용 알림 자동화 트리거 운영",
+                    "시즌 한정 컬렉션·트렌드 콘텐츠 큐레이션",
+                    "친구 추천 보너스 캠페인 결합",
+                    "후불 결제(BNPL) 옵션 명확하게 노출"
+                  ]
+                },
+                "donts": {
+                  "title": "DON'T (지양)",
+                  "items": [
+                    "정가 프리미엄 전용 마케팅 일변도",
+                    "장기 멤버십 강제 가입 유도",
+                    "구독·정기 결제 부담 강조",
+                    "비수기에 과도한 발송 빈도"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "sample-customers",
+              "label": "샘플 고객(익명화)",
+              "data": {
+                "items": [
+                  {
+                    "id": "#41279",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$112" },
+                      { "label": "구매 빈도", "value": "분기 1.4회" },
+                      { "label": "최근 구매", "value": "Zara 자켓, MAC 립스틱 (Black Friday)" },
+                      { "label": "노트", "value": "시즌 세일 시점에만 활성화되는 패턴이 뚜렷함" }
+                    ]
+                  },
+                  {
+                    "id": "#41280",
+                    "bullets": [
+                      { "label": "평균 지출", "value": "$89" },
+                      { "label": "구매 빈도", "value": "분기 1.0회" },
+                      { "label": "최근 구매", "value": "Uniqlo 베이직 라인, 친구 추천 보너스" },
+                      { "label": "노트", "value": "SNS 입소문 트리거 효과가 가장 큰 활성화 채널" }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "segmentId": "dormant",
+      "modalTitle": "상세 분석",
+      "personaName": "휴면 잠재 군집",
+      "personaDescription": "과거 활발하게 구매했지만 180일 이상 비활성 상태인 회복 잠재 군집입니다.",
+      "tabs": [
+        {
+          "id": "customer-overview",
+          "tabLabel": "고객 개요",
+          "data": {
+            "personaCard": {
+              "name": "휴면 잠재 군집",
+              "description": "과거 활발하게 구매했지만 180일 이상 비활성 상태인 회복 잠재 군집입니다."
+            },
+            "overview": {
+              "size": { "value": "24.6K", "unit": "명" },
+              "averageAge": { "value": "38-50", "unit": "세" },
+              "genderDistribution": { "female": 58, "male": 42, "unit": "%" }
+            }
+          }
+        },
+        {
+          "id": "behavior-insights",
+          "tabLabel": "행동 인사이트",
+          "subTabs": [
+            {
+              "id": "purchase-behavior-metrics",
+              "label": "구매 행동 지표",
+              "data": {
+                "items": [
+                  { "label": "마지막 주문 금액", "value": "$340" },
+                  { "label": "비활동 기간", "value": "180일 이상" },
+                  { "label": "예상 회복 매출", "value": "$345", "subtext": "1회성 회수 기준" },
+                  { "label": "재유치 가능성", "value": "36%" }
+                ]
+              }
+            },
+            {
+              "id": "preference-patterns",
+              "label": "선호도와 패턴",
+              "data": {
+                "preferredCategories": {
+                  "title": "과거 선호 카테고리",
+                  "items": [
+                    { "label": "Fashion", "percentage": 30 },
+                    { "label": "Beauty", "percentage": 25 },
+                    { "label": "Home Décor", "percentage": 18 },
+                    { "label": "Accessories", "percentage": 15 },
+                    { "label": "기타", "percentage": 12 }
+                  ]
+                },
+                "brandPreferences": {
+                  "title": "과거 브랜드 선호도",
+                  "topBrands": "Burberry, Gucci, Coach, Lancôme, 다양한 프리미엄 라인",
+                  "brandLoyalty": "과거 중간 이상",
+                  "newBrandAdoption": "마지막 활동 시점 기준"
+                },
+                "purchaseTiming": {
+                  "title": "과거 구매 시간대",
+                  "items": [
+                    { "label": "평일 저녁", "percentage": 40 },
+                    { "label": "주말", "percentage": 35 },
+                    { "label": "평일 낮", "percentage": 25 }
+                  ]
+                },
+                "seasonalityTrends": {
+                  "title": "과거 시즌 트렌드",
+                  "items": [
+                    { "label": "봄·가을 정기 활동", "percentage": 50 },
+                    { "label": "연말 시즌 구매", "percentage": 30 },
+                    { "label": "여름·겨울 비수기", "percentage": 20 }
+                  ]
+                },
+                "channelPreference": {
+                  "title": "과거 채널 선호도",
+                  "items": [
+                    { "label": "온라인", "percentage": 85, "note": "(모바일 앱 60%, 웹 25%)" },
+                    { "label": "오프라인", "percentage": 15 }
+                  ]
+                },
+                "deviceUsage": {
+                  "title": "과거 디바이스 사용",
+                  "items": [
+                    { "label": "iOS", "percentage": 60 },
+                    { "label": "Android", "percentage": 35 },
+                    { "label": "PC", "percentage": 5 }
+                  ]
+                },
+                "paymentMethods": {
+                  "title": "과거 결제 수단",
+                  "items": [
+                    { "label": "신용카드", "percentage": 65 },
+                    { "label": "디지털 지갑", "percentage": 30 },
+                    { "label": "기타", "percentage": 5 }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "behavioral-traits",
+              "label": "행동 특성과 사이코그래픽 프로필",
+              "data": {
+                "coreValues": {
+                  "title": "추정 핵심 가치관 (과거 데이터 기반)",
+                  "items": [
+                    { "value": "라이프 변화로 인한 구매 패턴 변화", "description": "결혼·이사·직업 전환 등" },
+                    { "value": "경쟁 플랫폼 이동 가능성" },
+                    { "value": "관심사가 일시적으로 다른 카테고리로 이동" }
+                  ]
+                },
+                "purchaseConsistency": {
+                  "title": "구매 일관성",
+                  "score": "0.10",
+                  "level": "매우 낮음 (비활성)",
+                  "bullets": [
+                    { "value": "장기간 미활동 상태", "description": "180일 이상 구매 없음" },
+                    { "value": "활성 시기 회복 가능성 36%" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "strategic-analysis",
+          "tabLabel": "전략 분석",
+          "subTabs": [
+            {
+              "id": "risk-opportunity",
+              "label": "리스크와 기회 분석",
+              "data": {
+                "churnRisk": {
+                  "title": "이탈 위험",
+                  "score": 92,
+                  "maxScore": 100,
+                  "earlyWarningSignals": {
+                    "title": "현 상태 신호",
+                    "items": [
+                      { "label": "마지막 접속 180일 이상" },
+                      { "label": "푸시 알림 비활성화" },
+                      { "label": "이메일 오픈율 5% 미만" },
+                      { "label": "경쟁사 앱 활성 사용 가능성" }
+                    ]
+                  }
+                },
+                "growthOpportunities": {
+                  "title": "성장 기회",
+                  "subtitle": "재유치 잠재력",
+                  "items": [
+                    "개인화 알림 + 한시 복귀 혜택 결합으로 36% 회복 가능",
+                    "1인당 약 $345 회수 매출 기대",
+                    "재유치 성공 시 가치 최적화 군집로 단계적 이동 가능"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "engagement-strategy",
+              "label": "권장 인게이지먼트 전략",
+              "data": {
+                "dos": {
+                  "title": "DO (권장 액션)",
+                  "items": [
+                    "개인 취향 기반 상품 추천 알림 발송",
+                    "한시 복귀 혜택 (15-20% 멤버십 할인) 제공",
+                    "과거 선호 브랜드 라인 신상품 안내",
+                    "다채널(이메일·푸시·SMS) 알림 결합 운영",
+                    "무료 배송·반품 등 진입 장벽 해소 혜택 강조"
+                  ]
+                },
+                "donts": {
+                  "title": "DON'T (지양)",
+                  "items": [
+                    "대량 발송 빈도 (오히려 차단 위험)",
+                    "구독·정기 결제 가입 강요",
+                    "전체 상품 광고성 메시지",
+                    "장기 약정 우선 권유"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "sample-customers",
+              "label": "샘플 고객(익명화)",
+              "data": {
+                "items": [
+                  {
+                    "id": "#58921",
+                    "bullets": [
+                      { "label": "마지막 지출", "value": "$340 (210일 전)" },
+                      { "label": "과거 구매 빈도", "value": "월 1.8회 (활성기)" },
+                      { "label": "과거 구매", "value": "Burberry 트렌치, Lancôme 스킨케어" },
+                      { "label": "노트", "value": "재유치 메시지 적극 대응 시 회복 가능성 높음" }
+                    ]
+                  },
+                  {
+                    "id": "#58922",
+                    "bullets": [
+                      { "label": "마지막 지출", "value": "$285 (220일 전)" },
+                      { "label": "과거 구매 빈도", "value": "월 1.2회 (활성기)" },
+                      { "label": "과거 구매", "value": "Coach 백, Home Décor 아이템" },
+                      { "label": "노트", "value": "이메일 채널보다 SMS 알림 응답률이 높음" }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

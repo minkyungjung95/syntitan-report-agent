@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { T } from "./tokens";
+import { McpSettingsModal } from "./syntitan-UI/mcp-settings";
 
 /* =========================================================
  *  Syntitan Prototype – Upload Flow
@@ -136,7 +137,7 @@ const Icon = {
 };
 
 /* ========== Sidebar / LNB ========== */
-function Sidebar({ collapsed, onToggle, activeKey, onSelect, profileOpen, onProfileToggle, profileRef, onAudit }) {
+function Sidebar({ collapsed, onToggle, activeKey, onSelect, profileOpen, onProfileToggle, profileRef, onAudit, onSettings }) {
   const NAV_HOME = { key: "home", label: "Home", Icon: Icon.Home };
   const NAV_WORKSPACE = [
     { key: "edit_dataset",   label: "Edit Dataset",     Icon: Icon.Database },
@@ -295,14 +296,14 @@ function Sidebar({ collapsed, onToggle, activeKey, onSelect, profileOpen, onProf
         </button>
 
         {profileOpen && (
-          <ProfilePopover collapsed={collapsed} onAudit={onAudit} />
+          <ProfilePopover collapsed={collapsed} onAudit={onAudit} onSettings={onSettings} />
         )}
       </div>
     </div>
   );
 }
 
-function ProfilePopover({ collapsed, onAudit }) {
+function ProfilePopover({ collapsed, onAudit, onSettings }) {
   const itemStyle = {
     padding: "8px 14px",
     fontSize: 12.5,
@@ -331,11 +332,14 @@ function ProfilePopover({ collapsed, onAudit }) {
         <div style={{ fontSize: 11.5, color: C.popoverSub, marginTop: 2 }}>email@company.com</div>
       </div>
       <div style={{ padding: "0 12px 8px" }}>
-        <button style={{
-          width: "100%", padding: "7px 0",
-          background: "rgba(255,255,255,0.06)", color: C.popoverText, border: "none",
-          borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
-        }}>Settings</button>
+        <button
+          onClick={onSettings}
+          style={{
+            width: "100%", padding: "7px 0",
+            background: "rgba(255,255,255,0.06)", color: C.popoverText, border: "none",
+            borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
+          }}
+        >Settings</button>
       </div>
       <div style={itemStyle} onMouseEnter={onHover} onMouseLeave={onLeave}>Members</div>
       <div style={itemStyle} onMouseEnter={onHover} onMouseLeave={onLeave}>Pricing</div>
@@ -1969,6 +1973,7 @@ export default function SyntitanPrototype() {
   const [collapsed, setCollapsed] = useState(false);
   const [activeKey, setActiveKey] = useState("edit_dataset");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mcpOpen, setMcpOpen] = useState(false);
   const profileRef = useRef(null);
 
   // 메인 화면 상태
@@ -2320,6 +2325,7 @@ export default function SyntitanPrototype() {
         onProfileToggle={() => setProfileOpen(!profileOpen)}
         profileRef={profileRef}
         onAudit={() => { setActiveKey("audit"); setProfileOpen(false); }}
+        onSettings={() => { setMcpOpen(true); setProfileOpen(false); }}
       />
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
         {activeKey === "audit" ? (
@@ -2402,6 +2408,8 @@ export default function SyntitanPrototype() {
           onCancel={cancelReview}
         />
       )}
+
+      <McpSettingsModal open={mcpOpen} onClose={() => setMcpOpen(false)} />
     </div>
   );
 }

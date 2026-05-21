@@ -72,6 +72,52 @@ const CATEGORIES = [
   },
 ];
 
+/* ─────────────────────── 전처리 모션 6종 ─────────────────────── */
+const PREPROCESSING_MOTIONS = [
+  { src: "/videos/01_feature-derivation.mp4", ko: "컬럼 증강",                  en: "Feature Derivation" },
+  { src: "/videos/02_masking.mp4",            ko: "가명화",                     en: "Masking" },
+  { src: "/videos/03_low-signal-removal.mp4", ko: "저신호 컬럼 제거",            en: "Low-Signal Column Removal" },
+  { src: "/videos/04_outlier-refinement.mp4", ko: "이상치·분포·카테고리 정제",   en: "Outlier · Distribution · Category" },
+  { src: "/videos/05_missing-treatment.mp4",  ko: "결측치 처리",                en: "Missing Value Treatment" },
+  { src: "/videos/06_row-augmentation.mp4",   ko: "행 증강",                    en: "Row Augmentation" },
+];
+
+function PreprocessingMotions() {
+  return (
+    <section style={S.section}>
+      <div style={S.sectionTitle}>Data Preprocessing Motions</div>
+      <div style={{ fontSize: 12, color: "#7B7E85", marginTop: -8, marginBottom: 16 }}>
+        전처리 6단계 모션 · 5초 루프 · 416 × 186
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
+        {PREPROCESSING_MOTIONS.map((m) => (
+          <div key={m.src} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <video
+              src={m.src}
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{
+                width: "100%",
+                aspectRatio: "520 / 260",
+                borderRadius: 12,
+                background: "#f6f7f9",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)",
+                objectFit: "cover",
+              }}
+            />
+            <div style={{ paddingLeft: 2 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: "#171719", letterSpacing: "-0.01em" }}>{m.ko}</div>
+              <div style={{ fontSize: 11.5, color: "#7B7E85", marginTop: 2 }}>{m.en}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function AgentThumbnails() {
   return (
     <div>
@@ -79,6 +125,9 @@ export default function AgentThumbnails() {
         <div style={S.h1}>Agent Thumbnails</div>
         <div style={S.sub}>카테고리별 컬러 · 부정 케이스는 레드 · 총 12개</div>
       </div>
+
+      <PreprocessingMotions />
+
       {CATEGORIES.map((cat) => (
         <section key={cat.name} style={S.section}>
           <div style={S.sectionTitle}>{cat.name}</div>

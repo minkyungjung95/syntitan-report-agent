@@ -47,6 +47,18 @@ function loadCatalog() {
   return JSON.parse(fs.readFileSync(CATALOG_FILE, "utf-8"));
 }
 
+// 같은 파일 안에 로컬로 선언된 함수 컴포넌트 이름 수집 (대문자 시작).
+// `function FooSection(...)` / `const Foo = (...) =>` / `export function Foo(...)` 모두 매칭.
+function parseLocalDecls(src) {
+  const out = new Set();
+  const reFn = /\bfunction\s+([A-Z][A-Za-z0-9_]*)\s*\(/g;
+  const reConst = /\b(?:const|let)\s+([A-Z][A-Za-z0-9_]*)\s*=/g;
+  let m;
+  while ((m = reFn.exec(src)) !== null) out.add(m[1]);
+  while ((m = reConst.exec(src)) !== null) out.add(m[1]);
+  return out;
+}
+
 // JSX 에서 import 된 컴포넌트 이름 수집 (report-components·charts·ui-components)
 function parseImports(src) {
   const imports = new Set();
@@ -251,13 +263,13 @@ function validate(reportPath, jsonPath) {
 
   const issues = [];
   const imports = parseImports(src);
+  const locals = parseLocalDecls(src);
   const usages = parseJSXUsages(src);
 
-  // 1) 사용 컴포넌트가 카탈로그에 존재하는가
+  // 1) 사용 컴포넌트가 카탈로그에 존재하는가 (import / 로컬 선언도 허용)
   const usedComponents = new Set(usages.map((u) => u.name));
   for (const name of usedComponents) {
-    // 카탈로그에 없는 것 중 import 된 것은 OK (외부 import 가능) — 단 imports에도 없으면 reject
-    if (!catalog[name] && !imports.has(name)) {
+    if (!catalog[name] && !imports.has(name) && !locals.has(name)) {
       issues.push({ level: "error", kind: "unknown-component", msg: `<${name}> is not in catalog and not imported` });
     }
   }

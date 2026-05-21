@@ -2261,6 +2261,28 @@ export default function App() {
                     ],
                   }],
                 },
+                {
+                  category: "Audience Strategy",
+                  badgeVariant: "Positive",
+                  topics: [{
+                    title: "오디언스 전략",
+                    description: "120K 고객 4 페르소나 클러스터 + 시나리오 비교(보수/기준/공격) + 30일 실행 로드맵 + 세그먼트 상세 모달",
+                    variants: [
+                      { name: "Luxury Beauty & Fashion", subtitle: "분석 리포트 + 오디언스 확장 2탭", route: "/#/audience", jsonPath: "/json/audience-strategy.json" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Pricing",
+                  badgeVariant: "Cautionary",
+                  topics: [{
+                    title: "신제품 가격 전략 (PSM)",
+                    description: "PSM 4 곡선으로 PMC·OPP·IPP·PME 도출 + 진입/메인/프리미엄 3옵션 + 페르소나 인구·예산 매칭",
+                    variants: [
+                      { name: "Premium OLED 65\" TV", subtitle: "PSM 분석 200명 응답 + 가격 전략 인사이트", route: "/#/pricing", jsonPath: "/json/new-pricing-product.json" },
+                    ],
+                  }],
+                },
               ];
               return (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(440px, 1fr))", gap: 16 }}>

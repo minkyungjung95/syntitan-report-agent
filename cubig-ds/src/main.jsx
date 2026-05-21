@@ -29,6 +29,8 @@ const AdPerformanceReport = lazy(() => import('./ad-performance-report'))
 const AdRoasReport = lazy(() => import('./ad-roas-report'))
 const ChurnPredictionReport = lazy(() => import('./churn-prediction-report'))
 const PersonaSurveyReport = lazy(() => import('./persona-survey-report'))
+const AudienceStrategyReport = lazy(() => import('./audience-strategy-report'))
+const NewPricingProductReport = lazy(() => import('./new-pricing-product-report'))
 const AuditLog = lazy(() => import('./syntitan-UI/audit-log.jsx'))
 const SyntitanPrototype = lazy(() => import('./syntitan-prototype.jsx'))
 
@@ -87,6 +89,22 @@ function Root() {
     return (
       <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
         <PersonaSurveyReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'audience') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <AudienceStrategyReport />
+      </Suspense>
+    )
+  }
+
+  if (route === 'pricing') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, fontFamily: 'Pretendard, sans-serif' }}>Loading...</div>}>
+        <NewPricingProductReport />
       </Suspense>
     )
   }

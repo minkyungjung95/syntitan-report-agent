@@ -276,43 +276,31 @@ export default function ChurnPredictionReport() {
                       const maxRev = Math.max(...revenue.data.scenarios.map((s) => s.monthlyRevenue));
                       const BAR_H = 200;
                       return (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                          {/* 시나리오 헤더 3컬럼 */}
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24 }}>
-                            {revenue.data.scenarios.map((s, i) => (
-                              <div key={i} style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+                        // 각 컬럼이 (헤더 + 값 + 막대)를 자체 flex column으로 묶고,
+                        // 부모 grid 의 alignItems:flex-end 로 컬럼들의 baseline 을 맞춤.
+                        // 막대 길이가 짧으면 그 컬럼 전체 높이가 줄어들고, 상단 메트릭이 함께 내려옴.
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24, alignItems: "flex-end" }}>
+                          {revenue.data.scenarios.map((s, i) => {
+                            const ratio = s.monthlyRevenue / maxRev;
+                            return (
+                              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
                                 <Badge type="Solid" variant="Secondary" size="Small" text={s.caseName} />
                                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                                   <span style={{ width: 10, height: 10, borderRadius: "50%", background: colorMap[s.color] || colorMap.blue }} />
                                   <span style={{ fontSize: 14, color: "#171719", fontWeight: 500 }}>{s.label}</span>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                          {/* 시나리오별 값 */}
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24 }}>
-                            {revenue.data.scenarios.map((s, i) => (
-                              <div key={i} style={{ textAlign: "center", fontSize: 18, fontWeight: 700, color: "#171719" }}>
-                                ${s.monthlyRevenue.toLocaleString()}
-                              </div>
-                            ))}
-                          </div>
-                          {/* 막대 그래프 — repeat(3,1fr) 동일 grid 로 헤더와 완벽 정렬 */}
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24, height: BAR_H, alignItems: "flex-end" }}>
-                            {revenue.data.scenarios.map((s, i) => {
-                              const ratio = s.monthlyRevenue / maxRev;
-                              return (
-                                <div key={i} style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                                  <div style={{
-                                    height: `${ratio * 100}%`,
-                                    background: colorMap[s.color] || colorMap.blue,
-                                    borderRadius: "12px 12px 0 0",
-                                    margin: "0 32px",
-                                  }} />
+                                <div style={{ fontSize: 18, fontWeight: 700, color: "#171719" }}>
+                                  ${s.monthlyRevenue.toLocaleString()}
                                 </div>
-                              );
-                            })}
-                          </div>
+                                <div style={{
+                                  width: "calc(100% - 64px)",
+                                  height: ratio * BAR_H,
+                                  background: colorMap[s.color] || colorMap.blue,
+                                  borderRadius: "12px 12px 0 0",
+                                }} />
+                              </div>
+                            );
+                          })}
                         </div>
                       );
                     })()}

@@ -33,6 +33,75 @@ import { Btn, Badge } from "./ui-components.jsx";
  *    Pattern ① (SignalCard + 그래프 + TextBlock) → Signal Cards
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ── Revenue Exposure 막대: 값은 막대 내부, 호버 시 상세 툴팁 ── */
+function ScenarioBar({ s, ratio, barH, color }) {
+  const [hover, setHover] = useState(false);
+  const value = `$${s.monthlyRevenue.toLocaleString()}`;
+  // 막대 색이 밝으면 내부 글자는 어둡게
+  const isLight = (() => {
+    const c = (color || "").replace("#", "");
+    if (c.length < 6) return false;
+    const r = parseInt(c.slice(0, 2), 16), g = parseInt(c.slice(2, 4), 16), b = parseInt(c.slice(4, 6), 16);
+    return 0.299 * r + 0.587 * g + 0.114 * b > 160;
+  })();
+  const txtColor = isLight ? "#171719" : "#FFFFFF";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <Badge type="Solid" variant="Secondary" size="Small" text={s.caseName} />
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 14, color: "#171719", fontWeight: 500 }}>{s.label}</span>
+      </div>
+      <div
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{
+          position: "relative",
+          width: "calc(100% - 64px)",
+          height: ratio * barH,
+          background: color,
+          borderRadius: "12px 12px 0 0",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          cursor: "default",
+          transition: "filter 0.15s",
+          filter: hover ? "brightness(0.93)" : "none",
+        }}
+      >
+        <span style={{
+          marginTop: 10,
+          fontSize: 14,
+          fontWeight: 700,
+          color: txtColor,
+          textShadow: isLight ? "none" : "0 1px 2px rgba(0,0,0,0.2)",
+          whiteSpace: "nowrap",
+        }}>{value}</span>
+        {hover && (
+          <div style={{
+            position: "absolute",
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#171719",
+            color: "#FFFFFF",
+            padding: "7px 11px",
+            borderRadius: 8,
+            whiteSpace: "nowrap",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
+            zIndex: 20,
+            pointerEvents: "none",
+          }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700 }}>{value}</div>
+            <div style={{ fontSize: 11, fontWeight: 500, opacity: 0.85, marginTop: 2 }}>
+              {s.retainedUsers.toLocaleString()} users · {s.caseName}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ChurnPredictionReport() {
   const [data, setData] = useState(null);
   useEffect(() => {
@@ -279,28 +348,16 @@ export default function ChurnPredictionReport() {
                         // 각 컬럼이 (헤더 + 값 + 막대)를 자체 flex column으로 묶고,
                         // 부모 grid 의 alignItems:flex-end 로 컬럼들의 baseline 을 맞춤.
                         // 막대 길이가 짧으면 그 컬럼 전체 높이가 줄어들고, 상단 메트릭이 함께 내려옴.
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24, alignItems: "flex-end" }}>
-                          {revenue.data.scenarios.map((s, i) => {
-                            const ratio = s.monthlyRevenue / maxRev;
-                            return (
-                              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                                <Badge type="Solid" variant="Secondary" size="Small" text={s.caseName} />
-                                <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: colorMap[s.color] || colorMap.blue }} />
-                                  <span style={{ fontSize: 14, color: "#171719", fontWeight: 500 }}>{s.label}</span>
-                                </div>
-                                <div style={{ fontSize: 18, fontWeight: 700, color: "#171719" }}>
-                                  ${s.monthlyRevenue.toLocaleString()}
-                                </div>
-                                <div style={{
-                                  width: "calc(100% - 64px)",
-                                  height: ratio * BAR_H,
-                                  background: colorMap[s.color] || colorMap.blue,
-                                  borderRadius: "12px 12px 0 0",
-                                }} />
-                              </div>
-                            );
-                          })}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", columnGap: 24, alignItems: "flex-end", padding: "0 36px" }}>
+                          {revenue.data.scenarios.map((s, i) => (
+                            <ScenarioBar
+                              key={i}
+                              s={s}
+                              ratio={s.monthlyRevenue / maxRev}
+                              barH={BAR_H}
+                              color={colorMap[s.color] || colorMap.blue}
+                            />
+                          ))}
                         </div>
                       );
                     })()}

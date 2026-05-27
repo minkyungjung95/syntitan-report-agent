@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Banner — 데이터 상태가 결과를 만듭니다</title>
+    <style>
+      :root {
+        --bg: #fafbfc;
+        --card: #ffffff;
+        --text: #0b1020;
+        --text-mute: #6b7280;
+        --text-soft: #9aa0a6;
+        --border: #eef0f3;
+        --accent: #3b82f6;
+        --accent-soft: #eff6ff;
+        --accent-hover: #2563eb;
+        --hl-soft: #dbeafe;
+        --green: #16a34a;
+        --shadow-soft: 0 1px 2px rgba(15,23,42,0.04), 0 6px 24px rgba(15,23,42,0.05);
+        --shadow-back: 0 1px 2px rgba(15,23,42,0.03), 0 8px 28px rgba(15,23,42,0.04);
+      }
+
+      html, body {
+        margin: 0; padding: 0;
+        background:
+          radial-gradient(800px 500px at 100% 0%, #eef4ff 0%, transparent 60%),
+          radial-gradient(700px 400px at 0% 100%, #f3f5f9 0%, transparent 60%),
+          var(--bg);
+        font-family: Pretendard, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", system-ui, sans-serif;
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .banner {
+        width: 1280px;
+        min-height: 720px;
+        margin: 0 auto;
+        padding: 72px 96px 80px;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      /* 우상단 닫기 행 (파파고 톤) */
+      .top-actions {
+        position: absolute; top: 32px; right: 32px;
+        display: flex; align-items: center; gap: 18px;
+        color: var(--text-soft);
+        font-size: 13px; font-weight: 500;
+      }
+      .top-actions .check {
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+      .top-actions .box {
+        width: 18px; height: 18px;
+        border: 1.5px solid #d1d5db; border-radius: 4px;
+        display: inline-block;
+      }
+      .top-actions .x {
+        width: 18px; height: 18px; color: var(--text);
+      }
+
+      /* ===== Header ===== */
+      h1 {
+        font-size: 38px;
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+        margin: 0 0 14px;
+        color: var(--text);
+        max-width: 880px;
+      }
+      h1 .hl {
+        background: var(--hl-soft);
+        padding: 0 6px;
+        border-radius: 4px;
+      }
+      .subtitle {
+        font-size: 15px;
+        color: var(--text-mute);
+        line-height: 1.6;
+        margin: 0 0 56px;
+        max-width: 640px;
+      }
+
+      /* ===== Compare (Stack 패턴) ===== */
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        margin-bottom: 36px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 26px 28px 24px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: relative;
+      }
+
+      /* Before — 뒤에 흐릿하게 stack된 카드 한 장 */
+      .card-stack { position: relative; }
+      .card-stack::before {
+        content: "";
+        position: absolute;
+        inset: 12px -10px -10px 10px;
+        background: #f3f4f8;
+        border-radius: 20px;
+        z-index: 0;
+        box-shadow: var(--shadow-back);
+      }
+      .card-stack .card { position: relative; z-index: 1; }
+
+      /* After — 살짝 액센트 글로우 */
+      .card.accent {
+        border-color: #dce8ff;
+        box-shadow: 0 1px 2px rgba(59,130,246,0.08), 0 12px 36px rgba(59,130,246,0.12);
+      }
+
+      .head {
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .head .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 10px; border-radius: 999px;
+        font-size: 12px; font-weight: 600;
+        background: #f3f4f6; color: #6b7280;
+      }
+      .head .chip.accent {
+        background: var(--accent-soft); color: var(--accent-hover);
+      }
+      .head .arrow-mini {
+        color: var(--text-soft); font-size: 12px;
+      }
+
+      .title {
+        font-size: 14px; color: var(--text-mute);
+        font-weight: 500; letter-spacing: -0.01em;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 24px;
+        padding-top: 8px;
+      }
+      .stat .label {
+        font-size: 12px; color: var(--text-soft); font-weight: 500;
+        margin-bottom: 6px;
+      }
+      .stat .num {
+        font-size: 30px; font-weight: 700; letter-spacing: -0.025em;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-mute);
+        line-height: 1.1;
+      }
+      .card.accent .stat .num { color: var(--text); }
+      .card.accent .stat.hero .num { color: var(--accent-hover); }
+      .stat .unit {
+        font-size: 14px; font-weight: 600; color: var(--text-soft); margin-left: 2px;
+      }
+      .stat .hl {
+        display: inline-block;
+        background: var(--hl-soft);
+        padding: 0 4px;
+        border-radius: 3px;
+      }
+      .stat .delta {
+        margin-top: 6px;
+        font-size: 12px; font-weight: 600; color: var(--green);
+        display: inline-flex; align-items: center; gap: 3px;
+      }
+
+      /* ===== Bottom Note ===== */
+      .footer-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 4px 0;
+      }
+      .footer-row .note {
+        font-size: 14px; color: var(--text-mute); font-weight: 500;
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+      .footer-row .note b {
+        color: var(--accent-hover); font-weight: 700;
+        background: var(--hl-soft); padding: 1px 6px; border-radius: 4px;
+      }
+      .footer-row .cta {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: var(--accent-hover);
+        font-size: 14.5px; font-weight: 600;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .footer-row .cta:hover { color: var(--accent); }
+      .footer-row .cta svg { width: 14px; height: 14px; }
+
+      /* mid arrow indicator */
+      .mid-arrow {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 44px; height: 44px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 6px 18px rgba(15,23,42,0.08);
+        z-index: 2;
+      }
+      .mid-arrow svg { width: 18px; height: 18px; color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="banner">
+
+      <div class="top-actions">
+        <span class="check">
+          <span class="box"></span>
+          7일간 다시 보지 않기
+        </span>
+        <svg class="x" viewBox="0 0 24 24" fill="none">
+          <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h1>같은 AI도 <span class="hl">데이터 상태</span>에 따라<br/>결과가 달라집니다.</h1>
+      <p class="subtitle">데이터 정제 한 번으로 분석 모수·식별 인원·예측 신뢰도가 동시에 개선됩니다.</p>
+
+      <!-- Before / After -->
+      <div class="compare" style="position: relative;">
+
+        <div class="card-stack">
+          <div class="card">
+            <div class="head">
+              <span class="chip">Before · 정제 전</span>
+              <span class="arrow-mini">⌖</span>
+            </div>
+            <div class="title">회색 톤 · 결측·이상치·편향 포함</div>
+            <div class="stats">
+              <div class="stat">
+                <span class="label">분석 모수</span>
+                <span class="num">4,680<span class="unit">명</span></span>
+              </div>
+              <div class="stat">
+                <span class="label">식별 인원</span>
+                <span class="num">935<span class="unit">명</span></span>
+              </div>
+              <div class="stat" style="grid-column: 1 / -1;">
+                <span class="label">예측 신뢰도</span>
+                <span class="num">62<span class="unit">%</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mid-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div>
+          <div class="card accent">
+            <div class="head">
+              <span class="chip accent">After · 정제 후</span>
+              <span class="arrow-mini">✓</span>
+            </div>
+            <div class="title">컬러 톤 · 누락 없이 정렬된 데이터</div>
+            <div class="stats">
+              <div class="stat">
+                <span class="label">분석 모수</span>
+                <span class="num"><span class="hl">5,000</span><span class="unit">명</span></span>
+                <span class="delta">▲ +320명</span>
+              </div>
+              <div class="stat hero">
+                <span class="label">식별 인원</span>
+                <span class="num"><span class="hl">1,247</span><span class="unit">명</span></span>
+                <span class="delta">▲ +312명</span>
+              </div>
+              <div class="stat hero" style="grid-column: 1 / -1;">
+                <span class="label">예측 신뢰도</span>
+                <span class="num"><span class="hl">91</span><span class="unit">%</span></span>
+                <span class="delta">▲ +29%p</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-row">
+        <div class="note">
+          데이터 정제 한 번으로 <b>+312명</b> 새로 포함
+        </div>
+        <a href="#" class="cta">
+          내 데이터 상태 확인하기
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </body>
+</html>

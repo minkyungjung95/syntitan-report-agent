@@ -1,5 +1,5 @@
-import {
-  PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
+'import {
+PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
   ExecutiveSummaryCard,
   DataTable,
   SignalCard,
@@ -9,41 +9,26 @@ import { GroupedBarChart, LineChart, ComboChart, VBarChart, CHART_COLORS } from 
 import { DownloadIcon, DatabaseIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  CsTicketReport — 고객센터 티켓 분석 리포트
- *
- *  FE 핸드오프 가이드 (개발자 폴더 구조 권장):
- *    src/components/report/CsTicketReport/
- *      ├── index.tsx                       ← 메인 (이 파일의 CsTicketReport)
- *      ├── ExecutiveSummary.tsx            ← (Section 1) 총괄 요약 + Key Findings
- *      ├── KpiTrend.tsx                    ← (Section 2+3) NPS·처리시간 LineChart 2개
- *      ├── CategoryAnalysis.tsx            ← (Section 4) 카테고리 ComboChart
- *      ├── ChannelAnalysis.tsx             ← (Section 5) 채널 VBarChart 3개
- *      ├── SatisfactionDistribution.tsx    ← (Section 6) 카테고리별 만족도 StackedBar
- *      ├── RootCauseSignals.tsx            ← (Section 7) 근본 원인 SignalCard 3개
- *      └── StrategyRoadmap.tsx             ← (Section 8) 개선 로드맵
- *
- *  데이터 소스: public/json/customer-support.json (또는 인라인 데이터)
- *  공통 컴포넌트: ContentHeader / SectionHeading / ExecutiveSummaryCard / SectionCard /
- *                SignalCard / StrategyRoadmapTable / LineChart / ComboChart / VBarChart / DataTable
- * ═══════════════════════════════════════════════════════════════════════════ */
-
 // ─── Data (JSON 원문 그대로) ────────────────────────────────────────────────
 
 const npsTrendData = [
-  { id: "NPS", data: [
-    { x: "1월", y: -20 },
-    { x: "2월", y: -18 },
-    { x: "3월", y: -16 },
-  ]},
+  {
+    id: "NPS", data: [
+      { x: "1월", y: -20 },
+      { x: "2월", y: -18 },
+      { x: "3월", y: -16 },
+    ]
+  },
 ];
 
 const resolutionTimeTrendData = [
-  { id: "처리시간", data: [
-    { x: "1월", y: 19.2 },
-    { x: "2월", y: 18.4 },
-    { x: "3월", y: 17.8 },
-  ]},
+  {
+    id: "처리시간", data: [
+      { x: "1월", y: 19.2 },
+      { x: "2월", y: 18.4 },
+      { x: "3월", y: 17.8 },
+    ]
+  },
 ];
 
 // 카테고리 분석 — ComboChart (bar=처리시간, line=NPS): 처리시간 길수록 NPS 낮아지는 상관관계
@@ -51,42 +36,42 @@ const resolutionTimeTrendData = [
 const categoryComboData = [
   { label: "기능 오류", bar: 32.5, line: -58 },
   { label: "결제/환불", bar: 22.1, line: -32 },
-  { label: "사용 방법", bar: 14.8, line: -8  },
-  { label: "일반 문의", bar: 9.2,  line: 18  },
-  { label: "계정/인증", bar: 7.6,  line: 28  },
+  { label: "사용 방법", bar: 14.8, line: -8 },
+  { label: "일반 문의", bar: 9.2, line: 18 },
+  { label: "계정/인증", bar: 7.6, line: 28 },
 ];
 
 // 카테고리 분석 상세 테이블 — 카테고리 행 + 지표 컬럼
 const isTopNegativeCategory = (row) => row.category === "결제/환불" || row.category === "기능 오류";
 const categoryColumns = [
   { key: "category", label: "카테고리" },
-  { key: "count",    label: "건수",          align: "center" },
-  { key: "share",    label: "비중",          align: "center" },
-  { key: "time",     label: "평균 처리시간",  align: "center", highlight: "red", highlightWhen: isTopNegativeCategory },
-  { key: "delay",    label: "24h 초과 지연율", align: "center" },
-  { key: "nps",      label: "NPS",           align: "center", highlight: "red", highlightWhen: isTopNegativeCategory },
+  { key: "count", label: "건수", align: "center" },
+  { key: "share", label: "비중", align: "center" },
+  { key: "time", label: "평균 처리시간", align: "center", highlight: "red", highlightWhen: isTopNegativeCategory },
+  { key: "delay", label: "24h 초과 지연율", align: "center" },
+  { key: "nps", label: "NPS", align: "center", highlight: "red", highlightWhen: isTopNegativeCategory },
 ];
 const categoryData = [
   { category: "결제/환불", count: "380", share: "31.7%", time: "22.1시간", delay: "35%", nps: "-32" },
   { category: "기능 오류", count: "290", share: "24.2%", time: "32.5시간", delay: "55%", nps: "-58" },
-  { category: "사용 방법", count: "240", share: "20.0%", time: "14.8시간", delay: "15%", nps: "-8"  },
-  { category: "계정/인증", count: "180", share: "15.0%", time: "7.6시간",  delay: "5%",  nps: "+28" },
-  { category: "일반 문의", count: "110", share: "9.1%",  time: "9.2시간",  delay: "8%",  nps: "+18" },
+  { category: "사용 방법", count: "240", share: "20.0%", time: "14.8시간", delay: "15%", nps: "-8" },
+  { category: "계정/인증", count: "180", share: "15.0%", time: "7.6시간", delay: "5%", nps: "+28" },
+  { category: "일반 문의", count: "110", share: "9.1%", time: "9.2시간", delay: "8%", nps: "+18" },
 ];
 
 // 채널 분석 — 처리시간 + 지연율 + NPS 세 VBarChart (NPS 차트 기본 팔레트와 통일)
 // 순서: 이메일 → 앱 → 채팅 → 전화 — 모든 차트 동일
 const channelTimeData = [
   { label: "이메일", value: 28 },
-  { label: "앱",    value: 18 },
-  { label: "채팅",  value: 8  },
-  { label: "전화",  value: 3  },
+  { label: "앱", value: 18 },
+  { label: "채팅", value: 8 },
+  { label: "전화", value: 3 },
 ];
 const channelNpsData = [
   { label: "이메일", value: -35 },
-  { label: "앱",    value: -10 },
-  { label: "채팅",  value: 12  },
-  { label: "전화",  value: 18  },
+  { label: "앱", value: -10 },
+  { label: "채팅", value: 12 },
+  { label: "전화", value: 18 },
 ];
 
 // 채널 분석 상세 테이블 — 채널 행(색상 스와치 포함) + 지표 컬럼
@@ -99,27 +84,27 @@ const channelSwatch = (name, color) => (
 );
 const channelColumns = [
   { key: "channel", label: "채널" },
-  { key: "count",   label: "건수",           align: "center" },
-  { key: "share",   label: "비중",           align: "center" },
-  { key: "time",    label: "평균 처리시간",   align: "center", highlight: "red", highlightWhen: isAsyncChannel },
-  { key: "delay",   label: "24h 초과 지연율", align: "center" },
-  { key: "nps",     label: "NPS",            align: "center", highlight: "red", highlightWhen: isAsyncChannel },
+  { key: "count", label: "건수", align: "center" },
+  { key: "share", label: "비중", align: "center" },
+  { key: "time", label: "평균 처리시간", align: "center", highlight: "red", highlightWhen: isAsyncChannel },
+  { key: "delay", label: "24h 초과 지연율", align: "center" },
+  { key: "nps", label: "NPS", align: "center", highlight: "red", highlightWhen: isAsyncChannel },
 ];
 const channelData = [
   { channelName: "이메일", channel: channelSwatch("이메일", CHART_COLORS[0]), count: "420", share: "35.0%", time: "28시간", delay: "65%", nps: "-35" },
-  { channelName: "앱",    channel: channelSwatch("앱",    CHART_COLORS[1]), count: "120", share: "10.0%", time: "18시간", delay: "52%", nps: "-10" },
-  { channelName: "채팅",  channel: channelSwatch("채팅",  CHART_COLORS[2]), count: "360", share: "30.0%", time: "8시간",  delay: "18%", nps: "+12" },
-  { channelName: "전화",  channel: channelSwatch("전화",  CHART_COLORS[3]), count: "300", share: "25.0%", time: "3시간",  delay: "8%",  nps: "+18" },
+  { channelName: "앱", channel: channelSwatch("앱", CHART_COLORS[1]), count: "120", share: "10.0%", time: "18시간", delay: "52%", nps: "-10" },
+  { channelName: "채팅", channel: channelSwatch("채팅", CHART_COLORS[2]), count: "360", share: "30.0%", time: "8시간", delay: "18%", nps: "+12" },
+  { channelName: "전화", channel: channelSwatch("전화", CHART_COLORS[3]), count: "300", share: "25.0%", time: "3시간", delay: "8%", nps: "+18" },
 ];
 
 // NPS 분포 — 전체 → 긍정 → 부정 순
 const npsDistributionData = [
-  { label: "전체",       추천자: 26, 중립: 30, 비추천자: 44 },
-  { label: "계정/인증",   추천자: 48, 중립: 32, 비추천자: 20 },
-  { label: "일반 문의",   추천자: 42, 중립: 34, 비추천자: 24 },
-  { label: "사용 방법",   추천자: 30, 중립: 32, 비추천자: 38 },
-  { label: "결제/환불",   추천자: 16, 중립: 28, 비추천자: 56 },
-  { label: "기능 오류",   추천자: 10, 중립: 22, 비추천자: 68 },
+  { label: "전체", 추천자: 26, 중립: 30, 비추천자: 44 },
+  { label: "계정/인증", 추천자: 48, 중립: 32, 비추천자: 20 },
+  { label: "일반 문의", 추천자: 42, 중립: 34, 비추천자: 24 },
+  { label: "사용 방법", 추천자: 30, 중립: 32, 비추천자: 38 },
+  { label: "결제/환불", 추천자: 16, 중립: 28, 비추천자: 56 },
+  { label: "기능 오류", 추천자: 10, 중립: 22, 비추천자: 68 },
 ];
 
 export default function CsTicketReport() {

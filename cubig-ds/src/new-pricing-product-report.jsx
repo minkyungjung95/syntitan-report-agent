@@ -4,7 +4,7 @@ import {
   ExecutiveSummaryCard,
   TextBlock,
   InfoCard, InfoCardRow,
-  DefinitionTable,
+  DataTable,
   QATable,
   PriceRangeBar,
   StrategyCard,
@@ -97,7 +97,13 @@ export default function NewPricingProductReport() {
           <SectionHeading overline={brief.sectionName} description={brief.data.description} />
           <SectionCard>
             <ContentCard padding={0}>
-              <DefinitionTable items={brief.data.inputs.map((it) => ({ label: it.label, value: it.value }))} />
+              <DataTable
+                columns={[
+                  { label: "항목", key: "label", width: "40%" },
+                  { label: "입력값", key: "value" },
+                ]}
+                data={brief.data.inputs.map((it) => ({ label: it.label, value: it.value }))}
+              />
             </ContentCard>
             <ContentCard padding={0}>
               <QATable

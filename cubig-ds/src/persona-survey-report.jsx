@@ -47,8 +47,8 @@ function topTwoColors(items, getValue = (it) => it.value) {
   const top2 = sorted[1]?.i;
   return items.map((_, i) =>
     i === top1 ? "#2B7FFF" :
-    i === top2 ? "#7CCF00" :
-    "#C5C6CA"
+      i === top2 ? "#7CCF00" :
+        "#C5C6CA"
   );
 }
 
@@ -302,3 +302,7 @@ export default function PersonaSurveyReport() {
     </PageWrapper>
   );
 }
+
+ㅁ한ㄹㅇ아
+
+배

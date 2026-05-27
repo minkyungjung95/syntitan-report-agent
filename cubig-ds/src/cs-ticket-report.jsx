@@ -1,5 +1,5 @@
-'import {
-PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
+import {
+  PageWrapper, ReportPage, SectionHeading, ReportSection, SectionCard, ContentCard, ContentHeader,
   ExecutiveSummaryCard,
   DataTable,
   SignalCard,

@@ -37,14 +37,8 @@ import { Btn, Badge } from "./ui-components.jsx";
 function ScenarioBar({ s, ratio, barH, color }) {
   const [hover, setHover] = useState(false);
   const value = `$${s.monthlyRevenue.toLocaleString()}`;
-  // 막대 색이 밝으면 내부 글자는 어둡게
-  const isLight = (() => {
-    const c = (color || "").replace("#", "");
-    if (c.length < 6) return false;
-    const r = parseInt(c.slice(0, 2), 16), g = parseInt(c.slice(2, 4), 16), b = parseInt(c.slice(4, 6), 16);
-    return 0.299 * r + 0.587 * g + 0.114 * b > 160;
-  })();
-  const txtColor = isLight ? "#171719" : "#FFFFFF";
+  const barHeight = ratio * barH;
+  const showValue = barHeight >= 30; // 막대가 너무 짧으면 내부 값 생략 (호버 툴팁으로 대체)
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <Badge type="Solid" variant="Secondary" size="Small" text={s.caseName} />
@@ -57,7 +51,7 @@ function ScenarioBar({ s, ratio, barH, color }) {
         style={{
           position: "relative",
           width: "calc(100% - 64px)",
-          height: ratio * barH,
+          height: barHeight,
           background: color,
           borderRadius: "12px 12px 0 0",
           display: "flex",
@@ -68,14 +62,16 @@ function ScenarioBar({ s, ratio, barH, color }) {
           filter: hover ? "brightness(0.93)" : "none",
         }}
       >
-        <span style={{
-          marginTop: 10,
-          fontSize: 14,
-          fontWeight: 700,
-          color: txtColor,
-          textShadow: isLight ? "none" : "0 1px 2px rgba(0,0,0,0.2)",
-          whiteSpace: "nowrap",
-        }}>{value}</span>
+        {showValue && (
+          <span style={{
+            marginTop: 10,
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#FFFFFF",
+            textShadow: "0 1px 2px rgba(0,0,0,0.25)",
+            whiteSpace: "nowrap",
+          }}>{value}</span>
+        )}
         {hover && (
           <div style={{
             position: "absolute",

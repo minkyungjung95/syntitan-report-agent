@@ -1969,6 +1969,433 @@ const DEFAULT_DIMS = [
   { label: "Traceability",            value: 100 },
 ];
 
+/* =========================================================
+ *  Union / Join 합치기 플로우 (신규 업로드 ↔ 기존 데이터셋)
+ *  - 새 데이터셋 업로드 → PK 후보 감지 → 매칭 데이터셋 목록
+ *    → 합치기/건너뛰기 → 결합 방식(Union/Join) → 확인 → 결과
+ *  - 단일 파일 업로드 + 기존 데이터셋 1개 이상일 때 트리거됨 (데모)
+ * ========================================================= */
+
+// 결합 결과 차단 기준 (PRD 7번)
+const UJ_ROW_LIMIT = 10000;
+const UJ_COL_LIMIT = 100;
+
+// Join 시 동일 컬럼명 충돌 suffix: _{datasetName 앞 8자}
+// REVIEW: suffix 규칙 — 데이터셋명 앞 8자 vs 전체명 vs 사용자 지정 (미확정, 우선 앞 8자로 적용)
+const ujSuffix = (datasetName) => `_${(datasetName || "").slice(0, 8)}`;
+
+// 데모용 PK 매칭 정보 — 신규 업로드 데이터셋(A)과 기존 데이터셋(B)의 컬럼/행
+// A: 방금 업로드한 파일, B: 기존 데이터셋 (둘 다 user_id 라는 PK 공유)
+const buildUjContext = (uploadedFile, targetDataset) => {
+  const aName = (uploadedFile?.name || "new_dataset").replace(/\.[^.]+$/, "");
+  const bName = targetDataset?.name || "existing_dataset";
+  return {
+    pk: "user_id",
+    a: {
+      name: aName,
+      rows: 3200,
+      cols: ["user_id", "name", "score", "region"],
+    },
+    b: {
+      name: bName,
+      rows: 2800,
+      cols: ["user_id", "name", "score", "department"],
+    },
+    // 중복 PK fanout 데모용: 중복 PK별 (A행수 × B행수) 합 + 단독 행
+    dupFanout: { pairsSum: 1800, aOnly: 1400, bOnly: 1000 },
+  };
+};
+
+function UjRadioCard({ value, selected, onSelect, label, desc, badge, visual }) {
+  const on = selected === value;
+  return (
+    <label onClick={() => onSelect(value)} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", padding: "10px 12px", border: `1px solid ${on ? C.blue : C.border}`, borderRadius: 8, background: on ? "#F5FAFF" : C.white }}>
+      <span style={{ width: 14, height: 14, borderRadius: "50%", border: `2px solid ${on ? C.blue : C.border}`, position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+        {on && <span style={{ width: 6, height: 6, background: C.blue, borderRadius: "50%" }} />}
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{label}</div>
+          {badge && <span style={{ fontSize: 10, fontWeight: 700, color: C.blue, background: C.blueLight, padding: "1.5px 6px", borderRadius: 999 }}>{badge}</span>}
+        </div>
+        <div style={{ fontSize: 11, color: C.textSub, marginTop: 2, lineHeight: 1.45 }}>{desc}</div>
+      </div>
+      {visual && <div style={{ flexShrink: 0, marginLeft: 8, alignSelf: "center" }}>{visual}</div>}
+    </label>
+  );
+}
+
+// 컬럼 칩 (스키마 미리보기)
+function UjColChip({ label, tone }) {
+  const map = {
+    pk:     { bg: "#EFF6FF", border: "#BEDBFF", color: "#155DFC" },
+    fill:   { bg: "#F7F5FF", border: "#EFEBFF", color: "#7A65D0" },
+    rename: { bg: "#FEF9C3", border: "#FDE68A", color: "#A16207" },
+    plain:  { bg: C.hover,   border: C.borderLight, color: C.text },
+  };
+  const s = map[tone] || map.plain;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 9px", border: `1px solid ${s.border}`, borderRadius: 6, fontSize: 11, fontWeight: 600, color: s.color, background: s.bg }}>
+      {tone === "pk" && <span style={{ fontSize: 9, fontWeight: 800 }}>PK</span>}
+      {label}
+    </span>
+  );
+}
+
+// 결합 방식 미니 다이어그램 — Union: 행이 위아래로 쌓임 / Join: 컬럼이 좌우로 확장
+function UjUnionViz() {
+  const a = { height: 6, borderRadius: 2, background: "#93C5FD" };
+  const b = { height: 6, borderRadius: 2, background: "#C4B5FD" };
+  return (
+    <div style={{ width: 52, display: "flex", flexDirection: "column", gap: 3 }} aria-hidden="true">
+      <div style={a} /><div style={a} />
+      <div style={{ height: 1, background: C.border, margin: "1px 0" }} />
+      <div style={b} /><div style={b} />
+    </div>
+  );
+}
+function UjJoinViz() {
+  const a = { flex: 1, borderRadius: 2, background: "#93C5FD" };
+  const b = { flex: 1, borderRadius: 2, background: "#C4B5FD" };
+  return (
+    <div style={{ width: 52, height: 30, display: "flex", gap: 3 }} aria-hidden="true">
+      <div style={a} /><div style={a} />
+      <div style={{ width: 1, background: C.border }} />
+      <div style={b} />
+    </div>
+  );
+}
+
+/* ========== Union/Join 통합 모달 (내부 step state로 구동) ========== */
+function UnionJoinModal({ ctx, onClose, onComplete }) {
+  // step: 'match' → 'mode' → ('union-confirm' | 'join-confirm') → 'result'
+  const [step, setStep] = useState("match");
+  const [mode, setMode] = useState("union");        // 'union' | 'join'
+  const [pkConfirmed] = useState(ctx.pk);            // PK 매핑 (데모: 자동 확정)
+  const [blocked, setBlocked] = useState(false);     // 결과 크기 초과 차단 팝업
+  const [acceptedConflict, setAcceptedConflict] = useState(false); // Join 충돌 suffix 확인 완료
+
+  // ----- 결합 결과 추정 -----
+  // Union(행 병합): 행 = A + B, 열 = 이름 기준 합집합
+  const unionRows = ctx.a.rows + ctx.b.rows;
+  const unionColSet = Array.from(new Set([...ctx.a.cols, ...ctx.b.cols]));
+  const unionCols = unionColSet.length;
+
+  // Join(FULL OUTER JOIN on PK): 행 = Σ(중복PK별 A×B) + A단독 + B단독
+  const joinRows = ctx.dupFanout.pairsSum + ctx.dupFanout.aOnly + ctx.dupFanout.bOnly;
+  // 비-PK 동일 컬럼명 → 양쪽 모두 suffix 부여
+  const nonPkA = ctx.a.cols.filter((c) => c !== ctx.pk);
+  const nonPkB = ctx.b.cols.filter((c) => c !== ctx.pk);
+  const conflictCols = nonPkA.filter((c) => nonPkB.includes(c)); // name, score
+  const joinColList = [
+    ctx.pk,
+    ...nonPkA.map((c) => (conflictCols.includes(c) ? `${c}${ujSuffix(ctx.a.name)}` : c)),
+    ...nonPkB.map((c) => (conflictCols.includes(c) ? `${c}${ujSuffix(ctx.b.name)}` : c)),
+  ];
+  const joinCols = joinColList.length;
+
+  const resultRows = mode === "union" ? unionRows : joinRows;
+  const resultCols = mode === "union" ? unionCols : joinCols;
+  const rowOver = resultRows > UJ_ROW_LIMIT;
+  const colOver = resultCols > UJ_COL_LIMIT;
+
+  // 결합 실행 — 크기 검사 후 결과 단계로
+  const runCombine = () => {
+    if (rowOver || colOver) { setBlocked(true); return; }
+    setStep("result");
+  };
+
+  const shell = (children, opts = {}) => (
+    <div style={{ position: "absolute", inset: 0, background: "rgba(23,23,25,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60, padding: 24 }}>
+      <div style={{ width: opts.wide ? "min(620px, 94%)" : "min(520px, 92%)", maxHeight: "calc(100% - 32px)", background: C.white, borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.16)", fontFamily: FONT, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  const header = (title, sub) => (
+    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "18px 22px 6px" }}>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{title}</div>
+        {sub && <div style={{ fontSize: 12, color: C.textSub, marginTop: 4, lineHeight: 1.5 }}>{sub}</div>}
+      </div>
+      <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: C.textSub, padding: 4 }} aria-label="Close">
+        <Icon.Close size={18} />
+      </button>
+    </div>
+  );
+
+  const btnGhost = { padding: "8px 14px", background: C.white, color: C.text, border: `1px solid ${C.border}`, borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer", fontFamily: FONT };
+  const btnPrimary = { padding: "8px 14px", background: C.text, color: C.white, border: "none", borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer", fontFamily: FONT };
+
+  // ===== STEP 1: 매칭 데이터셋 발견 → 합치기/건너뛰기 =====
+  if (step === "match") {
+    return shell(
+      <>
+        {header("같은 Primary Key를 가진 데이터셋 발견", "업로드한 데이터를 기존 데이터셋과 합칠 수 있습니다.")}
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 22px 12px" }}>
+          {/* REVIEW: PK 감지 방식 — 데이터타입+유니크 비율 vs 컬럼명 일치 vs 복합 (미확정, 데모는 컬럼명 일치 가정) */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 12px", background: C.blueLight, border: `1px solid #BEDBFF`, borderRadius: 10, marginBottom: 12 }}>
+            <Icon.Sparkle size={14} color={C.blue} />
+            <div style={{ fontSize: 11.5, color: C.text, lineHeight: 1.5 }}>
+              공통 Primary Key <strong>"{ctx.pk}"</strong> 가 감지되었습니다. 합칠 데이터셋을 선택하세요.
+            </div>
+          </div>
+
+          {/* 매칭 데이터셋 목록 (데모: 1건) */}
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 6 }}>합칠 수 있는 데이터셋</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", border: `1px solid ${C.blue}`, borderRadius: 10, background: "#F5FAFF", marginBottom: 8 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: C.white, border: `1px solid ${C.borderLight}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Icon.Database size={16} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ctx.b.name}</div>
+              <div style={{ fontSize: 10.5, color: C.textMute, marginTop: 1 }}>{ctx.b.cols.length} columns · {ctx.b.rows.toLocaleString()} rows · PK: {ctx.pk}</div>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.blue, background: C.white, border: `1px solid #BEDBFF`, padding: "2px 8px", borderRadius: 999 }}>매칭</span>
+          </div>
+          {/* REVIEW: DTS 노출 정책 — 목록 미노출 vs 선택 차단 (미확정, 데모는 목록 미노출 가정) */}
+          <div style={{ fontSize: 10.5, color: C.textMute, lineHeight: 1.5 }}>
+            DTS(가명화·합성) 적용 데이터셋 및 열람 권한이 없는 데이터셋은 목록에서 제외됩니다.
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "14px 22px 18px", borderTop: `1px solid ${C.borderLight}` }}>
+          {/* 건너뛰기 → 기존 단일 업로드 플로우로 진행 */}
+          <button onClick={() => onComplete({ skipped: true })} style={btnGhost}>건너뛰기 (단일 등록)</button>
+          <button onClick={() => setStep("mode")} style={btnPrimary}>합치기</button>
+        </div>
+      </>
+    );
+  }
+
+  // ===== STEP 2: 결합 방식 선택 (Union vs Join) + PK 매핑 확인 =====
+  if (step === "mode") {
+    return shell(
+      <>
+        {header("결합 방식 선택", `Primary Key "${pkConfirmed}" 기준으로 두 데이터셋을 결합합니다.`)}
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 22px 12px" }}>
+          {/* PK 매핑 확인 */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", border: `1px solid ${C.borderLight}`, borderRadius: 10, marginBottom: 14, fontSize: 12, color: C.text }}>
+            <UjColChip label={`${ctx.a.name}.${ctx.pk}`} tone="pk" />
+            <span style={{ color: C.textMute }}><Icon.ChevronRight size={14} /></span>
+            <UjColChip label={`${ctx.b.name}.${ctx.pk}`} tone="pk" />
+            <span style={{ marginLeft: "auto", fontSize: 11, color: C.textSub }}>PK 매핑 확인됨</span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <UjRadioCard
+              value="union" selected={mode} onSelect={(v) => { setMode(v); setAcceptedConflict(false); }}
+              label="Union · 행 병합" badge="ROW"
+              desc="두 데이터셋의 행을 위아래로 합칩니다. 컬럼명 기준으로 정렬되며 한쪽에만 있는 컬럼은 null로 채워집니다."
+              visual={<UjUnionViz />}
+            />
+            <UjRadioCard
+              value="join" selected={mode} onSelect={(v) => { setMode(v); setAcceptedConflict(false); }}
+              label="Join · 컬럼 확장" badge="COLUMN"
+              desc="Primary Key 기준 FULL OUTER JOIN으로 컬럼을 확장합니다. 이름이 겹치는 비-PK 컬럼은 suffix가 붙습니다."
+              visual={<UjJoinViz />}
+            />
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "14px 22px 18px", borderTop: `1px solid ${C.borderLight}` }}>
+          <button onClick={() => setStep("match")} style={btnGhost}>뒤로</button>
+          <button onClick={() => setStep(mode === "union" ? "union-confirm" : "join-confirm")} style={btnPrimary}>다음</button>
+        </div>
+      </>
+    );
+  }
+
+  // ===== STEP 3a: Union 확인 (이름 기준 스키마 정렬) =====
+  if (step === "union-confirm") {
+    return shell(
+      <>
+        {header("Union 결과 미리보기", "컬럼명 기준으로 스키마를 정렬합니다. 한쪽에만 있는 컬럼은 null로 채워집니다.")}
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 22px 12px" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 6 }}>정렬된 스키마 ({unionCols} columns)</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+            {unionColSet.map((c) => {
+              const inA = ctx.a.cols.includes(c);
+              const inB = ctx.b.cols.includes(c);
+              const both = inA && inB;
+              return <UjColChip key={c} label={both ? c : `${c} (null 채움)`} tone={c === ctx.pk ? "pk" : both ? "plain" : "fill"} />;
+            })}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ padding: "10px 12px", border: `1px solid ${C.borderLight}`, borderRadius: 10 }}>
+              <div style={{ fontSize: 10.5, color: C.textMute }}>예상 행 수</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: rowOver ? C.red : C.text }}>{unionRows.toLocaleString()}</div>
+              <div style={{ fontSize: 10, color: C.textMute, marginTop: 2 }}>{ctx.a.rows.toLocaleString()} + {ctx.b.rows.toLocaleString()}</div>
+            </div>
+            <div style={{ padding: "10px 12px", border: `1px solid ${C.borderLight}`, borderRadius: 10 }}>
+              <div style={{ fontSize: 10.5, color: C.textMute }}>예상 열 수</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: colOver ? C.red : C.text }}>{unionCols}</div>
+              <div style={{ fontSize: 10, color: C.textMute, marginTop: 2 }}>합집합 (이름 기준)</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "14px 22px 18px", borderTop: `1px solid ${C.borderLight}` }}>
+          <button onClick={() => setStep("mode")} style={btnGhost}>뒤로</button>
+          <button onClick={runCombine} style={btnPrimary}>이 설정으로 합치기</button>
+        </div>
+        {blocked && (
+          <UjSizeBlock rows={unionRows} cols={unionCols} rowOver={rowOver} colOver={colOver} onClose={() => setBlocked(false)} />
+        )}
+      </>
+    , { wide: true });
+  }
+
+  // ===== STEP 3b: Join 확인 (컬럼 충돌 suffix + fanout 경고) =====
+  if (step === "join-confirm") {
+    return shell(
+      <>
+        {header("Join 결과 확인", `Primary Key "${ctx.pk}" 기준 FULL OUTER JOIN. 이름이 겹치는 컬럼에 suffix가 적용됩니다.`)}
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 22px 12px" }}>
+          {/* (a) 중복 PK fanout 경고 */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 12px", background: "#FEF9C3", border: `1px solid #FDE68A`, borderRadius: 10, marginBottom: 12 }}>
+            <span style={{ fontSize: 14 }}>⚠️</span>
+            <div style={{ fontSize: 11.5, color: C.text, lineHeight: 1.5 }}>
+              중복 Primary Key가 있으면 행이 늘어날 수 있습니다.<br />
+              <span style={{ color: C.textSub }}>예상 행 수 = Σ(중복 PK별 A행수 × B행수) + A단독 + B단독 = {ctx.dupFanout.pairsSum.toLocaleString()} + {ctx.dupFanout.aOnly.toLocaleString()} + {ctx.dupFanout.bOnly.toLocaleString()} = </span>
+              <strong>{joinRows.toLocaleString()} rows</strong>
+            </div>
+          </div>
+
+          {/* (b) 컬럼 충돌 suffix 확인 리스트 */}
+          {/* REVIEW: 충돌 UX — 자동적용+확인팝업 vs 사전경고+선택 (미확정, 데모는 자동적용+확인 리스트) */}
+          {conflictCols.length > 0 && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 6 }}>이름이 겹쳐 suffix가 적용되는 컬럼 ({conflictCols.length})</div>
+              <div style={{ border: `1px solid ${C.borderLight}`, borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
+                {conflictCols.map((c, i) => (
+                  <div key={c} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "8px 12px", fontSize: 11.5, color: C.text, borderTop: i === 0 ? "none" : `1px solid ${C.borderLight}`, alignItems: "center" }}>
+                    <UjColChip label={`${c}${ujSuffix(ctx.a.name)}`} tone="rename" />
+                    <UjColChip label={`${c}${ujSuffix(ctx.b.name)}`} tone="rename" />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 6 }}>결합 스키마 ({joinCols} columns)</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+            {joinColList.map((c) => (
+              <UjColChip key={c} label={c} tone={c === ctx.pk ? "pk" : /_/.test(c) && (c.includes(ujSuffix(ctx.a.name)) || c.includes(ujSuffix(ctx.b.name))) ? "rename" : "plain"} />
+            ))}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+            <div style={{ padding: "10px 12px", border: `1px solid ${C.borderLight}`, borderRadius: 10 }}>
+              <div style={{ fontSize: 10.5, color: C.textMute }}>예상 행 수</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: rowOver ? C.red : C.text }}>{joinRows.toLocaleString()}</div>
+            </div>
+            <div style={{ padding: "10px 12px", border: `1px solid ${C.borderLight}`, borderRadius: 10 }}>
+              <div style={{ fontSize: 10.5, color: C.textMute }}>예상 열 수</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: colOver ? C.red : C.text }}>{joinCols}</div>
+            </div>
+          </div>
+
+          {conflictCols.length > 0 && (
+            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 11.5, color: C.text }}>
+              <span onClick={() => setAcceptedConflict(!acceptedConflict)}>
+                <CheckBox checked={acceptedConflict} />
+              </span>
+              suffix 적용 내용을 확인했습니다.
+            </label>
+          )}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "14px 22px 18px", borderTop: `1px solid ${C.borderLight}` }}>
+          <button onClick={() => setStep("mode")} style={btnGhost}>뒤로</button>
+          <button
+            onClick={runCombine}
+            disabled={conflictCols.length > 0 && !acceptedConflict}
+            style={{ ...btnPrimary, background: (conflictCols.length > 0 && !acceptedConflict) ? "#BFC1C6" : C.text, cursor: (conflictCols.length > 0 && !acceptedConflict) ? "not-allowed" : "pointer" }}
+          >이 설정으로 합치기</button>
+        </div>
+        {blocked && (
+          <UjSizeBlock rows={joinRows} cols={joinCols} rowOver={rowOver} colOver={colOver} onClose={() => setBlocked(false)} />
+        )}
+      </>
+    , { wide: true });
+  }
+
+  // ===== STEP 4: 결과 (새 독립 데이터셋 생성) =====
+  return shell(
+    <>
+      {header("새 데이터셋이 생성됩니다", "결합 결과는 원본과 별개의 독립 데이터셋으로 등록됩니다.")}
+      <div style={{ flex: 1, overflowY: "auto", padding: "8px 22px 12px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 12px", background: "#F0FDF4", border: `1px solid #DCFCE7`, borderRadius: 10, marginBottom: 14 }}>
+          <Icon.CheckCircle size={16} />
+          <div style={{ fontSize: 11.5, color: C.textSub, lineHeight: 1.5 }}>
+            <strong style={{ color: C.text }}>{mode === "union" ? "Union (행 병합)" : "Join (컬럼 확장)"}</strong> 방식으로 결합됩니다.
+          </div>
+        </div>
+        <div style={{ border: `1px solid ${C.borderLight}`, borderRadius: 10, overflow: "hidden", marginBottom: 8 }}>
+          {[
+            ["결합 방식", mode === "union" ? "Union · 행 병합" : "Join · 컬럼 확장 (FULL OUTER)"],
+            ["Primary Key", pkConfirmed],
+            ["예상 행 수", resultRows.toLocaleString()],
+            ["예상 열 수", String(resultCols)],
+            ["Resource Owner", "Luna Hart (나)"],
+            ["조직 기본 권한", "Viewer"],
+          ].map((row, i) => (
+            <div key={row[0]} style={{ display: "grid", gridTemplateColumns: "140px 1fr", padding: "9px 14px", fontSize: 12, borderTop: i === 0 ? "none" : `1px solid ${C.borderLight}` }}>
+              <div style={{ color: C.textSub }}>{row[0]}</div>
+              <div style={{ color: C.text, fontWeight: 600 }}>{row[1]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "14px 22px 18px", borderTop: `1px solid ${C.borderLight}` }}>
+        <button onClick={() => setStep(mode === "union" ? "union-confirm" : "join-confirm")} style={btnGhost}>뒤로</button>
+        <button
+          onClick={() => onComplete({
+            skipped: false,
+            mode,
+            pk: pkConfirmed,
+            rows: resultRows,
+            cols: resultCols,
+            name: `${ctx.a.name} ⨝ ${ctx.b.name}`,
+            joinColList: mode === "join" ? joinColList : unionColSet,
+          })}
+          style={btnPrimary}
+        >데이터셋 생성</button>
+      </div>
+    </>
+  );
+}
+
+// (c) 결과 크기 초과 차단 안내 (단순 팝업)
+function UjSizeBlock({ rows, cols, rowOver, colOver, onClose }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "rgba(23,23,25,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 70, padding: 24 }}>
+      <div style={{ width: "min(420px, 92%)", background: C.white, borderRadius: 16, padding: "20px 22px", boxShadow: "0 24px 48px rgba(0,0,0,0.16)", fontFamily: FONT }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>결합할 수 없습니다</div>
+        <div style={{ fontSize: 12, color: C.textSub, lineHeight: 1.55, marginBottom: 12 }}>
+          결합 결과가 허용 크기를 초과했습니다. 데이터 범위를 줄인 뒤 다시 시도하세요.
+        </div>
+        <div style={{ border: `1px solid ${C.borderLight}`, borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", padding: "8px 12px", fontSize: 11.5, color: C.textSub, background: C.hover }}>
+            <div>항목</div><div style={{ paddingRight: 16 }}>결과</div><div>한도</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", padding: "8px 12px", fontSize: 12, borderTop: `1px solid ${C.borderLight}` }}>
+            <div style={{ color: C.text }}>행 수</div>
+            <div style={{ paddingRight: 16, color: rowOver ? C.red : C.text, fontWeight: 700 }}>{rows.toLocaleString()}</div>
+            <div style={{ color: C.textMute }}>{UJ_ROW_LIMIT.toLocaleString()}</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", padding: "8px 12px", fontSize: 12, borderTop: `1px solid ${C.borderLight}` }}>
+            <div style={{ color: C.text }}>열 수</div>
+            <div style={{ paddingRight: 16, color: colOver ? C.red : C.text, fontWeight: 700 }}>{cols.toLocaleString()}</div>
+            <div style={{ color: C.textMute }}>{UJ_COL_LIMIT.toLocaleString()}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button onClick={onClose} style={{ padding: "7px 14px", background: C.text, color: C.white, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>확인</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SyntitanPrototype() {
   const [collapsed, setCollapsed] = useState(false);
   const [activeKey, setActiveKey] = useState("edit_dataset");
@@ -1993,6 +2420,9 @@ export default function SyntitanPrototype() {
 
   // Action Review (통합 다이얼로그) 상태
   const [actionTasks, setActionTasks] = useState(null); // [{ mode, files, target? }]
+
+  // Union/Join 합치기 플로우 상태 — { ctx, file } 또는 null
+  const [unionJoinFlow, setUnionJoinFlow] = useState(null);
 
   // Close profile popover on outside click
   useEffect(() => {
@@ -2193,10 +2623,56 @@ export default function SyntitanPrototype() {
     return tasks;
   };
 
+  // Union/Join 플로우 완료 콜백 — 건너뛰면 단일 업로드, 합치면 새 독립 데이터셋 생성
+  const completeUnionJoin = (file, result) => {
+    setUnionJoinFlow(null);
+    if (!result || result.skipped) {
+      // 건너뛰기 → 기존 단일 업로드 플로우 그대로 진행
+      runTasks([{ mode: "standard", files: [file], purpose: "" }]);
+      return;
+    }
+    // 합치기 → 결합 결과를 새 독립 데이터셋으로 생성 (runTasks 데이터셋 shape과 일치)
+    const today = new Date();
+    const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const ds = {
+      id: `merge-${Date.now()}`,
+      name: result.name,
+      size: "9.4GB",
+      cols: result.cols,
+      rows: result.rows,
+      readiness: 99,
+      changes: 0,
+      owner: "Luna Hart",       // Resource Owner = 현재 사용자
+      ownerInitial: "L",
+      created: fmt(today),
+      updated: fmt(today),
+      purpose: result.mode === "union"
+        ? "Union(행 병합)으로 결합된 데이터셋"
+        : "Join(컬럼 확장)으로 결합된 데이터셋",
+      dims: DEFAULT_DIMS,
+    };
+    setToast({ items: [{ name: ds.name, status: "ok" }], done: true, mode: "union-new" });
+    setDatasets((prev) => [...prev, ds]);
+    setView("datasets");
+    setProfilingActiveIdx(0);
+    if (!profilingClosedOnce) setProfilingOpen(true);
+    setTimeout(() => setToast(null), 2200);
+  };
+
   const startProfiling = () => {
     const submitted = [...files];
     setShowModal(false);
     setFiles([]);
+    // 데모 트리거: 파일이 정확히 1개 + 기존 데이터셋이 1개 이상이면
+    // PK 매칭 데이터셋 발견 시나리오로 Union/Join 플로우 진입
+    if (submitted.length === 1 && datasets.length > 0) {
+      const file = submitted[0];
+      // REVIEW: DTS 노출 정책 — 여기서는 DTS/권한 없는 데이터셋을 후보에서 제외했다고 가정하고
+      //         첫 번째 기존 데이터셋을 매칭 대상으로 사용
+      const target = datasets[0];
+      setUnionJoinFlow({ file, ctx: buildUjContext(file, target) });
+      return;
+    }
     const tasks = classifyTasks(submitted);
     // 단순 케이스: standard 그룹 1개 + 파일 1개 → Action Review 생략하고 바로 업로드
     const isSimple = tasks.length === 1 && tasks[0].mode === "standard" && tasks[0].files.length === 1;
@@ -2406,6 +2882,14 @@ export default function SyntitanPrototype() {
           onChangeTask={onChangeReviewTask}
           onConfirm={() => runTasks(actionTasks)}
           onCancel={cancelReview}
+        />
+      )}
+
+      {unionJoinFlow && (
+        <UnionJoinModal
+          ctx={unionJoinFlow.ctx}
+          onClose={() => setUnionJoinFlow(null)}
+          onComplete={(result) => completeUnionJoin(unionJoinFlow.file, result)}
         />
       )}
 

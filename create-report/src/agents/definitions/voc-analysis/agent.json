@@ -1,0 +1,43 @@
+{
+  "id": "voc-analysis",
+  "name": "고객센터 VOC 분석 리포트",
+  "description": "고객 문의/VOC 텍스트 데이터를 분석하여 유형 분포, 반복 패턴, 주요 주제를 발굴하고 제품·서비스 개선 우선순위를 제시합니다.",
+  "category": "operational",
+  "inputType": "file",
+  "layout": "single-section",
+  "modalType": "none",
+  "inputRequirements": {
+    "required": ["접수일시", "문의내용"],
+    "optional": ["카테고리", "감정 점수/평점", "우선순위"],
+    "note": "문의내용 컬럼이 필수 — 반복 패턴 탐지·주제 클러스터링·카테고리 자동 분류 모두 텍스트 기반. 카테고리가 없으면 문의내용 기반으로 자동 분류. 운영 지표(처리시간·SLA·NPS)가 필요하면 customer-support-analysis 에이전트 사용."
+  },
+  "storyLine": "문의 유형 분포 → 반복 문의 패턴 → 개선 로드맵",
+  "keyDecision": "어떤 고객 목소리에 우선 대응해 제품/서비스를 개선할 것인가",
+  "reportSections": [
+    {
+      "id": "executive-summary",
+      "headline": "리포트 전체 결론",
+      "componentType": "ExecutiveSummary",
+      "reason": "전체 요약 — 핵심 결론과 분석 맥락을 한눈에 전달"
+    },
+    {
+      "id": "category-distribution",
+      "headline": "문의 유형 분포",
+      "componentType": "HorizontalBarChart",
+      "reason": "[문의 내용] 어떤 문제로 고객이 문의하는지 유형별 비중을 시각화. 상위 집중도가 있으면 자원 배분·FAQ 후보가 식별됨."
+    },
+    {
+      "id": "repeat-patterns",
+      "headline": "문의 패턴",
+      "componentType": "DataTable",
+      "reason": "[자동화 후보] 반복되는 문의 패턴과 주요 원인을 정리하여 자동화 후보 식별. 섹션명 '문의 패턴'·componentType DataTable은 두 분기 모두 공통.\n\n분기 규칙 (입력 데이터에 따라 내용 치환):\n(1) **반복 TOP 방식** — 반복 TOP 5~7건이 전체 문의의 20% 이상을 차지할 때. rows 컬럼은 [반복 횟수, 유형, 주요 원인]. headline 템플릿: \"반복 문의 {N}건({P}%)이 {예: 구조적 원인}에서 발생하며, 답변이 정형화되어 자동화에 적합합니다\".\n(2) **유형별 대표 방식** — 반복 TOP이 20% 미만이거나 특정 유형에 집중되지 않을 때. rows 컬럼은 [대표 문의, 유형, 건수/주요 원인]. 유형당 1~2건 선택. headline 템플릿: \"각 유형별 대표 문의에서 {주요 패턴}이 반복적으로 나타나 FAQ·안내 개선으로 선제 대응할 수 있습니다\".\n\n데이터가 지나치게 작거나(50건 미만) 반복이 거의 없을 때도 (2) 방식으로 섹션을 유지."
+    },
+    {
+      "id": "action-plan",
+      "headline": "개선 로드맵",
+      "componentType": "StrategyTable",
+      "reason": "[개선 로드맵] 반복 문의 자동화·주제별 개선 방향을 즉시/단기/중기로 정리"
+    }
+  ],
+  "promptTemplate": ""
+}

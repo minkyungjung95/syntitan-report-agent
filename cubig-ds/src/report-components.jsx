@@ -308,7 +308,7 @@ export function InfoCard({ label, value, suffix, description, variant = "solid",
         {suffix && <span style={{ fontSize: suffixSize, fontWeight: 400, color: T.gray400 }}>{suffix}</span>}
         {icon}
       </div>
-      {description && <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray900, marginTop: 4 }}>{description}</div>}
+      {description && <div style={{ fontSize: 14, fontWeight: 500, lineHeight: "21px", color: T.gray900, marginTop: 6 }}>{description}</div>}
     </div>
   );
 }
@@ -401,7 +401,7 @@ export function UserCard({
   reverse = false, // quote 타입용: 아바타를 우측에 배치 (말풍선은 좌측)
   details = [],
   stats = [],
-  buttonLabel = "View Detail",
+  buttonLabel = "상세 보기",
   onButtonClick,
   style,
 }) {
@@ -1208,7 +1208,7 @@ export function RespondentCard({ name, profile, response, onViewDetail, style })
           boxSizing: "border-box",
         }}
       >
-        View Detail
+        상세 보기
       </button>
     </div>
   );
@@ -1568,9 +1568,8 @@ export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems
       {/* Title */}
       {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: T.gray990 }}>{title}</div>}
 
-      {/* Wrapped content area */}
+      {/* 감싸는 회색 박스 없이 카드가 페이지에 바로 놓임 — 카드는 아웃라인으로 구분 */}
       <div style={{
-        background: T.gray50, borderRadius: 20, padding: 8,
         display: "flex", flexDirection: "column", gap: 8,
       }}>
         {/* Summary row */}
@@ -1579,7 +1578,7 @@ export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems
             {summaryItems.map((item, i) => (
               <div key={i} style={{
                 flex: "1 1 0%", minWidth: 0,
-                background: T.white, borderRadius: 16, padding: 20,
+                background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 16, padding: 20,
                 display: "flex", flexDirection: "column", gap: 12,
               }}>
                 <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{item.label}</div>
@@ -1589,10 +1588,36 @@ export function ExecutiveSummaryCard({ title = "Executive Summary", summaryItems
           </div>
         )}
 
-        {/* Key Findings */}
-        {findings && (
+        {/* groups: 아이콘 + 소제목 + 짧은 불릿 카드를 가로 배치 (감싸는 "Key Findings" 카드 없이 바로 노출) */}
+        {findings?.groups?.length > 0 && (
           <div style={{
-            background: T.white, borderRadius: 16, padding: 24,
+            display: "grid",
+            gridTemplateColumns: `repeat(auto-fit, minmax(260px, 1fr))`,
+            gap: 8,
+          }}>
+            {findings.groups.map((group, i) => (
+              <div key={i} style={{
+                background: T.gray50, borderRadius: 16, padding: 20,
+                display: "flex", flexDirection: "column", gap: 8,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {group.icon}
+                  <span style={{ fontSize: 15, fontWeight: 600, lineHeight: "22px", color: T.gray990 }}>{group.title}</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 4 }}>
+                  {(group.items || []).map((item, j) => (
+                    <li key={j} style={{ fontSize: 14, fontWeight: 400, lineHeight: "21px", color: T.gray900 }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* items: 단일 불릿 목록 (기존 리포트 하위호환 — Key Findings 타이틀 유지) */}
+        {findings && !findings.groups?.length && (
+          <div style={{
+            background: T.white, border: `1px solid ${T.gray200}`, borderRadius: 16, padding: 24,
             display: "flex", flexDirection: "column", gap: 8,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>

@@ -600,7 +600,7 @@ export function SemiDonutChart({
 // Percent: 20px Medium #171719
 // Count: 18px Regular #7B7E85, gap 4
 // Grid 기반 HBar — 라벨 컬럼은 가장 긴 라벨에 맞춰 자동, maxWidth 200 에서 ellipsis
-function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuffix = "%", valueFormat }) {
+function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuffix = "%", valueFormat, labelWidth, labelAlign = "right" }) {
   const displayValue = valueFormat ? valueFormat(value) : value;
   const [hovered, setHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -621,11 +621,11 @@ function HBarItem({ label, value, count, barColor, maxPct, valueInside, valueSuf
   return (
     <>
       {/* 라벨 셀 (grid col 1) */}
-      <div {...hoverHandlers} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", height: 48 }}>
+      <div {...hoverHandlers} style={{ display: "flex", alignItems: "center", justifyContent: labelAlign === "left" ? "flex-start" : "flex-end", height: 48 }}>
         <span title={label} style={{
           fontSize: 14, fontWeight: 500, lineHeight: "20px", color: GRAY990,
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          maxWidth: 200, textAlign: "right",
+          maxWidth: labelWidth ?? 200, textAlign: labelAlign,
         }}>{label}</span>
       </div>
       {/* 바 셀 (grid col 2) */}
@@ -702,21 +702,23 @@ const HBAR_VARIANT_COLORS = {
   red:     ["#FF6467", "#FFA2A2", "#FFC9C9"], // Red 400 → 300 → 200
 };
 
-export function HBarChart({ data, title, maxValue, valueInside = false, minRows = 0, variant = "default", valueSuffix = "%", valueFormat }) {
+export function HBarChart({ data, title, maxValue, valueInside = false, minRows = 0, variant = "default", valueSuffix = "%", valueFormat, labelWidth, maxWidth, titleAlign = "center", labelAlign = "right" }) {
   const max = maxValue ?? Math.max(...data.map((d) => d.value), 1);
   const emptyCount = Math.max(minRows - data.length, 0);
   const palette = HBAR_VARIANT_COLORS[variant] || HBAR_VARIANT_COLORS.default;
+  // labelWidth 지정 시 라벨 열을 고정폭으로 → 여러 차트 간 바 시작점/라벨 영역 폭 일치
+  const labelCol = labelWidth != null ? `${labelWidth}px` : "auto";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: "Pretendard, sans-serif" }}>
-      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: "center" }}>{title}</div>}
-      <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 24, paddingRight: valueInside ? 40 : 0 }}>
+      {title && <div style={{ fontSize: 18, fontWeight: 600, lineHeight: "26px", color: GRAY990, textAlign: titleAlign }}>{title}</div>}
+      <div style={{ display: "grid", gridTemplateColumns: `${labelCol} 1fr`, columnGap: 24, paddingRight: valueInside ? 40 : 0, maxWidth: maxWidth ?? undefined, width: "100%", boxSizing: "border-box" }}>
         {data.map((d, i) => {
           let barColor;
           if (d.color) barColor = d.color;
           else if (i < palette.length) barColor = palette[i];
           else barColor = GRAY200;
-          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} valueSuffix={valueSuffix} valueFormat={valueFormat} />;
+          return <HBarItem key={d.label} label={d.label} value={d.value} count={d.count} barColor={barColor} maxPct={max} valueInside={valueInside} valueSuffix={valueSuffix} valueFormat={valueFormat} labelWidth={labelWidth} labelAlign={labelAlign} />;
         })}
         {Array.from({ length: emptyCount }).map((_, i) => (
           <React.Fragment key={`empty-${i}`}>
@@ -1347,10 +1349,10 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280, co
 
 // 전환율 뱃지 + 대시 연결
 // variant: "normal" 회색 아웃라인, "best" 핑크, "worst" 블루
-function RateBadge({ rate, variant = "normal" }) {
+function RateBadge({ rate, variant = "normal", suffix = "" }) {
   const styles = {
-    best:   { bg: RED100, border: RED500, color: RED500, fontWeight: 800, fontSize: 18 },
-    worst:  { bg: "#EFF6FF", border: CHART_COLORS[0], color: CHART_COLORS[0], fontWeight: 800, fontSize: 18 },
+    best:   { bg: "#EFF6FF", border: CHART_COLORS[0], color: CHART_COLORS[0], fontWeight: 800, fontSize: 18 },
+    worst:  { bg: RED100, border: RED500, color: RED500, fontWeight: 800, fontSize: 18 },
     normal: { bg: WHITE, border: GRAY200, color: GRAY990, fontWeight: 600, fontSize: 15 },
   };
   const s = styles[variant] || styles.normal;
@@ -1366,7 +1368,7 @@ function RateBadge({ rate, variant = "normal" }) {
         fontSize: s.fontSize, fontWeight: s.fontWeight, color: s.color,
         whiteSpace: "nowrap", lineHeight: "22px", minWidth: 52, textAlign: "center",
       }}>
-        {rate}
+        {rate}{suffix}
       </div>
       {/* 화살표 (살짝 둥글게) */}
       <svg width="8" height="10" viewBox="0 0 8 10" style={{ marginLeft: 2, flexShrink: 0 }}>
@@ -1643,6 +1645,7 @@ export function FlowTable({
   // 또는 flat data:
   data = [],   // [{ label, description?, left, rate, right, group? }]
   columns = { left: "사용해 본 기능", right: "사용 중인 기능" },
+  rateSuffix = "",
   style,
 }) {
   const FF = "Pretendard, sans-serif";
@@ -1670,8 +1673,8 @@ export function FlowTable({
       <div style={{ display: "flex", gap: 20, justifyContent: "flex-end", marginBottom: 12 }}>
         {[
           { fill: GRAY200, label: "전환율" },
-          { fill: RED500, label: "우수 전환율" },
-          { fill: CHART_COLORS[0], label: "병목 전환율" },
+          { fill: CHART_COLORS[0], label: "우수 전환율" },
+          { fill: RED500, label: "병목 전환율" },
         ].map((l, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: l.fill }} />
@@ -1718,7 +1721,7 @@ export function FlowTable({
                       {row.left}
                     </div>
                     {/* 전환율 뱃지 */}
-                    <RateBadge rate={row.rate} variant={getVariant(row.rate)} />
+                    <RateBadge rate={row.rate} variant={getVariant(row.rate)} suffix={rateSuffix} />
                     {/* 우측 값 */}
                     <div style={{ fontSize: 15, fontWeight: 500, color: GRAY990, textAlign: "center" }}>
                       {row.right}

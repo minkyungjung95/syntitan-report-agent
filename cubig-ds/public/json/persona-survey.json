@@ -26,8 +26,14 @@
       "componentType": "ExecutiveSummary",
       "data": {
         "topMetrics": [
-          { "label": "Survey Topic", "value": "AI 웰니스 코치 프리미엄 멤버십 출시 반응 서베이" },
-          { "label": "Number of respondents", "value": "5,000명" }
+          {
+            "label": "설문 주제",
+            "value": "AI 웰니스 코치 프리미엄 멤버십 출시 반응 서베이"
+          },
+          {
+            "label": "응답자 수",
+            "value": "5,000명"
+          }
         ],
         "keyFindings": [
           "구독 의향: '높음' 이상 응답이 68%로 형성되어, 멤버십 자체에 대한 저항감은 낮고 혜택 설계에 따라 실제 전환으로 연결될 잠재력이 큽니다.",
@@ -49,20 +55,60 @@
             "title": "연령대별 응답률",
             "highlightLabel": "20-39세 합 60%",
             "segments": [
-              { "label": "15-19세", "value": 250, "percentage": 5, "color": "blue" },
-              { "label": "20-29세", "value": 1250, "percentage": 25, "color": "lightBlue" },
-              { "label": "30-39세", "value": 1750, "percentage": 35, "color": "green" },
-              { "label": "40-49세", "value": 1000, "percentage": 20, "color": "lightGreen" },
-              { "label": "50-59세", "value": 500, "percentage": 10, "color": "yellow" },
-              { "label": "60세 이상", "value": 250, "percentage": 5, "color": "gray" }
+              {
+                "label": "15-19세",
+                "value": 250,
+                "percentage": 5,
+                "color": "blue"
+              },
+              {
+                "label": "20-29세",
+                "value": 1250,
+                "percentage": 25,
+                "color": "lightBlue"
+              },
+              {
+                "label": "30-39세",
+                "value": 1750,
+                "percentage": 35,
+                "color": "green"
+              },
+              {
+                "label": "40-49세",
+                "value": 1000,
+                "percentage": 20,
+                "color": "lightGreen"
+              },
+              {
+                "label": "50-59세",
+                "value": 500,
+                "percentage": 10,
+                "color": "yellow"
+              },
+              {
+                "label": "60세 이상",
+                "value": 250,
+                "percentage": 5,
+                "color": "gray"
+              }
             ]
           },
           {
             "title": "성별 응답 분포",
             "highlightLabel": "여성 56%",
             "segments": [
-              { "label": "여성", "value": 2800, "percentage": 56, "color": "blue" },
-              { "label": "남성", "value": 2200, "percentage": 44, "color": "green" }
+              {
+                "label": "여성",
+                "value": 2800,
+                "percentage": 56,
+                "color": "blue"
+              },
+              {
+                "label": "남성",
+                "value": 2200,
+                "percentage": 44,
+                "color": "green"
+              }
             ]
           }
         ]
@@ -81,11 +127,36 @@
             "question": "새 AI 웰니스 코치 멤버십에 가입할 의향이 있습니까?",
             "responseChart": {
               "items": [
-                { "label": "매우 높음", "value": 32, "count": 1600, "color": "green" },
-                { "label": "높음", "value": 36, "count": 1800, "color": "blue" },
-                { "label": "중간", "value": 18, "count": 900, "color": "gray" },
-                { "label": "낮음", "value": 10, "count": 500, "color": "gray" },
-                { "label": "매우 낮음", "value": 4, "count": 200, "color": "gray" }
+                {
+                  "label": "매우 높음",
+                  "value": 32,
+                  "count": 1600,
+                  "color": "green"
+                },
+                {
+                  "label": "높음",
+                  "value": 36,
+                  "count": 1800,
+                  "color": "blue"
+                },
+                {
+                  "label": "중간",
+                  "value": 18,
+                  "count": 900,
+                  "color": "gray"
+                },
+                {
+                  "label": "낮음",
+                  "value": 10,
+                  "count": 500,
+                  "color": "gray"
+                },
+                {
+                  "label": "매우 낮음",
+                  "value": 4,
+                  "count": 200,
+                  "color": "gray"
+                }
               ]
             },
             "interpretation": "총 3,400명(68%)이 가입에 관심을 표명했으며, 이는 멤버십 자체에 대한 저항감이 낮다는 신호이자 혜택 구성에 따라 실제 전환으로 연결될 잠재력이 큽니다. 특히 20-39세 응답자의 73%가 '높음' 이상으로 응답해 모바일 친화 세대가 핵심 전환 후보군임을 보여줍니다.",
@@ -197,11 +268,36 @@
             "question": "멤버십에서 가장 기대하는 혜택은 무엇입니까? (복수 선택)",
             "responseChart": {
               "items": [
-                { "label": "AI 맞춤 코칭", "value": 72, "count": 3600, "color": "blue" },
-                { "label": "무광고 환경", "value": 45, "count": 2250, "color": "green" },
-                { "label": "전문가 1:1 상담", "value": 38, "count": 1900, "color": "lightBlue" },
-                { "label": "오프라인 운동 콘텐츠", "value": 28, "count": 1400, "color": "gray" },
-                { "label": "우선 신규 기능 액세스", "value": 12, "count": 600, "color": "gray" }
+                {
+                  "label": "AI 맞춤 코칭",
+                  "value": 72,
+                  "count": 3600,
+                  "color": "blue"
+                },
+                {
+                  "label": "무광고 환경",
+                  "value": 45,
+                  "count": 2250,
+                  "color": "green"
+                },
+                {
+                  "label": "전문가 1:1 상담",
+                  "value": 38,
+                  "count": 1900,
+                  "color": "lightBlue"
+                },
+                {
+                  "label": "오프라인 운동 콘텐츠",
+                  "value": 28,
+                  "count": 1400,
+                  "color": "gray"
+                },
+                {
+                  "label": "우선 신규 기능 액세스",
+                  "value": 12,
+                  "count": 600,
+                  "color": "gray"
+                }
               ]
             },
             "interpretation": "AI 맞춤 코칭(72%)이 가장 큰 동인이며, 무광고 환경(45%)과 전문가 1:1 상담(38%)이 그 뒤를 이어 단순 콘텐츠 시청보다 개인화와 전문성에 가치를 두는 패턴이 분명합니다. 헤비 유저일수록 무광고 환경 선호도가 더 높게 나타나며, 멤버십 가치 제안은 'AI 개인화 + 광고 없는 몰입 환경'을 한 묶음으로 전달하는 것이 효과적입니다.",
@@ -313,11 +409,36 @@
             "question": "합리적이라고 생각하는 월 구독료 수준은 얼마입니까?",
             "responseChart": {
               "items": [
-                { "label": "$5 미만", "value": 15, "count": 750, "color": "gray" },
-                { "label": "$5-9.99", "value": 25, "count": 1250, "color": "lightBlue" },
-                { "label": "$10-14.99", "value": 52, "count": 2600, "color": "blue" },
-                { "label": "$15-19.99", "value": 6, "count": 300, "color": "gray" },
-                { "label": "$20 이상", "value": 2, "count": 100, "color": "gray" }
+                {
+                  "label": "$5 미만",
+                  "value": 15,
+                  "count": 750,
+                  "color": "gray"
+                },
+                {
+                  "label": "$5-9.99",
+                  "value": 25,
+                  "count": 1250,
+                  "color": "lightBlue"
+                },
+                {
+                  "label": "$10-14.99",
+                  "value": 52,
+                  "count": 2600,
+                  "color": "blue"
+                },
+                {
+                  "label": "$15-19.99",
+                  "value": 6,
+                  "count": 300,
+                  "color": "gray"
+                },
+                {
+                  "label": "$20 이상",
+                  "value": 2,
+                  "count": 100,
+                  "color": "gray"
+                }
               ]
             },
             "interpretation": "$10-14.99 구간에 응답이 52%로 집중되어, 합리적 가격대로 인식되는 sweet spot이 명확히 형성되었습니다. $15 이상 구간으로 진입하면 가격 저항이 6%까지 급락하므로 $14.99 안팎이 정가 상한선으로 적합하며, 그 아래($5-9.99)에 25%가 분포해 가격 민감층을 대상으로 한 한시 할인 트랙이 유효합니다.",
@@ -438,25 +559,64 @@
           {
             "patternLabel": "패턴 1",
             "patternTitle": "높은 가입 의향과 가격 민감도 공존",
-            "leftMetric": { "label": "Q1 응답", "value": "가입 의향 높음", "percentage": "68%" },
-            "rightMetric": { "label": "Q3 응답", "value": "가격 우려", "percentage": "45%" },
-            "overlap": { "label": "중복 응답자", "value": "31%", "count": "1,550명", "color": "green" },
+            "leftMetric": {
+              "label": "Q1 응답",
+              "value": "가입 의향 높음",
+              "percentage": "68%"
+            },
+            "rightMetric": {
+              "label": "Q3 응답",
+              "value": "가격 우려",
+              "percentage": "45%"
+            },
+            "overlap": {
+              "label": "중복 응답자",
+              "value": "31%",
+              "count": "1,550명",
+              "color": "green"
+            },
             "interpretation": "31%(1,550명)는 가입 의향이 높지만 가격 민감도도 함께 높아, 무료 체험이나 첫 3개월 할인 같은 가격 진입 장벽 해소가 전환의 결정적 트리거가 될 핵심 세그먼트입니다. 특히 20-39세에서 이 패턴이 강하게 나타나 첫 가입 단계 할인이 conversion을 2-3배까지 끌어올릴 가능성이 있습니다."
           },
           {
             "patternLabel": "패턴 2",
             "patternTitle": "AI 맞춤 코칭 선호와 가격 수용도 정 상관",
-            "leftMetric": { "label": "Q2 응답", "value": "AI 맞춤 코칭", "percentage": "72%" },
-            "rightMetric": { "label": "Q3 응답", "value": "$10-15 적정", "percentage": "52%" },
-            "overlap": { "label": "중복 응답자", "value": "42%", "count": "2,100명", "color": "green" },
+            "leftMetric": {
+              "label": "Q2 응답",
+              "value": "AI 맞춤 코칭",
+              "percentage": "72%"
+            },
+            "rightMetric": {
+              "label": "Q3 응답",
+              "value": "$10-15 적정",
+              "percentage": "52%"
+            },
+            "overlap": {
+              "label": "중복 응답자",
+              "value": "42%",
+              "count": "2,100명",
+              "color": "green"
+            },
             "interpretation": "AI 맞춤 코칭을 선호하는 응답자가 비교적 높은 가격($10-15)을 받아들이는 비율이 65%로, 이 그룹은 가격 자체보다 콘텐츠와 기술 차별성을 보고 결정하는 패턴을 보입니다. 헤비 유저(주 20시간 이상 운동)에서는 이 비율이 80%까지 올라가 광고 없는 환경과 AI 개인화에 가장 높은 지불 의사를 보입니다."
           },
           {
             "patternLabel": "패턴 3",
             "patternTitle": "구독 의향과 추천 의향의 간극",
-            "leftMetric": { "label": "Q1 응답", "value": "구독 의향", "percentage": "68%" },
-            "rightMetric": { "label": "Q4 응답", "value": "추천 의향", "percentage": "62%" },
-            "overlap": { "label": "차이", "value": "-6%p", "count": "3,100명 기준", "color": "red" },
+            "leftMetric": {
+              "label": "Q1 응답",
+              "value": "구독 의향",
+              "percentage": "68%"
+            },
+            "rightMetric": {
+              "label": "Q4 응답",
+              "value": "추천 의향",
+              "percentage": "62%"
+            },
+            "overlap": {
+              "label": "차이",
+              "value": "-6%p",
+              "count": "3,100명 기준",
+              "color": "red"
+            },
             "interpretation": "구독 의향과 추천 의향 사이 6%p 갭은 본인은 만족하지만 타인에게 자신 있게 권하기 어려운 '소극적 만족' 상태를 나타냅니다. 이 갭은 35세 이상 연령대에서 더 크게 벌어지며, 초기 사용 경험을 가다듬어 신뢰와 차별성을 강화할 필요성이 있습니다. 사용 후 만족도 패턴은 추천 의향을 급격히 끌어올리므로, 첫 사용 경험 설계가 바이럴 성장의 핵심 레버입니다."
           }
         ]

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   PageWrapper, ReportPage, SectionHeading, SectionCard, ContentCard, ContentHeader,
   ExecutiveSummaryCard,
-  TextBlock,
   UserCard,
 } from "./report-components";
 // 모달 패턴 (Synthetic Respondent Samples) — ModalUserCard + ModalField 는 ui-components.jsx 의 모달 전용 블록
@@ -56,7 +55,7 @@ export default function PersonaSurveyReport() {
   const [data, setData] = useState(null);
   const [selectedRespondent, setSelectedRespondent] = useState(null);
   useEffect(() => {
-    fetch("/json/persona-survey.json")
+    fetch("/json/persona-survey.json", { cache: "no-store" })
       .then((res) => res.json())
       .then(setData)
       .catch((e) => console.error("Failed to load persona-survey.json", e));
@@ -96,16 +95,16 @@ export default function PersonaSurveyReport() {
               text={meta.sourceFile}
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />}
             />
-            <Badge type="Outline" variant="Secondary" size="Large" text={`Version ${meta.version}`} />
+            <Badge type="Outline" variant="Secondary" size="Large" text={`버전 ${meta.version}`} />
           </>
         }
         actions={
           <>
             <Btn variant="solid-secondary" size="md">
               <DownloadIcon size={20} />
-              Download PDF
+              PDF 다운로드
             </Btn>
-            <Btn variant="solid-primary" size="md">Create Discussion Room</Btn>
+            <Btn variant="solid-primary" size="md">토론방 만들기</Btn>
           </>
         }
         style={{ marginBottom: 60 }}
@@ -116,14 +115,14 @@ export default function PersonaSurveyReport() {
         {/* Section 1: Executive Summary */}
         <div>
           <SectionHeading
-            overline="Executive Summary"
-            title={`총 ${exec.data.topMetrics.find((m) => m.label === "Number of respondents")?.value ?? ""} 응답 기반의 핵심 요약`}
+            overline="핵심 요약"
+            title={`총 ${exec.data.topMetrics.find((m) => m.label === "응답자 수")?.value ?? ""} 응답 기반의 핵심 요약`}
           />
           <ExecutiveSummaryCard
             title={null}
             summaryItems={exec.data.topMetrics.map((m) => ({ label: m.label, value: m.value }))}
             findings={{
-              title: "Key Findings",
+              title: "핵심 발견",
               items: exec.data.keyFindings,
             }}
           />
@@ -131,7 +130,7 @@ export default function PersonaSurveyReport() {
 
         {/* Section 2: Demographic Breakdown — DonutChart 2개 (CHART_COLORS 팔레트 순서대로) */}
         <div>
-          <SectionHeading overline="Demographic Breakdown" title={demo?.headline} description={demo?.data?.description} />
+          <SectionHeading overline="인구 통계 분포" title={demo?.headline} description={demo?.data?.description} />
           <SectionCard>
             <ContentCard padding={24}>
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
@@ -155,39 +154,45 @@ export default function PersonaSurveyReport() {
 
         {/* Section 3: Detailed Question Analysis — 질문별로 SectionCard 1개씩 */}
         <div>
-          <SectionHeading overline="Detailed Question Analysis" title={detail?.headline} description={detail?.data?.description} />
+          <SectionHeading overline="질문별 상세 분석" title={detail?.headline} description={detail?.data?.description} />
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {detail.data.questions.map((q, qi) => (
               <SectionCard key={qi}>
-                {/* 응답 분포 HBarChart — title을 질문으로, 상위 2개만 색상(blue, green), 나머지 gray */}
-                <ContentCard padding={40}>
-                  {(() => {
-                    const colors = topTwoColors(q.responseChart.items);
-                    return (
-                      <HBarChart
-                        title={`Q${qi + 1}. ${q.question}`}
-                        valueInside
-                        data={q.responseChart.items.map((it, idx) => ({
-                          label: it.label,
-                          value: it.value,
-                          count: it.count,
-                          color: colors[idx],
-                        }))}
-                      />
-                    );
-                  })()}
-                </ContentCard>
+                {/* 응답 분포 차트 + AI 해석을 단일 카드로 병합 */}
+                <ContentCard padding={32}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                    {(() => {
+                      const colors = topTwoColors(q.responseChart.items);
+                      return (
+                        <HBarChart
+                          title={`Q${qi + 1}. ${q.question}`}
+                          titleAlign="left"
+                          labelAlign="left"
+                          labelWidth={150}
+                          maxWidth={900}
+                          valueInside
+                          data={q.responseChart.items.map((it, idx) => ({
+                            label: it.label,
+                            value: it.value,
+                            count: it.count,
+                            color: colors[idx],
+                          }))}
+                        />
+                      );
+                    })()}
 
-                {/* 해석 */}
-                {q.interpretation && (
-                  <ContentCard padding={0}>
-                    <TextBlock title="AI 해석" items={[q.interpretation]} bordered={false} />
-                  </ContentCard>
-                )}
+                    {/* 해석 — 디스크립션 형태 (라벨/불렛/아이콘 없이 단락 텍스트, 상단 구분선으로 분리) */}
+                    {q.interpretation && (
+                      <div style={{ borderTop: `1px solid ${T.gray100}`, paddingTop: 20, fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray800 }}>
+                        {q.interpretation}
+                      </div>
+                    )}
+                  </div>
+                </ContentCard>
 
                 {/* 가상 응답자 카드 — UserCard type="detail" 2x2 그리드 (SectionCard 회색 위에 직접 배치하여 카드 경계 노출) */}
                 {q.syntheticRespondents && q.syntheticRespondents.length > 0 && (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                     {q.syntheticRespondents.map((r) => (
                       <UserCard
                         key={r.id}
@@ -207,51 +212,52 @@ export default function PersonaSurveyReport() {
 
         {/* Section 4: Correlation Analysis — 패턴별 SectionCard 래핑 (다른 섹션과 일관) */}
         <div>
-          <SectionHeading overline="Correlation Analysis" title={corr?.headline} description={corr?.data?.description} />
+          <SectionHeading overline="교차 분석" title={corr?.headline} description={corr?.data?.description} />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {corr.data.patterns.map((p, i) => {
               const overlapColor = p.overlap?.color === "red" ? "#FB2C36" : p.overlap?.color === "green" ? "#00C950" : "#2B7FFF";
               return (
                 <SectionCard key={i}>
-                  {/* 패턴 헤더 — ContentCard padding=24 */}
-                  <ContentCard padding={24}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div>
-                        <Badge type="Outline" variant="Info" size="Small" text={p.patternLabel} />
-                      </div>
-                      <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{p.patternTitle}</div>
-                    </div>
-                  </ContentCard>
-
-                  {/* 메트릭 영역 — ContentCard padding=32, 좌 · + · 우 · 중복 */}
+                  {/* 패턴 전체를 단일 카드로 — 헤더 / 메트릭 / 해석을 한 ContentCard 안에 stack */}
                   <ContentCard padding={32}>
-                    <div style={{ display: "flex", alignItems: "stretch", gap: 8 }}>
-                      <div style={{ flex: 1, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, padding: "0 8px" }}>
-                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.leftMetric.label}</div>
-                        <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{p.leftMetric.value}</div>
-                        <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: T.gray990 }}>{p.leftMetric.percentage}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 500, color: T.gray500, padding: "0 8px" }}>+</div>
-                      <div style={{ flex: 1, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, padding: "0 8px" }}>
-                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.rightMetric.label}</div>
-                        <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{p.rightMetric.value}</div>
-                        <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: T.gray990 }}>{p.rightMetric.percentage}</div>
-                      </div>
-                      <div style={{ flex: 1.4, background: T.gray50, borderRadius: 16, padding: "32px 24px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, textAlign: "center" }}>
-                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.overlap.label}</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                      {/* 헤더 */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div>
-                          <span style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: overlapColor }}>{p.overlap.value}</span>
-                          {p.overlap.count && (
-                            <span style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, marginLeft: 8 }}>({p.overlap.count})</span>
-                          )}
+                          <Badge type="Outline" variant="Info" size="Small" text={p.patternLabel} />
+                        </div>
+                        <div style={{ fontSize: 20, fontWeight: 700, lineHeight: "28px", color: T.gray990 }}>{p.patternTitle}</div>
+                      </div>
+
+                      {/* 메트릭 영역 — 좌 · + · 우 · 중복 */}
+                      <div style={{ display: "flex", alignItems: "stretch", gap: 8 }}>
+                        <div style={{ flex: 1, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, padding: "0 8px" }}>
+                          <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.leftMetric.label}</div>
+                          <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{p.leftMetric.value}</div>
+                          <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: T.gray990 }}>{p.leftMetric.percentage}</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 500, color: T.gray500, padding: "0 8px" }}>+</div>
+                        <div style={{ flex: 1, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, padding: "0 8px" }}>
+                          <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.rightMetric.label}</div>
+                          <div style={{ fontSize: 16, fontWeight: 500, lineHeight: "24px", color: T.gray990 }}>{p.rightMetric.value}</div>
+                          <div style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: T.gray990 }}>{p.rightMetric.percentage}</div>
+                        </div>
+                        <div style={{ flex: 1.4, background: T.gray50, borderRadius: 16, padding: "32px 24px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 12, textAlign: "center" }}>
+                          <div style={{ fontSize: 13, fontWeight: 400, lineHeight: "18px", color: T.gray800 }}>{p.overlap.label}</div>
+                          <div>
+                            <span style={{ fontSize: 28, fontWeight: 700, lineHeight: "36px", color: overlapColor }}>{p.overlap.value}</span>
+                            {p.overlap.count && (
+                              <span style={{ fontSize: 16, fontWeight: 400, lineHeight: "24px", color: T.gray800, marginLeft: 8 }}>({p.overlap.count})</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </ContentCard>
 
-                  {/* 해석 — ContentCard padding=0 + TextBlock bordered=false */}
-                  <ContentCard padding={0}>
-                    <TextBlock title="해석" items={[p.interpretation]} bordered={false} />
+                      {/* 해석 — 디스크립션 형태 (라벨/불렛/아이콘 없이 단락 텍스트, 상단 구분선으로 분리) */}
+                      <div style={{ borderTop: `1px solid ${T.gray100}`, paddingTop: 20, fontSize: 15, fontWeight: 400, lineHeight: "24px", color: T.gray800 }}>
+                        {p.interpretation}
+                      </div>
+                    </div>
                   </ContentCard>
                 </SectionCard>
               );
@@ -269,14 +275,14 @@ export default function PersonaSurveyReport() {
         title={
           selectedRespondent && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span>Synthetic Respondent Samples</span>
+              <span>가상 응답자 샘플</span>
               <Badge type="Solid" variant="Cautionary" size="Small" text={selectedRespondent.badge} />
             </div>
           )
         }
         size="lg"
         actionType="single"
-        confirmLabel="Close"
+        confirmLabel="닫기"
         onConfirm={() => setSelectedRespondent(null)}
       >
         {selectedRespondent && (
@@ -302,7 +308,3 @@ export default function PersonaSurveyReport() {
     </PageWrapper>
   );
 }
-
-ㅁ한ㄹㅇ아
-
-배

@@ -59,6 +59,8 @@ const CATEGORIES = [
       { key: "content_performance_optimizer", title: "Content Performance Optimizer",  ko: "콘텐츠 퍼포먼스 최적화", Body: ContentOptimizerBody },
       { key: "press_release_simulation",      title: "Press Release Simulation",       ko: "보도자료 시뮬레이션",     Body: PressReleaseSimulationBody },
       { key: "ad_performance_analysis",       title: "Ad Performance Analysis",        ko: "광고 성과 분석",         Body: AdPerformanceBody },
+      { key: "crm_campaign",                  title: "CRM Campaign",                   ko: "CRM 캠페인",             Body: CrmCampaignBody,
+        bg: "linear-gradient(180deg, #BEDBFF 0%, #D3E4FF 100%)" },
     ],
   },
   {
@@ -165,13 +167,15 @@ export default function AgentThumbnails() {
 
       <PreprocessingMotions />
 
+      <BlueAgentThumbnails />
+
       {CATEGORIES.map((cat) => (
         <section key={cat.name} style={S.section}>
           <div style={S.sectionTitle}>{cat.name}</div>
           <div style={S.thumbGrid}>
             {cat.agents.map((a) => (
               <div key={a.key} style={S.thumbCard}>
-                <AgentThumb agent={{ ...a, bg: cat.bg, cardBg: cat.cardBg }} />
+                <AgentThumb agent={{ ...a, bg: a.bg ?? cat.bg, cardBg: a.cardBg ?? cat.cardBg }} />
                 <div style={S.thumbLabel}>
                   <span>{a.key}</span>
                   {a.ko && <span style={S.thumbLabelKo}> · {a.ko}</span>}
@@ -994,6 +998,42 @@ function CsTicketBody() {
   );
 }
 
+
+/* =========================================================
+ *  CRM Campaign (Marketing) – 발송 문자 목업 + 예상 전환율
+ * ========================================================= */
+function CrmCampaignBody() {
+  const BLUE = "#2B7FFF";
+  const BLUE_SOFT = "#DBEAFE";
+  const LINE = "#EAEBED";
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", gap: 16 }}>
+      {/* 실제 나가는 문자 */}
+      <div style={{ width: 132, flexShrink: 0, borderRadius: 10, overflow: "hidden", border: `1px solid #E6E7E9` }}>
+        <div style={{ height: 14, background: BLUE, display: "flex", alignItems: "center", paddingLeft: 7 }}>
+          <div style={{ width: 40, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.9)" }} />
+        </div>
+        <div style={{ background: "#FFFFFF", padding: "7px 8px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ height: 4, width: "88%", borderRadius: 999, background: LINE }} />
+          <div style={{ height: 4, width: "64%", borderRadius: 999, background: LINE }} />
+          <div style={{
+            marginTop: 2, height: 12, borderRadius: 999, background: BLUE_SOFT,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <div style={{ width: 34, height: 3, borderRadius: 999, background: BLUE }} />
+          </div>
+        </div>
+      </div>
+
+      {/* 보내기 전에 아는 값 */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <div style={{ fontFamily: "Pretendard, sans-serif", fontSize: 22, fontWeight: 700, lineHeight: "26px", color: BLUE }}>18.3%</div>
+        <div style={{ fontFamily: "Pretendard, sans-serif", fontSize: 10, fontWeight: 500, lineHeight: "14px", color: ALT }}>예상 전환</div>
+      </div>
+    </div>
+  );
+}
+
 /* =========================================================
  *  15. Review Analysis (Customer Success) – 평균 별점 + 분포 바
  * ========================================================= */
@@ -1123,3 +1163,490 @@ const S = {
     borderRadius: 10,
   },
 };
+
+/* =========================================================
+ *  BLUE THUMBNAILS — 기존 카테고리 썸네일 디자인 그대로, 컬러만 블루로 swap
+ *  외곽 430×150 → 그대로, 내부 흰카드 266×130 → 그대로 유지
+ *  카테고리별 배경 컬러(그린/라벤더/오렌지/레드/라임) → 블루 그래디언트
+ * ========================================================= */
+
+// 그레이 팔레트 (비활성/플레이스홀더용)
+const G = {
+  text:    "#7B7E85",  // fg/neutral/alternative
+  bg:      "#F7F7F7",  // 비활성 카드 배경
+  fillBar: "#EAEBED",  // 플레이스홀더 바
+  border:  "#E6E7E9",  // 카드 보더
+};
+
+// 블루 팔레트 (Persona Survey의 #51A2FF 기준 + tokens.jsx blue 계열)
+const B = {
+  primary:  "#51A2FF",  // blue400 (기존 Persona Survey와 매칭)
+  primaryD: "#2B7FFF",  // blue500
+  bg:       "#EFF6FF",  // blue50
+  bgDeep:   "#DBEAFE",  // blue100
+  border:   "#BEDBFF",  // blue200
+  light:    "#8EC5FF",  // blue300
+  textDeep: "#155DFC",  // blue600
+};
+
+/* ---------- 공통 mockup 요소 ---------- */
+function Pill({ w, h = 6, color, radius = 999, mt = 0, ml = 0 }) {
+  return <div style={{ width: w, height: h, background: color, borderRadius: radius, marginTop: mt, marginLeft: ml }} />;
+}
+function MiniUserIcon({ filled = false }) {
+  // 가로 11, 세로 11 안에 사용자 아이콘 (원 + 어깨)
+  const fill = filled ? B.primary : G.text;
+  return (
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+      <circle cx="5.5" cy="3.5" r="2" fill={fill} />
+      <path d="M2 9.5C2 7.567 3.567 6 5.5 6S9 7.567 9 9.5" stroke={fill} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+function MiniStar({ filled = false }) {
+  const fill = filled ? B.primary : G.fillBar;
+  return (
+    <svg width="11" height="11" viewBox="0 0 12 12" fill={fill} aria-hidden="true">
+      <path d="M6 0.75L7.4 4.39L11.25 4.66L8.29 7.14L9.23 10.92L6 8.85L2.77 10.92L3.71 7.14L0.75 4.66L4.6 4.39L6 0.75Z" />
+    </svg>
+  );
+}
+
+/* ---------- 1. Persona Survey — image_1 재현 ---------- */
+function BluePersonaSurveyBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+      {/* 선택된 블루 카드 */}
+      <div style={{ background: B.bg, border: `1px solid ${B.border}`, borderRadius: 8, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8 }}>
+        <MiniUserIcon filled />
+        <Pill w={88} h={6} color={B.light} />
+      </div>
+      {/* 비활성 그레이 카드 2장 */}
+      {[0, 1].map((i) => (
+        <div key={i} style={{ background: G.bg, borderRadius: 8, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8 }}>
+          <MiniUserIcon filled={false} />
+          <Pill w={i === 0 ? 110 : 76} h={6} color={G.fillBar} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- 2. Review Analysis ---------- */
+function BlueReviewAnalysisBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+      {/* 블루 별점 카드 */}
+      <div style={{ background: B.bg, border: `1px solid ${B.border}`, borderRadius: 8, padding: "8px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        {[1,1,1,1,1].map((_, i) => <MiniStar key={i} filled />)}
+        <div style={{ marginLeft: "auto", fontFamily: "Pretendard, sans-serif", fontSize: 11, fontWeight: 700, color: B.primary }}>4.8</div>
+      </div>
+      {/* 분포 바 */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {[{ w: 100, c: B.primary }, { w: 70, c: B.light }, { w: 40, c: G.fillBar }].map((b, i) => (
+          <Pill key={i} w={b.w} h={5} color={b.c} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 3. Pipeline Forecasting — 깔때기/단계 ---------- */
+function BluePipelineForecastingBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5, width: "100%", alignItems: "stretch" }}>
+      {[{ w: "100%", c: B.bgDeep, label: 320 }, { w: "78%", c: B.light, label: 250 }, { w: "55%", c: B.primary, label: 175 }, { w: "32%", c: B.textDeep, label: 102 }].map((s, i) => (
+        <div key={i} style={{ alignSelf: "center", width: s.w, height: 12, background: s.c, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 6, fontSize: 8.5, fontWeight: 700, color: i >= 2 ? "#FFFFFF" : B.textDeep, fontFamily: "Pretendard, sans-serif" }}>
+          {s.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- 4. New Product Pricing Strategy — image_2 재현 (라인차트) ---------- */
+function BlueNewPricingBody() {
+  // 256-32(padding) = 224 wide, 132-32 = 100 tall approx
+  // y축 0%~100%, 작은 dots 2개
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <svg viewBox="0 0 224 96" width="100%" height="100%" preserveAspectRatio="none">
+        {/* y축 라벨 영역 비움, 격자 */}
+        <g stroke={G.fillBar} strokeWidth="0.5">
+          <line x1="20" y1="8" x2="220" y2="8" />
+          <line x1="20" y1="40" x2="220" y2="40" />
+          <line x1="20" y1="72" x2="220" y2="72" />
+        </g>
+        {/* area fill */}
+        <path d="M20 65 L70 50 L120 56 L170 28 L220 18 L220 88 L20 88 Z" fill={B.bg} />
+        {/* line */}
+        <path d="M20 65 L70 50 L120 56 L170 28 L220 18" stroke={B.primary} strokeWidth="2" fill="none" strokeLinejoin="round" />
+        {/* dots */}
+        <circle cx="120" cy="56" r="3.5" fill="#FFFFFF" stroke={B.primary} strokeWidth="1.8" />
+        <circle cx="170" cy="28" r="3.5" fill="#FFFFFF" stroke={B.primary} strokeWidth="1.8" />
+      </svg>
+      <div style={{ position: "absolute", top: 2, left: 0, fontSize: 7.5, color: G.text, fontFamily: "Pretendard, sans-serif" }}>100%</div>
+      <div style={{ position: "absolute", bottom: 6, left: 0, fontSize: 7.5, color: G.text, fontFamily: "Pretendard, sans-serif" }}>0%</div>
+    </div>
+  );
+}
+
+/* ---------- 5. Pricing Optimization — 가격 곡선 + 최적점 ---------- */
+function BluePricingOptimizationBody() {
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <svg viewBox="0 0 224 96" width="100%" height="100%" preserveAspectRatio="none">
+        {/* 격자 */}
+        <line x1="0" y1="80" x2="224" y2="80" stroke={G.fillBar} strokeWidth="0.5" />
+        {/* 종 모양 area */}
+        <path d="M5 80 Q60 75 110 25 Q160 75 215 78 L215 88 L5 88 Z" fill={B.bg} />
+        {/* 곡선 */}
+        <path d="M5 80 Q60 75 110 25 Q160 75 215 78" stroke={B.primary} strokeWidth="2" fill="none" />
+        {/* 최적점 마커 */}
+        <line x1="110" y1="25" x2="110" y2="88" stroke={B.primary} strokeWidth="1" strokeDasharray="2 2" />
+        <circle cx="110" cy="25" r="5" fill={B.primary} />
+        <circle cx="110" cy="25" r="2" fill="#FFFFFF" />
+      </svg>
+      <div style={{ position: "absolute", top: 4, left: "47%", fontSize: 8, fontWeight: 700, color: B.primary, fontFamily: "Pretendard, sans-serif" }}>OPTIMAL</div>
+    </div>
+  );
+}
+
+/* ---------- 6. Process Efficiency — Before/After 막대 ---------- */
+function BlueProcessEfficiencyBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 9, color: G.text, fontWeight: 600, fontFamily: "Pretendard, sans-serif", width: 32 }}>Before</span>
+        <Pill w={140} h={8} color={G.fillBar} radius={4} />
+        <span style={{ fontSize: 9, color: G.text, fontWeight: 600, fontFamily: "Pretendard, sans-serif" }}>12h</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 9, color: B.textDeep, fontWeight: 600, fontFamily: "Pretendard, sans-serif", width: 32 }}>After</span>
+        <Pill w={56} h={8} color={B.primary} radius={4} />
+        <span style={{ fontSize: 9, color: B.textDeep, fontWeight: 700, fontFamily: "Pretendard, sans-serif" }}>4.8h</span>
+      </div>
+      <div style={{ marginTop: 2, fontSize: 9, color: B.primary, fontWeight: 700, fontFamily: "Pretendard, sans-serif" }}>−60% ↓</div>
+    </div>
+  );
+}
+
+/* ---------- 7. Operational KPI — 게이지 + 숫자 ---------- */
+function BlueOperationalKpiBody() {
+  // 반원 게이지
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 14, width: "100%" }}>
+      <svg width="76" height="50" viewBox="0 0 80 50">
+        <path d="M8 44 A32 32 0 0 1 72 44" stroke={G.fillBar} strokeWidth="7" fill="none" strokeLinecap="round" />
+        {/* 78% 위치까지 채움 — 반원이라 angle 0~180 = 0~100% */}
+        <path d="M8 44 A32 32 0 0 1 64.5 21" stroke={B.primary} strokeWidth="7" fill="none" strokeLinecap="round" />
+        <text x="40" y="42" textAnchor="middle" fontSize="16" fontWeight="700" fill={B.primary} fontFamily="Pretendard, sans-serif">78</text>
+      </svg>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ fontSize: 9, color: G.text, fontWeight: 600, fontFamily: "Pretendard, sans-serif" }}>KPI Score</div>
+        <Pill w={80} h={5} color={B.primary} />
+        <Pill w={56} h={5} color={B.light} />
+        <Pill w={42} h={5} color={G.fillBar} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 8. CS Ticket Analysis — 카테고리 막대 ---------- */
+function BlueCsTicketBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5, width: "100%" }}>
+      {[{ l: "Billing", w: 130, c: B.primary, v: "42" }, { l: "Delivery", w: 86, c: B.light, v: "28" }, { l: "Refund", w: 58, c: B.bgDeep, v: "18" }, { l: "Other", w: 30, c: G.fillBar, v: "12" }].map((row, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 42, fontSize: 8.5, color: G.text, fontWeight: 600, fontFamily: "Pretendard, sans-serif" }}>{row.l}</span>
+          <Pill w={row.w} h={7} color={row.c} radius={3} />
+          <span style={{ fontSize: 8.5, color: i === 0 ? B.textDeep : G.text, fontWeight: 700, fontFamily: "Pretendard, sans-serif" }}>{row.v}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- 9. Audience Strategy — image_4 재현 (페르소나 카드 2장) ---------- */
+function BlueAudienceStrategyBody() {
+  return (
+    <div style={{ display: "flex", gap: 8, width: "100%", height: "100%" }}>
+      {/* 블루 선택 카드 */}
+      <div style={{ flex: 1, background: B.bg, border: `1px solid ${B.border}`, borderRadius: 8, padding: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+        <MiniUserIcon filled />
+        <Pill w={28} h={4} color={B.light} mt={4} />
+        <Pill w={48} h={5} color={B.primary} />
+      </div>
+      {/* 그레이 비활성 카드 */}
+      <div style={{ flex: 1, background: G.bg, borderRadius: 8, padding: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+        <MiniUserIcon filled={false} />
+        <Pill w={28} h={4} color={G.fillBar} mt={4} />
+        <Pill w={48} h={5} color={G.fillBar} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 10. Content Performance Optimizer — 콘텐츠 카드 + CTR ---------- */
+function BlueContentOptimizerBody() {
+  return (
+    <div style={{ display: "flex", gap: 8, width: "100%", height: "100%" }}>
+      <div style={{ width: 64, background: B.bg, border: `1px solid ${B.border}`, borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><path d="M2 7 L8 3 L8 11 Z" fill={B.primary} /><rect x="11" y="3" width="7" height="8" rx="1" fill={B.light} /></svg>
+        <div style={{ fontSize: 8, fontWeight: 700, color: B.primary, fontFamily: "Pretendard, sans-serif" }}>CTR 8.4%</div>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, justifyContent: "center" }}>
+        <Pill w="80%" h={5} color={B.primary} />
+        <Pill w="60%" h={5} color={B.light} />
+        <Pill w="40%" h={5} color={G.fillBar} />
+        <Pill w="30%" h={5} color={G.fillBar} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 11. Press Release Simulation — 문서 + 노출 점 ---------- */
+function BluePressReleaseBody() {
+  return (
+    <div style={{ display: "flex", gap: 10, width: "100%", height: "100%", alignItems: "center" }}>
+      {/* 문서 */}
+      <div style={{ width: 56, height: 72, background: "#FFFFFF", border: `1.5px solid ${B.border}`, borderRadius: 6, padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Pill w="100%" h={4} color={B.primary} />
+        <Pill w="70%" h={3} color={G.fillBar} />
+        <Pill w="90%" h={3} color={G.fillBar} />
+        <Pill w="60%" h={3} color={G.fillBar} />
+        <Pill w="80%" h={3} color={G.fillBar} />
+      </div>
+      {/* 노출 점들 */}
+      <svg width="100" height="80" viewBox="0 0 100 80">
+        {[
+          [15, 20, 5, B.primary], [40, 12, 4, B.light], [70, 28, 6, B.primary],
+          [25, 50, 3, B.bgDeep], [55, 58, 5, B.primary], [85, 50, 4, B.light],
+          [12, 70, 3, B.bgDeep], [45, 72, 4, B.light], [75, 68, 5, B.primary],
+        ].map(([cx, cy, r, c], i) => (
+          <circle key={i} cx={cx} cy={cy} r={r} fill={c} opacity="0.85" />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+/* ---------- 12. Ad Performance Analysis — KPI 카드들 ---------- */
+function BlueAdPerformanceBody() {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, width: "100%", height: "100%" }}>
+      {[
+        { label: "ROAS", value: "4.2×", color: B.primary, bg: B.bg, border: B.border },
+        { label: "CPC", value: "$0.42", color: G.text, bg: G.bg, border: G.border },
+        { label: "CTR", value: "5.8%", color: G.text, bg: G.bg, border: G.border },
+        { label: "CVR", value: "12%", color: B.primary, bg: B.bg, border: B.border },
+      ].map((c, i) => (
+        <div key={i} style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 6, padding: "4px 8px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 1 }}>
+          <div style={{ fontSize: 8, fontWeight: 600, color: G.text, fontFamily: "Pretendard, sans-serif", letterSpacing: "0.04em" }}>{c.label}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: c.color, fontFamily: "Pretendard, sans-serif" }}>{c.value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- 13. Churn Prediction — image_3 재현 (별점+가격 카드) ---------- */
+function BlueChurnPredictionBody() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+      {/* 비교 두 카드 */}
+      <div style={{ display: "flex", gap: 6 }}>
+        <div style={{ flex: 1, background: G.bg, borderRadius: 8, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", gap: 2 }}>{[0,0,0,0,0].map((_, i) => <MiniStar key={i} filled={false} />)}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: G.text, fontFamily: "Pretendard, sans-serif" }}>$120</div>
+        </div>
+        <div style={{ flex: 1, background: B.bg, border: `1px solid ${B.border}`, borderRadius: 8, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", gap: 2 }}>{[1,1,1,1,1].map((_, i) => <MiniStar key={i} filled />)}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: B.primary, fontFamily: "Pretendard, sans-serif" }}>$150</div>
+        </div>
+      </div>
+      {/* 작은 단락들 */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Pill w={100} h={3} color={G.fillBar} />
+        <Pill w={70} h={3} color={G.fillBar} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 14. Anomaly Detection — 시계열 + 이상치 ---------- */
+function BlueAnomalyDetectionBody() {
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <svg viewBox="0 0 224 96" width="100%" height="100%" preserveAspectRatio="none">
+        <line x1="0" y1="84" x2="224" y2="84" stroke={G.fillBar} strokeWidth="0.5" />
+        <line x1="0" y1="50" x2="224" y2="50" stroke={G.fillBar} strokeWidth="0.5" strokeDasharray="2 2" />
+        {/* 정상 라인 */}
+        <path d="M5 60 L30 55 L55 58 L80 52 L105 56 L130 54 L160 53 L190 55 L218 54" stroke={B.primary} strokeWidth="1.6" fill="none" />
+        {/* 이상치 spike */}
+        <path d="M130 54 L150 14" stroke={B.primary} strokeWidth="1.6" fill="none" strokeDasharray="2 2" />
+        <path d="M150 14 L160 53" stroke={B.primary} strokeWidth="1.6" fill="none" strokeDasharray="2 2" />
+        {/* 이상치 마커 */}
+        <circle cx="150" cy="14" r="6" fill="none" stroke={B.primary} strokeWidth="1.5" />
+        <circle cx="150" cy="14" r="3" fill={B.primary} />
+      </svg>
+      <div style={{ position: "absolute", top: 0, right: 4, fontSize: 8, fontWeight: 700, color: B.primary, fontFamily: "Pretendard, sans-serif" }}>⚠ ANOMALY</div>
+    </div>
+  );
+}
+
+/* ---------- 15. CRM Campaign — 실제 발송 문자 + 예상 전환 뱃지 ---------- */
+function BlueCrmCampaignBody() {
+  return (
+    <div style={{
+      position: "relative", width: "100%", height: "100%",
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      {/* 뒤에 겹친 카드 — 여러 건이 나간다는 느낌 */}
+      <div style={{
+        position: "absolute", left: 26, top: 22, width: 138, height: 66,
+        background: B.bgDeep, borderRadius: 10, opacity: 0.6,
+      }} />
+
+      {/* 발송 문자 카드 */}
+      <div style={{
+        position: "absolute", left: 16, top: 12, width: 138,
+        background: "#FFFFFF", border: `1px solid ${B.border}`, borderRadius: 10,
+        overflow: "hidden", boxShadow: "0 2px 6px rgba(21,93,252,0.08)",
+      }}>
+        <div style={{
+          height: 15, background: B.primaryD,
+          display: "flex", alignItems: "center", paddingLeft: 7,
+        }}>
+          <Pill w={44} h={4} color="rgba(255,255,255,0.85)" />
+        </div>
+        <div style={{ padding: "8px 8px 9px", display: "flex", flexDirection: "column", gap: 4 }}>
+          <Pill w="88%" h={4} color={G.fillBar} />
+          <Pill w="66%" h={4} color={G.fillBar} />
+          <Pill w="46%" h={4} color={B.border} />
+          <div style={{
+            marginTop: 3, height: 13, borderRadius: 999, background: "#171719",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Pill w={30} h={3} color="rgba(255,255,255,0.9)" />
+          </div>
+        </div>
+      </div>
+
+      {/* 예상 전환 뱃지 */}
+      <div style={{
+        position: "absolute", right: 12, top: 30,
+        background: "#FFFFFF", border: `1px solid ${B.border}`, borderRadius: 10,
+        padding: "9px 12px", textAlign: "center",
+        boxShadow: "0 2px 8px rgba(21,93,252,0.10)",
+        fontFamily: "Pretendard, sans-serif",
+      }}>
+        <div style={{ fontSize: 18, fontWeight: 700, lineHeight: "22px", color: B.primaryD }}>18.3%</div>
+        <div style={{ fontSize: 9, fontWeight: 500, lineHeight: "13px", color: G.text, marginTop: 1 }}>예상 전환</div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 15개 메타데이터 ---------- */
+const BLUE_AGENTS = [
+  { key: "persona_survey",                  ko: "페르소나 서베이",            en: "Persona Survey",                  Body: BluePersonaSurveyBody },
+  { key: "review_analysis",                 ko: "리뷰 분석",                  en: "Review Analysis",                 Body: BlueReviewAnalysisBody },
+  { key: "pipeline_forecasting",            ko: "파이프라인 예측",            en: "Pipeline Forecasting",            Body: BluePipelineForecastingBody },
+  { key: "new_product_pricing",             ko: "신제품 가격 전략",           en: "New Product Pricing Strategy",    Body: BlueNewPricingBody },
+  { key: "pricing_optimization",            ko: "가격 최적화",                en: "Pricing Optimization",            Body: BluePricingOptimizationBody },
+  { key: "process_efficiency",              ko: "업무 효율 분석",             en: "Process Efficiency",              Body: BlueProcessEfficiencyBody },
+  { key: "operational_kpi",                 ko: "운영 KPI 분석",              en: "Operational KPI",                 Body: BlueOperationalKpiBody },
+  { key: "cs_ticket_analysis",              ko: "고객센터 티켓 분석",         en: "CS Ticket Analysis",              Body: BlueCsTicketBody },
+  { key: "audience_strategy",               ko: "오디언스 전략",              en: "Audience Strategy",               Body: BlueAudienceStrategyBody },
+  { key: "content_performance_optimizer",   ko: "콘텐츠 퍼포먼스 최적화",     en: "Content Performance Optimizer",   Body: BlueContentOptimizerBody },
+  { key: "press_release_simulation",        ko: "보도자료 시뮬레이션",        en: "Press Release Simulation",        Body: BluePressReleaseBody },
+  { key: "ad_performance_analysis",         ko: "광고 성과 분석",             en: "Ad Performance Analysis",         Body: BlueAdPerformanceBody },
+  { key: "churn_prediction",                ko: "이탈 예측",                  en: "Churn Prediction",                Body: BlueChurnPredictionBody },
+  { key: "anomaly_detection",               ko: "이상 탐지",                  en: "Anomaly Detection",               Body: BlueAnomalyDetectionBody },
+  { key: "crm_campaign",                    ko: "CRM 캠페인",                 en: "CRM Campaign",                    Body: BlueCrmCampaignBody },
+];
+
+/* ---------- 블루 썸네일 외곽 (256×132, radius 14, PNG 다운로드 지원) ---------- */
+function BlueAgentThumb({ agent }) {
+  const ref = useRef(null);
+  const [hover, setHover] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const downloadPng = async () => {
+    if (!ref.current || busy) return;
+    setBusy(true);
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      await toPng(ref.current, { cacheBust: true, pixelRatio: 1, width: 256, height: 132 });
+      const dataUrl = await toPng(ref.current, { cacheBust: true, pixelRatio: 4, width: 256, height: 132 });
+      const a = document.createElement("a");
+      a.download = `${agent.key}-blue.png`;
+      a.href = dataUrl;
+      a.click();
+    } catch (e) { console.error(e); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div
+        ref={ref}
+        style={{
+          width: 256,
+          height: 132,
+          borderRadius: 14,
+          background: "#FFFFFF",
+          border: "1px solid #EEF0F3",
+          padding: 16,
+          boxSizing: "border-box",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        <agent.Body />
+      </div>
+      {hover && (
+        <button
+          onClick={downloadPng}
+          disabled={busy}
+          style={{
+            position: "absolute", top: 8, right: 8,
+            padding: "4px 8px",
+            background: "rgba(23,23,25,0.85)", color: "#FFFFFF",
+            border: "none", borderRadius: 6,
+            fontFamily: "Pretendard, sans-serif", fontSize: 10.5, fontWeight: 600,
+            cursor: busy ? "wait" : "pointer",
+          }}
+        >{busy ? "..." : "↓ PNG"}</button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- 섹션 컨테이너 (export default 내부에 사용) ---------- */
+function BlueAgentThumbnails() {
+  return (
+    <section style={S.section}>
+      <div style={S.sectionTitle}>Blue Thumbnails <span style={{ fontSize: 12, fontWeight: 500, color: "#A8ABB1", marginLeft: 8 }}>256 × 132 · radius 14 · blue accent</span></div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+        {BLUE_AGENTS.map((a) => (
+          <div key={a.key} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <BlueAgentThumb agent={a} />
+            <div style={S.thumbLabel}>
+              <span>{a.key}</span>
+              {a.ko && <span style={S.thumbLabelKo}> · {a.ko}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

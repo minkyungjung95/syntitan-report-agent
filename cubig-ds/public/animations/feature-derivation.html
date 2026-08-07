@@ -24,7 +24,7 @@
 
       html, body {
         margin: 0; padding: 0;
-        background: #f6f7f9;
+        background: #F5F7F9;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
         color: var(--text);
       }
@@ -1207,6 +1207,18 @@
       font-size: 11.5px;
     "></div>
 
+    <!-- Viewport 사이즈 확인용 (?dl=1 모드에서만, 녹화 시작 시 숨김) -->
+    <div id="vp-size" style="
+      display: none;
+      position: fixed; bottom: 10px; right: 10px; z-index: 1000;
+      padding: 5px 9px;
+      background: rgba(17,24,39,0.78); color: #fff;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px; font-weight: 600;
+      pointer-events: none;
+    "></div>
+
     <script>
       // 카드 메뉴 클릭(hash 변경) 시 페이지 리로드 — 단일 카드 모드로 진입
       window.addEventListener('hashchange', () => location.reload());
@@ -1234,8 +1246,50 @@
 
         // 다운로드 버튼은 ?dl=1 쿼리가 있을 때만 노출 (녹화 시 깨끗하게)
         const params = new URLSearchParams(window.location.search);
+        const vpSize = document.getElementById('vp-size');
         if (params.get('dl') === '1') {
+          // 사용자가 창 사이즈를 어떻게 바꾸든 무관하게 디자인 영역(520×260)이 viewport에 fit되도록
+          // → transform: scale로 동적 스케일 + body bg는 stage 밖 영역 채움
+          // → getDisplayMedia에 aspectRatio:2 + width/height max 제약 → 결과 항상 1040×520
+          const stageEl = document.querySelector('.stage');
+          if (stageEl) {
+            Object.assign(stageEl.style, {
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              width: '520px',
+              height: '260px',
+              minHeight: 'unset',
+              padding: '0',
+              transformOrigin: 'center center',
+              boxSizing: 'border-box',
+            });
+          }
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.overflow = 'hidden';
+          document.body.style.background = '#F5F7F9';
+
+          const fitScale = () => {
+            const sx = window.innerWidth / 520;
+            const sy = window.innerHeight / 260;
+            const s = Math.min(sx, sy);
+            if (stageEl) stageEl.style.transform = `translate(-50%, -50%) scale(${s})`;
+          };
+          fitScale();
+          window.addEventListener('resize', fitScale);
+
           dlBtn.style.display = 'block';
+          // Viewport 사이즈 라이브 표시 — 기존 MP4(1040×520)에 맞추려면 CSS 520×260 필요
+          const updateVp = () => {
+            const w = window.innerWidth, h = window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
+            const ok = (w === 520 && h === 260);
+            vpSize.textContent = `${w}×${h} CSS · ${Math.round(w*dpr)}×${Math.round(h*dpr)} px${ok ? ' ✓' : ' → 520×260 목표'}`;
+            vpSize.style.background = ok ? 'rgba(34,197,94,0.92)' : 'rgba(17,24,39,0.78)';
+          };
+          vpSize.style.display = 'block';
+          updateVp();
+          window.addEventListener('resize', updateVp);
         }
         dlIndex.style.display = 'none'; // 단일 카드 모드에선 인덱스 숨김
         // 단일 모드 우상단에 "↩ 전체 보기" 링크 추가 (녹화 시엔 ?clean=1 로 숨김)
@@ -1253,13 +1307,39 @@
           dlBtn.style.opacity = '0.6';
           dlStatus.style.display = 'block';
           dlStatus.textContent = '화면 공유 권한 허용 후 → 이 탭을 선택해주세요';
+          // 녹화 시작 시 viewport 표시기 숨김 (영상에 안 잡히도록)
+          if (vpSize) vpSize.style.display = 'none';
+
+          // 영상에 UI가 안 잡히도록 녹화 중에는 모든 오버레이 숨김
+          const hideOverlays = () => {
+            dlBtn.style.display = 'none';
+            dlStatus.style.display = 'none';
+          };
+          const showOverlays = () => {
+            dlBtn.style.display = 'block';
+          };
 
           try {
+            // width/height max 제약 — HiDPI 스케일 모니터에서도 캡처를 강제로 1040×520으로 다운스케일
             const stream = await navigator.mediaDevices.getDisplayMedia({
-              video: { frameRate: 30, displaySurface: 'browser' },
+              video: {
+                frameRate: 30,
+                displaySurface: 'browser',
+                width:  { ideal: 1040, max: 1040 },
+                height: { ideal: 520,  max: 520  },
+              },
               audio: false,
               preferCurrentTab: true,
             });
+            // applyConstraints로 한 번 더 강제 (Chrome 일부 버전이 getDisplayMedia 초기 제약 무시함)
+            try {
+              const [track] = stream.getVideoTracks();
+              await track.applyConstraints({
+                width:  { ideal: 1040, max: 1040 },
+                height: { ideal: 520,  max: 520  },
+                frameRate: 30,
+              });
+            } catch (e) { console.warn('applyConstraints failed', e); }
 
             // mp4 우선, 안 되면 webm
             const candidates = [
@@ -1276,15 +1356,23 @@
             recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
 
             const stopPromise = new Promise(res => recorder.onstop = res);
+
+            // 녹화 직전에 UI 전부 숨기고 충분히 대기 — compositor가 새 프레임 그릴 시간 확보
+            hideOverlays();
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            await new Promise(r => setTimeout(r, 250)); // 250ms 안전 마진: 캡처 스트림에 옛 프레임 끼지 않도록
+
             recorder.start();
 
-            // 카운트다운
+            // 카운트다운 — 화면이 아니라 탭/문서 타이틀로만 알림 (녹화엔 안 잡힘)
             const total = 10;
+            const origTitle = document.title;
             for (let s = total; s > 0; s--) {
-              dlStatus.textContent = `녹화 중… ${s}s 남음`;
+              document.title = `● REC ${s}s — ${hash}`;
               await new Promise(r => setTimeout(r, 1000));
             }
             recorder.stop();
+            document.title = origTitle;
             await stopPromise;
             stream.getTracks().forEach(t => t.stop());
 
@@ -1300,10 +1388,15 @@
             a.remove();
             URL.revokeObjectURL(url);
 
+            // 녹화 끝났으니 UI 복귀
+            showOverlays();
+            dlStatus.style.display = 'block';
             dlStatus.textContent = `✓ 저장 완료 (${ext.toUpperCase()})`;
             setTimeout(() => { dlStatus.style.display = 'none'; }, 2500);
           } catch (err) {
             console.error(err);
+            showOverlays();
+            dlStatus.style.display = 'block';
             dlStatus.textContent = '✗ 권한 거부 또는 오류 — 콘솔 확인';
             setTimeout(() => { dlStatus.style.display = 'none'; }, 3000);
           } finally {

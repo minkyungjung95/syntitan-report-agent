@@ -68,7 +68,6 @@ function ScenarioBar({ s, ratio, barH, color }) {
             fontSize: 14,
             fontWeight: 700,
             color: "#FFFFFF",
-            textShadow: "0 1px 2px rgba(0,0,0,0.25)",
             whiteSpace: "nowrap",
           }}>{value}</span>
         )}
@@ -101,7 +100,7 @@ function ScenarioBar({ s, ratio, barH, color }) {
 export default function ChurnPredictionReport() {
   const [data, setData] = useState(null);
   useEffect(() => {
-    fetch("/json/churn-prediction.json")
+    fetch("/json/churn-prediction.json", { cache: "no-store" })
       .then((res) => res.json())
       .then(setData)
       .catch((e) => console.error("Failed to load churn-prediction.json", e));
@@ -139,16 +138,16 @@ export default function ChurnPredictionReport() {
               text={meta.sourceFile}
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />}
             />
-            <Badge type="Outline" variant="Secondary" size="Large" text={`Version ${meta.version}`} />
+            <Badge type="Outline" variant="Secondary" size="Large" text={`버전 ${meta.version}`} />
           </>
         }
         actions={
           <>
             <Btn variant="solid-secondary" size="md">
               <DownloadIcon size={20} />
-              Download PDF
+              PDF 다운로드
             </Btn>
-            <Btn variant="solid-primary" size="md">Create Discussion Room</Btn>
+            <Btn variant="solid-primary" size="md">토론방 만들기</Btn>
           </>
         }
         style={{ marginBottom: 60 }}

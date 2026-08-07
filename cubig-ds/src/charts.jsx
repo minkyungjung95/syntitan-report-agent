@@ -1351,8 +1351,9 @@ export function MultiLineChart({ data, title, curve = "linear", height = 280, co
 // variant: "normal" 회색 아웃라인, "best" 핑크, "worst" 블루
 function RateBadge({ rate, variant = "normal", suffix = "" }) {
   const styles = {
-    best:   { bg: "#EFF6FF", border: CHART_COLORS[0], color: CHART_COLORS[0], fontWeight: 800, fontSize: 18 },
-    worst:  { bg: RED100, border: RED500, color: RED500, fontWeight: 800, fontSize: 18 },
+    // 강조는 색으로만 — 글자 크기가 행마다 다르면 숫자 비교가 어긋나 보임
+    best:   { bg: "#EFF6FF", border: CHART_COLORS[0], color: CHART_COLORS[0], fontWeight: 700, fontSize: 15 },
+    worst:  { bg: RED100, border: RED500, color: RED500, fontWeight: 700, fontSize: 15 },
     normal: { bg: WHITE, border: GRAY200, color: GRAY990, fontWeight: 600, fontSize: 15 },
   };
   const s = styles[variant] || styles.normal;

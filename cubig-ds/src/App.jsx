@@ -2240,6 +2240,17 @@ export default function App() {
                   }],
                 },
                 {
+                  category: "CRM",
+                  badgeVariant: "Positive",
+                  topics: [{
+                    title: "CRM 캠페인 추천",
+                    description: "고객 방문·구매·문자 발송 이력으로 세그먼트를 자동 생성하고 캠페인·채널·메시지와 예상 성과(전환율·리프트)를 추천 + 발송 전 메시지 품질 교정",
+                    variants: [
+                      { name: "클리닉 CRM", subtitle: "고객 8,208명 — 5 세그먼트 / 캠페인 5건 / 메시지 품질 7항목", route: "/#/crm", jsonPath: "/json/crm-campaign.json" },
+                    ],
+                  }],
+                },
+                {
                   category: "Negative Case",
                   badgeVariant: "Negative",
                   topics: [{
@@ -2269,6 +2280,17 @@ export default function App() {
                     description: "120K 고객 4 페르소나 클러스터 + 시나리오 비교(보수/기준/공격) + 30일 실행 로드맵 + 세그먼트 상세 모달",
                     variants: [
                       { name: "Luxury Beauty & Fashion", subtitle: "분석 리포트 + 오디언스 확장 2탭", route: "/#/audience", jsonPath: "/json/audience-strategy.json" },
+                    ],
+                  }],
+                },
+                {
+                  category: "Public Relations",
+                  badgeVariant: "Info",
+                  topics: [{
+                    title: "보도자료 영향 시뮬레이션",
+                    description: "보도자료 원문 + 인식도 조사 데이터로 6지표(상생협력·윤리경영·설립목적 부합성 등) 변화를 전체 국민·제주 도민 단위로 예측하고, 페르소나 반응·수정 제안까지 제시",
+                    variants: [
+                      { name: "제주영어교육도시 (JDC)", subtitle: "보도자료 재도약 시뮬레이션 예시 — 6지표 변화 / 페르소나 반응 / 수정 제안", route: "/#/pr-impact", jsonPath: "/json/pr-impact.json" },
                     ],
                   }],
                 },

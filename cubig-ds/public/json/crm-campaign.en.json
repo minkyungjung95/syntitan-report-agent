@@ -1,0 +1,418 @@
+{
+  "meta": {
+    "agentId": "crm-campaign-insight",
+    "agentName": "CRM Agent",
+    "reportTitle": "CRM Agent · Auto segmentation & campaign recommendations",
+    "reportSubtitle": "CRM Agent cross-analyses customer profiles, booking history, purchase history and past message sends to recommend who to contact, what to say, on which channel — and the projected conversion rate and lift.",
+    "domain": "Offline clinic / retail CRM",
+    "sourceFile": "crm_customer_visit_message_2026-01_to_2026-07.csv",
+    "version": "1",
+    "createdAt": "2026-07-30T09:00:00.000Z",
+    "input": {
+      "industry": "Clinic · Medical",
+      "brand": "The View Clinic",
+      "goals": [
+        "Drive repeat visits",
+        "Win back lapsed customers"
+      ],
+      "channels": [
+        "SMS",
+        "KakaoTalk Alimtalk"
+      ],
+      "siteUrl": "https://theview.kr",
+      "about": "A clinic focused on lifting and skin-care treatments."
+    }
+  },
+  "sections": [
+    {
+      "id": "executive-summary",
+      "sectionName": "Executive Summary",
+      "headline": "We recommend running five campaigns, starting with the at-risk segment.",
+      "data": {
+        "keyFindingGroups": [
+          {
+            "icon": "person",
+            "title": "Who to send to",
+            "items": [
+              "At-risk is the largest segment at 25.0% and ranks first with 322 projected conversions",
+              "Inquiry-only leads are 16.1% of the base but convert lowest at 4.8%"
+            ]
+          },
+          {
+            "icon": "flag",
+            "title": "Campaign mix",
+            "items": [
+              "Five events — August Care Reset Week (10% off) for at-risk, Free First Consult Week (5,000 KRW coupon) for leads, and three more",
+              "Low-converting segments are routed to Kakao channels, cutting send cost by 28,750 KRW"
+            ]
+          },
+          {
+            "icon": "trend",
+            "title": "Projected results",
+            "items": [
+              "172,250 KRW spend · 732 conversions (18.2%)",
+              "Lift of +8.5%p — 342 more conversions than sending nothing"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "customer-segments",
+      "sectionName": "Customer segments",
+      "headline": "Only 19% of the 8,208 customers are still visiting on schedule; at-risk and long-lapsed together make up half (49%). Of those, 4,020 can actually be messaged.",
+      "data": {
+        "donut": {
+          "title": "Customer segments",
+          "segments": [
+            {
+              "label": "At-risk",
+              "count": 2050,
+              "percentage": 25.0,
+              "color": "#2B7FFF"
+            },
+            {
+              "label": "Long lapsed",
+              "count": 1970,
+              "percentage": 24.0,
+              "color": "#8EC5FF"
+            },
+            {
+              "label": "Loyal / VIP",
+              "count": 1560,
+              "percentage": 19.0,
+              "color": "#00BBA7"
+            },
+            {
+              "label": "First visit, no return",
+              "count": 1310,
+              "percentage": 16.0,
+              "color": "#9F8DEB"
+            },
+            {
+              "label": "Inquiry, never visited",
+              "count": 1318,
+              "percentage": 16.1,
+              "color": "#7CCF00"
+            }
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "key": "segment",
+              "label": "Customer segment"
+            },
+            {
+              "key": "criteria",
+              "label": "Definition"
+            },
+            {
+              "key": "total",
+              "label": "Total customers"
+            },
+            {
+              "key": "sendable",
+              "label": "Reachable",
+              "hint": "Customers who can actually be messaged. Excludes anyone without marketing consent and anyone already contacted in the last 14 days."
+            },
+            {
+              "key": "cycle",
+              "label": "Avg. visit cycle"
+            }
+          ],
+          "rows": [
+            {
+              "segment": "At-risk",
+              "criteria": "Past their usual repeat-visit cycle and showing signs of churn",
+              "total": "2,050",
+              "sendable": "1,760",
+              "cycle": "41 days"
+            },
+            {
+              "segment": "Long lapsed",
+              "criteria": "Have not returned for a long time",
+              "total": "1,970",
+              "sendable": "210",
+              "cycle": "47 days"
+            },
+            {
+              "segment": "Loyal / VIP",
+              "criteria": "Currently active core customers",
+              "total": "1,560",
+              "sendable": "230",
+              "cycle": "24 days"
+            },
+            {
+              "segment": "First visit, no return",
+              "criteria": "New customers who have not come back since their first purchase",
+              "total": "1,310",
+              "sendable": "1,130",
+              "cycle": "-"
+            },
+            {
+              "segment": "Inquiry, never visited",
+              "criteria": "Enquired but have never purchased or visited",
+              "total": "1,318",
+              "sendable": "690",
+              "cycle": "-"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "segment-definition",
+      "sectionName": "Segment criteria",
+      "headline": "",
+      "data": {
+        "groups": [
+          {
+            "title": "At-risk",
+            "criteria": "2+ visits/purchases, 1.5–4× past due cycle"
+          },
+          {
+            "title": "Inquiry, never visited",
+            "criteria": "0 visits/purchases, has an enquiry record"
+          },
+          {
+            "title": "First visit, no return",
+            "criteria": "Exactly 1 visit/purchase"
+          },
+          {
+            "title": "Long lapsed",
+            "criteria": "4×+ past due cycle, or beyond the overall average cycle"
+          },
+          {
+            "title": "Loyal / VIP",
+            "criteria": "Not past due"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recommended-campaigns",
+      "sectionName": "Recommended campaigns",
+      "headline": "Top priority is the at-risk segment — 1,760 customers, August Care Reset Week with 10% off. At 322 projected conversions it is the largest of the five.",
+      "data": {
+        "table": {
+          "metrics": [
+            "Campaign",
+            "Description",
+            "Reachable",
+            "Channel",
+            "Send cost",
+            "Est. conversion rate",
+            "Est. conversions",
+            "Lift",
+            "Conversion event"
+          ],
+          "campaigns": [
+            {
+              "segment": "At-risk",
+              "캠페인명": "August Care Reset Week",
+              "캠페인 내용": "A month-long offer for customers who have slipped past their care cycle — 10% off the same treatment plus a free skin assessment.",
+              "발송 가능 인원": "1,760",
+              "캠페인 채널": "LMS",
+              "발송 비용": "88,000 KRW",
+              "예상 전환율": "18.3%",
+              "예상 전환 고객": "322",
+              "리프트": "+9.4%p",
+              "전환 기준": "Payment",
+              "캠페인 기간": "10–31 Aug",
+              "혜택": [
+                "10% off",
+                "Free skin assessment"
+              ]
+            },
+            {
+              "segment": "Inquiry, never visited",
+              "캠페인명": "Free First Consult Week",
+              "캠페인 내용": "Makes the first consultation free for the period and adds a 5,000 KRW coupon just for coming in.",
+              "발송 가능 인원": "690",
+              "캠페인 채널": "KakaoTalk Friend Talk",
+              "발송 비용": "13,800 KRW",
+              "예상 전환율": "4.8%",
+              "예상 전환 고객": "33",
+              "리프트": "+2.1%p",
+              "전환 기준": "Booking",
+              "캠페인 기간": "10–31 Aug",
+              "혜택": [
+                "Free first consult",
+                "5,000 KRW coupon"
+              ]
+            },
+            {
+              "segment": "First visit, no return",
+              "캠페인명": "Second Session Starter Week",
+              "캠페인 내용": "Invites first-time customers to their week-4 follow-up, with 15% off when they book the second session within the period.",
+              "발송 가능 인원": "1,130",
+              "캠페인 채널": "LMS",
+              "발송 비용": "56,500 KRW",
+              "예상 전환율": "22.6%",
+              "예상 전환 고객": "255",
+              "리프트": "+11.2%p",
+              "전환 기준": "Payment",
+              "캠페인 기간": "10–31 Aug",
+              "혜택": [
+                "15% off"
+              ]
+            },
+            {
+              "segment": "Long lapsed",
+              "캠페인명": "Renewal Comeback Week",
+              "캠페인 내용": "Announces the revamped programme and pairs 10% off with a 30,000 KRW coupon for customers returning after a long gap.",
+              "발송 가능 인원": "210",
+              "캠페인 채널": "LMS",
+              "발송 비용": "10,500 KRW",
+              "예상 전환율": "11.4%",
+              "예상 전환 고객": "24",
+              "리프트": "+6.2%p",
+              "전환 기준": "Payment",
+              "캠페인 기간": "10–31 Aug",
+              "혜택": [
+                "10% off",
+                "30,000 KRW coupon"
+              ]
+            },
+            {
+              "segment": "Loyal / VIP",
+              "캠페인명": "VIP Priority Booking Week",
+              "캠페인 내용": "Opens the manager's calendar first to customers with prepaid sessions left, ahead of the expiry date.",
+              "발송 가능 인원": "230",
+              "캠페인 채널": "KakaoTalk Alimtalk",
+              "발송 비용": "3,450 KRW",
+              "예상 전환율": "42.6%",
+              "예상 전환 고객": "98",
+              "리프트": "+9.8%p",
+              "전환 기준": "Booking",
+              "캠페인 기간": "10–16 Aug",
+              "혜택": [
+                "Priority booking"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "campaign-messages",
+      "sectionName": "Recommended messages",
+      "headline": "One time-boxed event per segment, rather than a one-to-one message.",
+      "data": {
+        "items": [
+          {
+            "segment": "At-risk",
+            "badgeVariant": "Negative",
+            "length": "262 chars",
+            "rank": 1,
+            "template": "(Ad) [The View Clinic]\n■ August Care Reset Week (10–31 Aug)\n\n#{Name}, for everyone who has slipped past their care cycle we are running\n10% off the same treatment plus a free skin assessment all month.\n\nLifting treatments hold best when repeated every 6–8 weeks.",
+            "vars": [
+              "Name"
+            ],
+            "sampleVars": {
+              "Name": "OO"
+            },
+            "templateId": "T-CHURN-01",
+            "sendAt": "2026-08-04 Tue 10:00",
+            "why": "Once they pass 4× their cycle they roll into long-lapsed and the conversion rate drops from 18.3% to 11.4%. It is the only segment with a deadline, so it goes first.",
+            "buttons": []
+          },
+          {
+            "segment": "First visit, no return",
+            "badgeVariant": "Cautionary",
+            "length": "211 chars",
+            "rank": 2,
+            "template": "(Ad) [The View Clinic]\n■ Second Session Starter Week (10–31 Aug)\n\n#{Name}, a first treatment holds longest when you finish\nwith the week-4 follow-up.\n\nBook your second session within the period and take 15% off.",
+            "vars": [
+              "Name"
+            ],
+            "sampleVars": {
+              "Name": "OO"
+            },
+            "templateId": "T-NEW-01",
+            "sendAt": "2026-08-04 Tue 10:30",
+            "buttons": []
+          },
+          {
+            "segment": "Loyal / VIP",
+            "badgeVariant": "Positive",
+            "length": "226 chars",
+            "rank": 3,
+            "template": "[The View Clinic]\n■ VIP Priority Booking Week (10–16 Aug)\n\n#{Name}, we are opening your usual manager's calendar first\nto customers with prepaid sessions remaining.\n\nBook within the period and we will hold your preferred time.",
+            "vars": [
+              "Name"
+            ],
+            "sampleVars": {
+              "Name": "OO"
+            },
+            "templateId": "T-VIP-01",
+            "sendAt": "2026-08-04 Tue 10:30",
+            "buttons": [
+              "Book with priority"
+            ]
+          },
+          {
+            "segment": "Inquiry, never visited",
+            "badgeVariant": "Info",
+            "length": "226 chars",
+            "rank": 4,
+            "template": "[The View Clinic]\n■ Free First Consult Week (10–31 Aug)\n\n#{Name}, during the period your first consultation is free\nand we will give you a 5,000 KRW coupon just for coming in.\n(Valid 30 days from issue · min. spend 50,000 KRW)",
+            "vars": [
+              "Name"
+            ],
+            "sampleVars": {
+              "Name": "OO"
+            },
+            "templateId": "T-LEAD-01",
+            "sendAt": "2026-08-06 Thu 10:00",
+            "buttons": [
+              "Book a consultation",
+              "Call us"
+            ]
+          },
+          {
+            "segment": "Long lapsed",
+            "badgeVariant": "Negative",
+            "length": "242 chars",
+            "rank": 5,
+            "template": "(Ad) [The View Clinic]\n■ Renewal Comeback Week (10–31 Aug)\n\n#{Name}, our programme has been revamped —\neach session is now 60 minutes instead of 90.\n\nFor customers coming back we are pairing 10% off\nwith a 30,000 KRW coupon. (Code COMEBACK30)",
+            "vars": [
+              "Name"
+            ],
+            "sampleVars": {
+              "Name": "OO"
+            },
+            "templateId": "T-WINBACK-01",
+            "sendAt": "2026-08-06 Thu 10:00",
+            "buttons": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "execution-priority",
+      "sectionName": "Projected results",
+      "headline": "Customers who receive a recommended message convert at 18.2%, up from 9.7% — close to double.",
+      "data": {
+        "totals": [
+          {
+            "label": "Est. conversions",
+            "value": "732",
+            "sub": "18.2% of 4,020 sent"
+          },
+          {
+            "label": "Incremental lift",
+            "value": "+8.5%p",
+            "sub": "9.7% → 18.2% · 342 more conversions"
+          },
+          {
+            "label": "Total send cost",
+            "value": "172,250 KRW",
+            "sub": "3,100 LMS · 230 Alimtalk · 690 Friend Talk"
+          }
+        ]
+      }
+    }
+  ]
+}

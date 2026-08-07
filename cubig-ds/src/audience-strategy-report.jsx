@@ -49,7 +49,7 @@ export default function AudienceStrategyReport() {
   const [selectedSegment, setSelectedSegment] = useState(null);
 
   useEffect(() => {
-    fetch("/json/audience-strategy.json")
+    fetch("/json/audience-strategy.json", { cache: "no-store" })
       .then((res) => res.json())
       .then(setData)
       .catch((e) => console.error("Failed to load audience-strategy.json", e));
@@ -77,13 +77,13 @@ export default function AudienceStrategyReport() {
           <>
             <Badge type="Outline" variant="Secondary" size="Large" text={meta.sourceFile}
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />} />
-            <Badge type="Outline" variant="Secondary" size="Large" text={`Version ${meta.version}`} />
+            <Badge type="Outline" variant="Secondary" size="Large" text={`버전 ${meta.version}`} />
           </>
         }
         actions={
           <>
-            <Btn variant="solid-secondary" size="md"><DownloadIcon size={20} />Download PDF</Btn>
-            <Btn variant="solid-primary" size="md">Create Discussion Room</Btn>
+            <Btn variant="solid-secondary" size="md"><DownloadIcon size={20} />PDF 다운로드</Btn>
+            <Btn variant="solid-primary" size="md">토론방 만들기</Btn>
           </>
         }
         style={{ marginBottom: 32 }}
@@ -115,7 +115,7 @@ export default function AudienceStrategyReport() {
         }
         size="lg"
         actionType="single"
-        confirmLabel="Close"
+        confirmLabel="닫기"
         onConfirm={() => setSelectedSegment(null)}
       >
         {selectedSegment && <SegmentDetailModalContent segment={selectedSegment} />}
@@ -535,7 +535,7 @@ function MarketExpansionSection({ s, ctx }) {
                     <div style={{ fontSize: 22, fontWeight: 700, color: T.gray990 }}>{o.users}</div>
                     <div style={{ fontSize: 13, color: T.gray800 }}>({o.share})</div>
                   </div>
-                  <Btn variant="solid-secondary" size="md" onClick={open}>View Detail</Btn>
+                  <Btn variant="solid-secondary" size="md" onClick={open}>상세 보기</Btn>
                 </div>
               </ContentCard>
             );

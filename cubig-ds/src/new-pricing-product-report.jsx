@@ -4,7 +4,6 @@ import {
   ExecutiveSummaryCard,
   TextBlock,
   InfoCard, InfoCardRow,
-  DataTable,
   QATable,
   PriceRangeBar,
   StrategyCard,
@@ -45,7 +44,7 @@ export default function NewPricingProductReport() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch("/json/new-pricing-product.json")
+    fetch("/json/new-pricing-product.json", { cache: "no-store" })
       .then((res) => res.json())
       .then(setData)
       .catch((e) => console.error("Failed to load new-pricing-product.json", e));
@@ -78,13 +77,13 @@ export default function NewPricingProductReport() {
           <>
             <Badge type="Outline" variant="Secondary" size="Large" text={meta.sourceFile}
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />} />
-            <Badge type="Outline" variant="Secondary" size="Large" text={`Version ${meta.version}`} />
+            <Badge type="Outline" variant="Secondary" size="Large" text={`버전 ${meta.version}`} />
           </>
         }
         actions={
           <>
-            <Btn variant="solid-secondary" size="md"><DownloadIcon size={20} />Download PDF</Btn>
-            <Btn variant="solid-primary" size="md">Create Discussion Room</Btn>
+            <Btn variant="solid-secondary" size="md"><DownloadIcon size={20} />PDF 다운로드</Btn>
+            <Btn variant="solid-primary" size="md">토론방 만들기</Btn>
           </>
         }
         style={{ marginBottom: 60 }}
@@ -96,19 +95,23 @@ export default function NewPricingProductReport() {
         <div>
           <SectionHeading overline={brief.sectionName} description={brief.data.description} />
           <SectionCard>
-            <ContentCard padding={0}>
-              <DataTable
-                columns={[
-                  { label: "항목", key: "label", width: "40%" },
-                  { label: "입력값", key: "value" },
-                ]}
-                data={brief.data.inputs.map((it) => ({ label: it.label, value: it.value }))}
-              />
-            </ContentCard>
+            {/* 제품 정보 입력값 — InfoCard 카드 (흰 배경 + gray200 라인) */}
+            <InfoCardRow>
+              {brief.data.inputs.map((it, i) => (
+                <InfoCard
+                  key={i}
+                  label={it.label}
+                  value={it.value}
+                  style={{ background: T.white, border: `1px solid ${T.gray200}` }}
+                />
+              ))}
+            </InfoCardRow>
+            {/* Q&A — 외곽 아웃라인 제거(내부 구분선 유지), ContentCard 흰 컨테이너가 감쌈 */}
             <ContentCard padding={0}>
               <QATable
                 columns={["질문", "답변"]}
                 rows={brief.data.questionnaire.map((q) => ({ question: q.question, answer: q.answer }))}
+                bordered={false}
               />
             </ContentCard>
           </SectionCard>

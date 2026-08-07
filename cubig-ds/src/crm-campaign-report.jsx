@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+// public/ 에서 fetch 하면 Vite 가 ETag 캐싱해 값이 갱신되지 않음 — 번들에 넣어 HMR 이 바로 반영하게 함
+import reportKo from "../public/json/crm-campaign.json";
+import reportEn from "../public/json/crm-campaign.en.json";
 import {
   PageWrapper, ReportPage, SectionHeading, SectionCard, ContentCard, ContentHeader,
   ExecutiveSummaryCard,
@@ -6,8 +9,8 @@ import {
   InfoCard,
   InfoCardRow,
 } from "./report-components";
-import { DonutChart, KPITrendCard, FlowTable } from "./charts";
-import { DownloadIcon, DatabaseIcon, PersonIcon, ArrowUpIcon, CheckCircleIcon, FlagIcon } from "./tokens.jsx";
+import { GroupedBarChart, StackedHBar } from "./charts";
+import { T, DownloadIcon, DatabaseIcon, PersonIcon, ArrowUpIcon, CheckCircleIcon, FlagIcon } from "./tokens.jsx";
 import { Btn, Badge } from "./ui-components.jsx";
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -16,8 +19,8 @@ import { Btn, Badge } from "./ui-components.jsx";
  *  데이터 소스: public/json/crm-campaign.json (fetch)
  *
  *  차트 사용 (rule 11 — 동일 타입 3회 이상 반복 금지):
- *    DonutChart 1 · KPITrendCard 1 · FlowTable 1
- *    DataTable 1 (세그먼트 구성)
+ *    DonutChart 1
+ *    DataTable 2 (세그먼트 구성 · 세그먼트별 예상 성과)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 const GRAY = "#E6E7E9";
@@ -63,6 +66,120 @@ const CopyGlyph = ({ size = 14, color = "#171719" }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
     <rect x="5.75" y="5.75" width="8.5" height="8.5" rx="2" stroke={color} strokeWidth="1.5" />
     <path d="M10.25 3.75V3.5a1.75 1.75 0 0 0-1.75-1.75H3.5A1.75 1.75 0 0 0 1.75 3.5v5a1.75 1.75 0 0 0 1.75 1.75h.25" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+/* ── 추천 메시지 라벨 아이콘 — 이 블록이 "실제로 나가는 문자"임을 표시 ── */
+const ChatGlyph = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+    <rect x="1" y="1.5" width="14" height="11" rx="3" fill={T.green500} />
+    <path d="M5 14.5v-3l2.6 1.5L5 14.5Z" fill={T.green500} />
+    <path d="M4.6 5.4h6.8M4.6 8.4h4.4" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+
+
+/* ── 화면에 직접 박히는 문자열 — JSON 밖에 있는 라벨은 여기서 언어를 가름 ── */
+const UI = {
+  ko: {
+    toInput: "입력 화면으로 이동", version: "버전", pdf: "PDF 다운로드",
+    download: "발송 리스트 다운로드", fileName: "crm-발송리스트",
+    rank: (n) => `${n}순위`, message: "메시지", copy: "복사",
+    copied: "메시지를 복사했습니다", copyFail: "복사에 실패했습니다",
+    sent: "발송", cost: "비용", conv: "예상 전환", lift: "리프트",
+    total: "합계", na: "산정 불가",
+    chartTitle: "CRM 캠페인 예상 성과",
+    chartSub: "과거 발송 이력의 수신·미수신 고객 전환율 차이를 발송 대상에 적용한 예상치입니다.",
+    without: "캠페인 안 했을 때", with_: "캠페인 했을 때",
+    segTotal: (n) => `고객 세그먼트 (총 ${n}명)`,
+    unit: "명", loading: "불러오는 중...",
+    inputBrand: "업종 · 브랜드명", inputAbout: "브랜드 소개",
+    colSegment: "고객 세그먼트", colRank: "순위", colCampaign: "캠페인 · 채널", colSend: "발송 대상",
+    colConv: "예상 전환", colMessage: "메시지", outOf: "중",
+  },
+  en: {
+    toInput: "Go to input screen", version: "Version", pdf: "Download PDF",
+    download: "Download send list", fileName: "crm-send-list",
+    rank: (n) => `#${n}`, message: "Message", copy: "Copy",
+    copied: "Message copied", copyFail: "Copy failed",
+    sent: "Sent", cost: "Cost", conv: "Est. conv.", lift: "Lift",
+    total: "Total", na: "N/A",
+    chartTitle: "CRM campaign — projected performance",
+    chartSub: "Projected from the conversion gap between customers who did and did not receive past sends, applied to the reachable customers.",
+    without: "Without campaign", with_: "With campaign",
+    segTotal: (n) => `Customer segments (total ${n})`,
+    unit: "", loading: "Loading...",
+    inputBrand: "Industry · Brand", inputAbout: "About the brand",
+    colSegment: "Segment", colRank: "Priority", colCampaign: "Campaign · Channel", colSend: "Reachable",
+    colConv: "Est. conversions", colMessage: "Message", outOf: "sent",
+  },
+};
+
+/* ── 한/영 전환 ── */
+function LangSwitch({ lang, onChange }) {
+  return (
+    <span style={{ display: "inline-flex", border: `1px solid ${T.gray200}`, borderRadius: 8, overflow: "hidden" }}>
+      {["ko", "en"].map((k) => (
+        <button
+          key={k}
+          onClick={() => onChange(k)}
+          style={{
+            padding: "7px 14px", border: "none", cursor: "pointer",
+            background: lang === k ? T.gray990 : "#FFFFFF",
+            color: lang === k ? "#FFFFFF" : T.gray800,
+            fontSize: 13, fontWeight: 600, lineHeight: "20px",
+            fontFamily: "Pretendard, sans-serif",
+          }}
+        >
+          {k === "ko" ? "한국어" : "English"}
+        </button>
+      ))}
+    </span>
+  );
+}
+
+/* ── 표 헤더 도움말 — 산정 조건이 길면 헤더가 두 줄로 늘어나 열 폭이 흔들림.
+     조건은 접어두고 필요한 사람만 열어보게 ── */
+function HeaderHint({ label, hint }) {
+  // 표 래퍼가 overflow 를 잡고 있어 absolute 로 띄우면 잘림 — 화면 좌표로 고정 배치
+  const [pos, setPos] = useState(null);
+  const show = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ x: r.left + r.width / 2, y: r.bottom + 8 });
+  };
+  return (
+    <span
+      style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
+      onMouseEnter={show}
+      onMouseLeave={() => setPos(null)}
+    >
+      {label}
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ cursor: "help", flexShrink: 0 }}>
+        <circle cx="7" cy="7" r="5.6" stroke={T.gray400} strokeWidth="1.2" />
+        <path d="M7 6.1v4" stroke={T.gray400} strokeWidth="1.3" strokeLinecap="round" />
+        <circle cx="7" cy="4.2" r="0.75" fill={T.gray400} />
+      </svg>
+      {pos && (
+        <span style={{
+          position: "fixed", top: pos.y, left: pos.x, transform: "translateX(-50%)",
+          width: 260, padding: "10px 12px", zIndex: 100,
+          background: T.gray990, color: "#FFFFFF", borderRadius: 8,
+          fontSize: 12, fontWeight: 400, lineHeight: "18px",
+          textAlign: "left", whiteSpace: "normal",
+          boxShadow: "0 6px 16px rgba(0,0,0,0.16)",
+          pointerEvents: "none",
+        }}>
+          {hint}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/* ── 리프트 상승 표시 — 값 앞에 붙는 삼각형 ── */
+const TriangleUpGlyph = ({ size = 9, color = T.blue500 }) => (
+  <svg width={size} height={size} viewBox="0 0 9 9" fill="none">
+    <path d="M4.5 1.5 8 7H1L4.5 1.5Z" fill={color} />
   </svg>
 );
 
@@ -213,13 +330,13 @@ function downloadSendList(messages, campaignBySegment, fileName) {
 }
 
 /* ── 클립보드 복사 — 버튼 라벨은 그대로 두고 토스트로 알림 ── */
-async function copyText(text, notify) {
+async function copyText(text, notify, t) {
   try {
     await navigator.clipboard.writeText(text);
-    notify?.("메시지를 복사했습니다");
+    notify?.(t.copied);
   } catch (e) {
     console.error("클립보드 복사 실패", e);
-    notify?.("복사에 실패했습니다");
+    notify?.(t.copyFail);
   }
 }
 
@@ -276,142 +393,242 @@ function InputCard({ icon, label, value }) {
 
 /* ── 캠페인 블록 — 한 세그먼트의 "무엇을 · 누구에게 · 어떤 메시지로 · 어떤 효과"를 한 행에 ──
      좌: 캠페인 설계 + 예상 성과 / 우: 실제 발송 메시지 원문 + 복사 ── */
-function CampaignBlock({ message, campaign, color, onToast }) {
+/* ── 추천 캠페인 표 — 한 행이 한 세그먼트, 4열.
+     발송 대상은 예상 전환의 모수라 같은 칸에 (N명 중)으로 붙이고,
+     비용은 성과가 아니라 채널에 따르는 값이라 메시지 카드 헤더로 옮김 ── */
+const CG = "184px minmax(220px, 1fr) 168px minmax(300px, 1.05fr)";
+/* 열 구분선은 셀 padding 안쪽에 — grid gap 으로 띄우면 선을 그을 자리가 없음 */
+const DIV = (i) => (i === 0 ? {} : { borderLeft: `1px solid ${T.gray100}` });
+const isKakaoCh = (ch) => /알림톡|친구톡|Alimtalk|Friend/.test(ch);
+
+/* 상위 3개만 색을 줘서 "이번에 이거부터"가 표를 훑는 순간 잡히게.
+   1순위는 채움, 2·3순위는 테두리, 4순위 이하는 회색 — 우선순위가 색의 세기로 읽힘 */
+const RANK_STYLE = (rank) =>
+  rank === 1 ? { bg: T.green500, fg: "#FFFFFF", bd: T.green500 }
+  : rank <= 3 ? { bg: "#FFFFFF", fg: "#00A344", bd: "#7BF1A8" }
+  : { bg: T.gray50, fg: "#9EA1A7", bd: T.gray200 };
+const RANK_ROW_BG = (rank) => (rank <= 3 ? "rgba(0, 201, 80, 0.07)" : "transparent");
+
+function CampaignTable({ messages, campaignBySegment, onToast, meta, t }) {
+  const H = [t.colSegment, t.colCampaign, t.colConv, t.colMessage];
 
   return (
-    <ContentCard padding={24} style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-      <div style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-        {/* 우선순위는 블록 자체에 — 별도 순위 섹션을 두면 같은 숫자를 두 번 보게 됨 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{
-            padding: "2px 8px", borderRadius: 6, background: "#F0F0F2", color: "#62646A",
-            fontSize: 12, fontWeight: 600, lineHeight: "18px", flexShrink: 0,
-          }}>
-            {message.rank}순위
-          </span>
-          {/* 세그먼트 색은 도넛과 동일 — 배지 variant 색을 쓰면 차트와 따로 놀아 매칭이 안 됨 */}
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "2px 8px", borderRadius: 6, background: "#F7F7F8",
-            fontSize: 12, fontWeight: 600, lineHeight: "18px", color: "#171719",
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: color ?? GRAY, flexShrink: 0 }} />
-            {message.segment}
-          </span>
-        </div>
-        {/* 라벨 없이 문구만 두면 이게 캠페인 이름인지 안 읽힘 */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* 한 줄 제목 먼저 — 긴 설명만 있으면 무슨 캠페인인지 훑어서 안 잡힘 */}
-          <span style={{ fontSize: 15, fontWeight: 600, lineHeight: "23px", color: "#171719" }}>
-            {campaign["캠페인명"]}
-          </span>
-          <span style={{ fontSize: 15, fontWeight: 400, lineHeight: "24px", color: "#3B3D42" }}>
-            {campaign["캠페인 내용"]}
-          </span>
-          {/* 채널·비용은 성과가 아니라 발송 조건 — 캠페인 아래 메타 한 줄로 */}
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 400, lineHeight: "20px", color: "#7B7E85" }}>
-            {channelIcon(campaign["캠페인 채널"])}
-            {CHANNEL_LABEL[campaign["캠페인 채널"]] ?? campaign["캠페인 채널"]}
-          </span>
-        </div>
-      </div>
+    <ContentCard padding={0} style={{ overflow: "hidden" }}>
       <div style={{
-        flex: "1 1 320px", minWidth: 280,
-        paddingLeft: 24, borderLeft: "1px solid #F0F0F2",
-        display: "flex", flexDirection: "column", gap: 12,
+        display: "grid", gridTemplateColumns: CG,
+        padding: "14px 0", background: T.gray25,
+        borderBottom: `1px solid ${T.gray200}`,
+        fontSize: 14, fontWeight: 400, lineHeight: "20px", color: T.gray800, textAlign: "center",
       }}>
-        {/* 복사 버튼은 실제 발송 원문 우측 상단 — 무엇을 복사하는지 바로 보이는 위치 */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, lineHeight: "18px", color: "#7B7E85" }}>발송 메시지</span>
-          <Btn variant="solid-secondary" size="sm" onClick={() => copyText(message.template, onToast)}>
-            <CopyGlyph size={14} />
-            복사
-          </Btn>
-        </div>
-        {/* 텍스트만 흘리면 "실제로 나가는 문자"로 안 읽힘 — 수신 말풍선 형태로 */}
-        <div style={{
-          background: "#F7F7F8",
-          border: "1px solid #F0F0F2",
-          borderRadius: "4px 14px 14px 14px",
-          padding: "16px 18px",
-          fontSize: 15, fontWeight: 400, lineHeight: "25px", color: "#171719",
-          whiteSpace: "pre-line",
-        }}>
-          {renderTemplate(message.template, message.sampleVars)}
-        </div>
+        {H.map((h, i) => <span key={h} style={{ ...DIV(i), padding: "0 20px" }}>{h}</span>)}
       </div>
+
+      {messages.map((message, ri) => {
+        const c = campaignBySegment[message.segment];
+        const kakao = isKakaoCh(c["캠페인 채널"]);
+        return (
+          <div
+            key={message.segment}
+            style={{
+              display: "grid", gridTemplateColumns: CG,
+              padding: "24px 0", alignItems: "stretch",
+              borderTop: ri === 0 ? "none" : `1px solid ${T.gray100}`,
+              overflow: "hidden",
+            }}
+          >
+            {/* 1열 — 순위 칩 + 세그먼트. 상위 3순위는 칸 전체에 옅은 초록 */}
+            <span style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+              justifyContent: "center",
+              margin: "-24px 0", padding: "24px 20px", background: RANK_ROW_BG(message.rank),
+            }}>
+              <span style={{
+                padding: "3px 10px", borderRadius: 999,
+                background: RANK_STYLE(message.rank).bg,
+                color: RANK_STYLE(message.rank).fg,
+                border: `1px solid ${RANK_STYLE(message.rank).bd}`,
+                fontSize: 12, fontWeight: 600, lineHeight: "18px", whiteSpace: "nowrap",
+              }}>
+                {t.rank(message.rank)}
+              </span>
+              <span style={{ fontSize: 15, fontWeight: 700, lineHeight: "23px", color: "#171719", textAlign: "center" }}>
+                {message.segment}
+              </span>
+            </span>
+
+            {/* 2열 — 혜택을 칩으로 꺼내야 "무슨 캠페인인지"가 문장을 안 읽고도 잡힘 */}
+            <span style={{ ...DIV(1), display: "flex", flexDirection: "column", gap: 8, minWidth: 0, padding: "0 20px", justifyContent: "center" }}>
+              <span style={{ fontSize: 17, fontWeight: 700, lineHeight: "25px", color: "#171719" }}>
+                {c["캠페인명"]}
+              </span>
+              {c["혜택"]?.length > 0 && (
+                <span style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {c["혜택"].map((b) => (
+                    <span key={b} style={{
+                      padding: "3px 9px", borderRadius: 6,
+                      background: "#EFF6FF", color: "#1447E6",
+                      fontSize: 12, fontWeight: 600, lineHeight: "18px", whiteSpace: "nowrap",
+                    }}>
+                      {b}
+                    </span>
+                  ))}
+                </span>
+              )}
+              <span style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: "#62646A" }}>
+                {c["캠페인 내용"]}
+              </span>
+            </span>
+
+            {/* 3열 — 전환 수는 모수와 함께 있어야 4.8%가 뭘 나눈 값인지 읽힘 */}
+            <span style={{ ...DIV(2), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, padding: "0 20px" }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                fontSize: 15, fontWeight: 700, lineHeight: "23px", color: T.green500,
+              }}>
+                <TriangleUpGlyph color={T.green500} />
+                {c["예상 전환 고객"]}({c["예상 전환율"]})
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 400, lineHeight: "22px", color: "#62646A" }}>
+                {c["발송 가능 인원"]} {t.outOf}
+              </span>
+            </span>
+
+            {/* 4열 — 실제로 나가는 원문. 비용은 채널에 딸린 값이라 헤더 우측에 */}
+            <span style={{ ...DIV(3), display: "block", minWidth: 0, padding: "0 20px" }}>
+              <div style={{ border: `1px solid ${T.gray200}`, borderRadius: 12, overflow: "hidden" }}>
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+                  padding: "10px 14px",
+                }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, lineHeight: "21px", color: "#3B3D42" }}>
+                    <ChatGlyph size={16} />
+                    {t.message} ({c["캠페인 채널"]})
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                    <span style={{ fontSize: 13, fontWeight: 400, lineHeight: "20px", color: "#9EA1A7" }}>
+                      {t.cost} : {c["발송 비용"]}
+                    </span>
+                    <Btn variant="solid-secondary" size="sm" onClick={() => copyText(message.template, onToast, t)}>
+                      <CopyGlyph size={13} />
+                      {t.copy}
+                    </Btn>
+                  </span>
+                </div>
+                {kakao && (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "7px 14px", background: "#FEE500",
+                    fontSize: 12, fontWeight: 600, lineHeight: "18px", color: "#3C1E1E",
+                  }}>
+                    <KakaoGlyph size={13} />
+                    {meta?.input?.brand}
+                  </div>
+                )}
+                <div style={{
+                  margin: "0 14px 14px", padding: "14px 16px",
+                  background: T.gray50, borderRadius: 10,
+                  fontSize: 14, fontWeight: 400, lineHeight: "23px", color: "#171719",
+                  whiteSpace: "pre-line",
+                }}>
+                  {renderTemplate(message.template, message.sampleVars)}
+                  {message.buttons?.length > 0 && (
+                    <span style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
+                      {message.buttons.map((b) => (
+                        <span key={b} style={{
+                          flex: "1 1 auto", padding: "7px 10px", borderRadius: 8, background: "#FFFFFF",
+                          border: `1px solid ${T.gray200}`, textAlign: "center",
+                          fontSize: 12, fontWeight: 600, lineHeight: "18px", color: "#3C1E1E",
+                        }}>
+                          {b}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </span>
+          </div>
+        );
+      })}
+    </ContentCard>
+  );
+}
+
+/* ── 리프트 결과 — 메시지를 받지 않은 대조군 전환율(비포) 대비
+     수신군 전환율(애프터)을 나란히. 두 막대 사이 간격이 곧 리프트.
+     전환율 하나만 있으면 "원래 올 사람"과 구분이 안 돼 성과가 과대해 보임 ── */
+function LiftBeforeAfter({ campaigns, t }) {
+  const n = (s) => parseFloat(String(s).replace(/[^0-9.]/g, "")) || 0;
+  const rows = campaigns.map((c) => {
+    const after = n(c["예상 전환율"]);
+    const lift = n(c["리프트"]);
+    return {
+      세그먼트: c.segment,
+      [t.without]: Number((after - lift).toFixed(1)),
+      [t.with_]: after,
+      sendable: n(c["발송 가능 인원"]),
+      converted: n(c["예상 전환 고객"]),
+      gain: Math.round((n(c["발송 가능 인원"]) * lift) / 100),
+    };
+  });
+  const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+  const sendable = sum("sendable");
+  const gain = sum("gain");
+  const after = (sum("converted") / sendable) * 100;
+  const before = ((sum("converted") - gain) / sendable) * 100;
+
+  return (
+    <ContentCard padding={28}>
+      {/* 합산 수치는 위 예상 리프트 카드가 담당 — 여기선 세그먼트별 근거만 */}
+      <GroupedBarChart
+        title={t.chartTitle}
+        // "예상치"와 "과거 발송 이력" 두 단어는 남겨야 확정 성과로 안 읽힘
+        subtitle={t.chartSub}
+        data={rows}
+        indexBy="세그먼트"
+        keys={[t.without, t.with_]}
+        colors={[T.gray400, T.blue500]}
+        valueSuffix="%"
+        groupTooltip
+      />
     </ContentCard>
   );
 }
 
 /* ── 세그먼트 구성 — 도넛 + 범례를 겸하는 판정 기준 목록 (색 dot 으로 차트와 연결) ── */
-function SegmentDonut({ segments, definition }) {
-  const criteriaOf = (name) =>
-    definition.data.groups.find((g) => g.title === name)?.criteria || "";
+function SegmentBar({ segments, t }) {
+  // 판정 기준은 아래 표의 '정의' 열이 담당 — 여기서 반복하면 같은 글을 두 번 읽게 됨
+  const segs = segments.data.donut.segments;
+  const total = segs.reduce((a, x) => a + x.count, 0);
+  const row = { label: "" };
+  segs.forEach((x) => { row[`${x.label} ${x.percentage}% (${x.count.toLocaleString()}명)`] = x.count; });
 
   return (
     <ContentCard padding={40}>
-      <div style={{
-        display: "flex", gap: 24, flexWrap: "wrap",
-        alignItems: "center", justifyContent: "center", paddingLeft: 20,
-      }}>
-        {/* 도넛 컬럼은 내용만큼만 — 넓게 늘리면 범례와 사이가 벌어짐 */}
-        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <DonutChart
-            title={segments.data.donut.title}
-            size={220}
-            hideLegend
-            data={segments.data.donut.segments.map((s) => ({
-              id: s.label,
-              value: s.percentage,
-              color: s.color,
-            }))}
-          />
-        </div>
-        <div style={{ flex: "0 1 420px", minWidth: 300, display: "flex", flexDirection: "column", gap: 12 }}>
-          {segments.data.donut.segments.map((s) => (
-            <div key={s.label} style={{ display: "flex", gap: 8 }}>
-              <span style={{
-                width: 8, height: 8, borderRadius: "50%", background: s.color,
-                flexShrink: 0, marginTop: 6,
-              }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, fontSize: 14, lineHeight: "21px" }}>
-                  <span style={{ fontWeight: 600, color: "#171719" }}>{s.label}</span>
-                  <span style={{ color: "#62646A" }}>
-                    {s.percentage}% · {s.count.toLocaleString()}명
-                  </span>
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 400, lineHeight: "18px", color: "#9EA1A7" }}>
-                  {criteriaOf(s.label)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <StackedHBar
+        title={t.segTotal(total.toLocaleString())}
+        data={[row]}
+        keys={Object.keys(row).filter((k) => k !== "label")}
+        colors={segs.map((x) => x.color)}
+      />
     </ContentCard>
   );
 }
 
+
 export default function CrmCampaignReport() {
-  const [data, setData] = useState(null);
+  const [lang, setLang] = useState("ko");
+  const t = UI[lang];
+  const data = lang === "en" ? reportEn : reportKo;
   const [toast, setToast] = useState("");
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 2000);
   };
-  useEffect(() => {
-    fetch("/json/crm-campaign.json", { cache: "no-store" })
-      .then((res) => res.json())
-      .then(setData)
-      .catch((e) => console.error("Failed to load crm-campaign.json", e));
-  }, []);
-
   if (!data) {
     return (
       <PageWrapper>
-        <div style={{ padding: 40, fontFamily: "Pretendard, sans-serif", color: "#7B7E85" }}>Loading...</div>
+        <div style={{ padding: 40, fontFamily: "Pretendard, sans-serif", color: "#7B7E85" }}>{t.loading}</div>
       </PageWrapper>
     );
   }
@@ -450,6 +667,10 @@ export default function CrmCampaignReport() {
 
   const segmentRows = segments.data.table.rows.map((r) => ({
     ...r,
+    // 값이 없는 칸은 숫자와 같은 무게로 보이면 안 됨
+    cycle: /^(산정 불가|N\/A|-)$/.test(r.cycle)
+      ? <span style={{ color: T.gray400 }}>-</span>
+      : r.cycle,
     segment: (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
         <span style={{
@@ -461,45 +682,19 @@ export default function CrmCampaignReport() {
     ),
   }));
   segmentRows.push({
-    segment: <span style={{ fontWeight: 700 }}>합계</span>,
-    total: `${segTotals.total.toLocaleString()}명`,
-    sendable: `${segTotals.sendable.toLocaleString()}명`,
-    cycle: `${Math.round(segTotals.cycleSum / segTotals.cycleCnt)}일 (방문 2회 이상 ${segTotals.cycleCnt.toLocaleString()}명)`,
+    segment: <span style={{ fontWeight: 700 }}>{t.total}</span>,
+    total: `${segTotals.total.toLocaleString()}${t.unit}`,
+    sendable: `${segTotals.sendable.toLocaleString()}${t.unit}`,
+    cycle: lang === "en" ? `${Math.round(segTotals.cycleSum / segTotals.cycleCnt)} days` : `${Math.round(segTotals.cycleSum / segTotals.cycleCnt)}일`,
   });
 
-  // 과거 회차가 3개(이번 제외 2회) 이하면 추이로 볼 만한 게 없음
-  const trends = (priority.data.trends ?? []).filter((tr) => (tr.data?.length ?? 0) >= 4);
-
-  // 순위별 묶음 — 발송 가능 → 전환율 → 예상 전환 흐름을 한 행에
-  const num = (s) => parseInt(String(s).replace(/[^0-9]/g, ""), 10) || 0;
-  const flowGroups = [...new Set(messages.data.items.map((m) => m.rank))].sort().map((rank) => ({
-    label: `${rank}순위`,
-    rows: messages.data.items
-      .filter((m) => m.rank === rank)
-      // 같은 순위 안에서는 전환율 높은 순 — 병목이 그룹 맨 아래로 내려감
-      .sort(
-        (a, b) =>
-          parseFloat(campaignBySegment[b.segment]["예상 전환율"]) -
-          parseFloat(campaignBySegment[a.segment]["예상 전환율"])
-      )
-      .map((m) => {
-        const c = campaignBySegment[m.segment];
-        return {
-          label: m.segment,
-          description: c["리프트"] ? `리프트 ${c["리프트"]}` : "리프트 산출 불가",
-          left: num(c["발송 가능 인원"]).toLocaleString(),
-          rate: parseFloat(c["예상 전환율"]),
-          right: num(c["예상 전환 고객"]).toLocaleString(),
-        };
-      }),
-  }));
   return (
     <PageWrapper>
       <ContentHeader
         title={
           <span
             onClick={() => { window.location.hash = "#/crm-input"; }}
-            title="입력 화면으로 이동"
+            title={t.toInput}
             style={{ cursor: "pointer" }}
           >
             {meta.reportTitle}
@@ -515,14 +710,15 @@ export default function CrmCampaignReport() {
               text={meta.sourceFile}
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />}
             />
-            <Badge type="Outline" variant="Secondary" size="Large" text={`버전 ${meta.version}`} />
+            <Badge type="Outline" variant="Secondary" size="Large" text={`${t.version} ${meta.version}`} />
           </>
         }
         actions={
           <>
+            <LangSwitch lang={lang} onChange={setLang} />
             <Btn variant="solid-secondary" size="md">
               <DownloadIcon size={20} />
-              PDF 다운로드
+              {t.pdf}
             </Btn>
             <Btn
               variant="solid-primary"
@@ -531,12 +727,12 @@ export default function CrmCampaignReport() {
                 downloadSendList(
                   messages.data.items,
                   campaignBySegment,
-                  `crm-발송리스트_${meta.createdAt.slice(0, 10)}.csv`
+                  `${t.fileName}_${meta.createdAt.slice(0, 10)}.csv`
                 )
               }
             >
               <DownloadIcon size={20} />
-              발송 리스트 다운로드
+              {t.download}
             </Btn>
           </>
         }
@@ -550,10 +746,13 @@ export default function CrmCampaignReport() {
           <SectionHeading overline={exec.sectionName} title={exec.headline} />
           {meta.input && (
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "stretch", marginBottom: 8 }}>
-              <InputCard icon={<BuildingGlyph />} label="업종" value={meta.input.industry} />
-              <InputCard icon={<TagGlyph />} label="브랜드명" value={meta.input.brand} />
-              <InputCard icon={<FlagIcon size={18} color="#7B7E85" />} label="캠페인 목적" value={meta.input.goals.join(" · ")} />
-              <InputCard icon={<SmsGlyph size={18} />} label="사용 채널" value={meta.input.channels.join(" · ")} />
+              {/* 브랜드가 뭘 파는 곳인지가 문구의 전제 — 홈페이지·목적 카드는 폼에서 빠져 함께 제거 */}
+              <InputCard
+                icon={<BuildingGlyph />}
+                label={t.inputBrand}
+                value={`${meta.input.industry} · ${meta.input.brand}`}
+              />
+              <InputCard icon={<TagGlyph />} label={t.inputAbout} value={meta.input.about ?? "-"} />
             </div>
           )}
           <ExecutiveSummaryCard
@@ -572,13 +771,16 @@ export default function CrmCampaignReport() {
         <div>
           <SectionHeading overline={segments.sectionName} title={segments.headline} />
           <SectionCard>
-            {/* 판정 기준은 도넛 범례에 함께 — 색으로 차트와 바로 연결되고 별도 각주가 필요 없음 */}
-            <SegmentDonut segments={segments} definition={definition} />
+            {/* 구성비는 단일 스택 바 — 5개 조각을 도넛으로 나누면 작은 세그먼트가 안 읽힘 */}
+            <SegmentBar segments={segments} t={t} />
             <ContentCard padding={0}>
               <DataTable
-                columns={segments.data.table.columns.map((c, i) => ({
+                columns={segments.data.table.columns.map((c) => ({
                   ...c,
-                  align: i === 0 ? "left" : "center",
+                  // 산정 조건이 붙는 열은 헤더에 도움말 아이콘으로
+                  label: c.hint ? <HeaderHint label={c.label} hint={c.hint} /> : c.label,
+                  // 고객군·정의는 글이라 좌측, 나머지 숫자는 가운데
+                  align: c.key === "segment" || c.key === "criteria" ? "left" : "center",
                 }))}
                 data={segmentRows}
               />
@@ -590,16 +792,14 @@ export default function CrmCampaignReport() {
         <div>
           <SectionHeading overline={campaigns.sectionName} title={campaigns.headline} />
           <SectionCard>
-            {/* 세그먼트별 캠페인 = 설계·성과·발송 메시지를 한 블록에 (표/메시지 분리하면 매칭이 안 읽힘) */}
-            {messages.data.items.map((item) => (
-              <CampaignBlock
-                key={item.segment}
-                message={item}
-                campaign={campaignBySegment[item.segment]}
-                color={segColor[item.segment]}
-                onToast={showToast}
-              />
-            ))}
+            {/* 세그먼트별 캠페인 = 설계·성과·발송 메시지를 한 행에 (블록 나열하면 열이 안 맞음) */}
+            <CampaignTable
+              messages={messages.data.items}
+              campaignBySegment={campaignBySegment}
+              onToast={showToast}
+              meta={meta}
+              t={t}
+            />
           </SectionCard>
         </div>
 
@@ -608,45 +808,48 @@ export default function CrmCampaignReport() {
           <SectionHeading overline={priority.sectionName} title={priority.headline} />
           {/* 다른 섹션과 같이 회색 박스로 묶음 */}
           <SectionCard>
-            {/* 비용 카드와 전환 추이를 2단으로 — 세로로 쌓으면 추이 카드 좌측이 비어 보임 */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "stretch" }}>
-              <ContentCard padding={24} style={{ flex: "1 1 260px", minWidth: 0 }}>
-                <InfoCardRow>
-                  {priority.data.totals.map((m, i) => (
-                    <InfoCard key={i} variant="solid" label={m.label} value={m.value} description={m.description} />
-                  ))}
-                </InfoCardRow>
-              </ContentCard>
-
-              <div style={{ flex: "2 1 460px", minWidth: 0, display: "flex" }}>
-                {trends.length > 0 ? (
-                  trends.map((tr, i) => (
-                    <KPITrendCard
-                      key={i}
-                      title={tr.title}
-                      subtitle={tr.subtitle}
-                      value={tr.value}
-                      delta={tr.delta}
-                      variant={tr.variant}
-                      suffix={tr.suffix}
-                      data={tr.data}
-                      style={{ border: "none", borderRadius: 16, flex: 1 }}
-                    />
-                  ))
-                ) : (
-                  <ContentCard padding={20} style={{ flex: 1 }}>
-                    <span style={{ fontSize: 13, fontWeight: 400, lineHeight: "20px", color: "#7B7E85" }}>
-                      과거 발송 회차가 3회 미만이라 전환율 추이는 계산하지 않았습니다. 이번 발송분이 쌓이면 다음 리포트부터 비교됩니다.
+            {/* 전환을 주인공으로 — 세 카드가 같은 무게면 뭘 봐야 할지 안 잡힘 */}
+            <ContentCard padding={28}>
+              <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+                {priority.data.totals.map((m, i) => (
+                  <div
+                    key={m.label}
+                    style={{
+                      flex: i === 0 ? "1 1 260px" : "1 1 200px",
+                      minWidth: 0,
+                      display: "flex", flexDirection: "column", gap: 4,
+                      paddingLeft: i === 0 ? 0 : 32,
+                      borderLeft: i === 0 ? "none" : "1px solid #F0F0F2",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, fontWeight: 500, lineHeight: "20px", color: "#7B7E85" }}>
+                      {m.label}
                     </span>
-                  </ContentCard>
-                )}
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      fontSize: i === 0 ? 34 : 24,
+                      fontWeight: 700,
+                      lineHeight: i === 0 ? "44px" : "34px",
+                      color: i === 0 ? "#2B7FFF" : "#171719",
+                    }}>
+                      {/* ▲ 는 변화량에만 — 총 전환(732명)은 상태값이라 붙이면 "732명 늘었다"로 읽힘 */}
+                      {/(리프트|늘어나는)/.test(m.label) && <TriangleUpGlyph size={i === 0 ? 14 : 11} />}
+                      {m.value}
+                    </span>
+                    <span style={{ fontSize: 14, fontWeight: 500, lineHeight: "21px", color: "#3B3D42" }}>
+                      {m.sub}
+                    </span>
+                    {m.detail && (
+                      <span style={{ fontSize: 13, fontWeight: 400, lineHeight: "20px", color: "#9EA1A7" }}>
+                        {m.detail}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-
-            {/* 발송 가능 → 전환율 → 예상 전환. 모수와 결과가 한 행에 있어 비율만 보는 막대보다 정확 */}
-            <ContentCard padding={0} style={{ padding: "28px 24px" }}>
-              <FlowTable groups={flowGroups} columns={{ left: "발송 가능", right: "예상 전환" }} rateSuffix="%" />
             </ContentCard>
+            {/* 전환율만 있으면 "원래 올 사람"과 구분이 안 됨 — 대조군을 같이 세워야 리프트가 읽힘 */}
+            <LiftBeforeAfter campaigns={campaigns.data.table.campaigns} t={t} />
           </SectionCard>
         </div>
 

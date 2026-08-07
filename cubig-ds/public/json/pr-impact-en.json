@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "agentId": "pr-impact-sim",
+    "agentName": "Press Release Impact Simulation",
+    "createdAt": "2026-07-06T00:00:00.000Z",
+    "surveyInput": {
+      "institution": "Jeju Free International City Development Center (JDC) — Jeju English Education City (simulation example)",
+      "region": "Jeju",
+      "note": "A simulation example that predicts changes across the 6 indicators from respondent-level perception-survey data plus the press release text (see the 'Press Release' section). These are predictions and do not determine actual management-evaluation grades or scores."
+    }
+  },
+  "sections": [
+    {
+      "id": "executive-summary",
+      "sectionName": "Executive Summary",
+      "headline": "This press release lifts Win-Win Cooperation perception by +0.5 (general public) and +0.7 (Jeju residents), but with no execution timeline Jeju residents' Ethical Management perception may actually fall 0.2 — so the wording should be revised before distribution.",
+      "componentType": "ExecutiveSummary",
+      "data": {}
+    },
+    {
+      "id": "key-findings",
+      "sectionName": "Key Findings",
+      "componentType": "KeyFindings",
+      "data": {
+        "text": "This press release repositions Jeju English Education City as a global cooperation hub connecting 'the island to the world.' Grounded in demand for exchange between international schools (85% see it as needed) and external industry-academia partnership (95% needed), it has the most direct positive impact on the Win-Win Cooperation indicator.\n\nHowever, because it centers on 'raising the need' and introducing cases, improvements in Alignment with Establishment Purpose, Contribution to Public Interest, and Efforts for Management Improvement are likely to be only indirect.\n\nThe general public is broadly favorable, led by the rise in Win-Win Cooperation (+0.5). Jeju residents react even more strongly to Win-Win Cooperation (+0.7) but, treating the missing execution timeline as a trust issue, diverge from the public on Ethical Management (-0.2) and Alignment with Establishment Purpose (-0.2).\n\nWe therefore recommend adding an execution timeline and a plan to open access to local general schools in the body before distribution, to reduce Jeju residents' downside factors."
+      }
+    },
+    {
+      "id": "indicator-change",
+      "sectionName": "6-Indicator Change",
+      "headline": "Win-Win Cooperation rises the most — general public 54.5 → 55.0, Jeju residents 56.0 → 56.7 — while Alignment with Establishment Purpose declines (public -0.1, residents -0.2), concentrating this release's effect on Win-Win Cooperation.",
+      "componentType": "DataTable",
+      "data": {
+        "columns": [
+          { "label": "General Public" },
+          { "label": "Jeju Residents" }
+        ],
+        "rows": [
+          { "metric": "Win-Win Cooperation", "values": ["▲ +0.5 (54.5 → 55.0)", "▲ +0.7 (56.0 → 56.7)"] },
+          { "metric": "Efforts for Management Improvement", "values": ["▲ +0.3 (56.0 → 56.3)", "▲ +0.2 (55.0 → 55.2)"] },
+          { "metric": "Contribution to Public Interest", "values": ["— ±0 (58.4 → 58.4)", "▲ +0.1 (57.5 → 57.6)"] },
+          { "metric": "Environmental Protection", "values": ["— ±0 (58.2 → 58.2)", "— ±0 (58.0 → 58.0)"] },
+          { "metric": "Ethical Management", "values": ["— ±0 (58.2 → 58.2)", "▼ −0.2 (57.0 → 56.8)"] },
+          { "metric": "Alignment with Establishment Purpose", "values": ["▼ −0.1 (83.7 → 83.6)", "▼ −0.2 (82.0 → 81.8)"] }
+        ],
+        "showDots": false
+      }
+    },
+    {
+      "id": "persona-stats",
+      "sectionName": "Persona Statistics",
+      "headline": "The rise in Win-Win Cooperation is driven jointly by metro-area office workers (+0.20) and Jeju self-employed (+0.18), but Ethical Management is cut the most — by -0.30 — among Jeju parents in their 30s, who make up 30%.",
+      "componentType": "DataTable",
+      "data": {
+        "columns": [
+          { "label": "Share" },
+          { "label": "Demographics" },
+          { "label": "Key Indicator Contribution" }
+        ],
+        "rows": [
+          { "metric": "Jeju parents, 30s", "values": ["30%", "Mostly female · 30s · Jeju", "Win-Win Cooperation +0.12, Ethical Management −0.30"] },
+          { "metric": "Jeju self-employed, 50s", "values": ["27%", "50s · Jeju", "Win-Win Cooperation +0.18, Management Improvement +0.05"] },
+          { "metric": "Metro office workers, 30s–40s", "values": ["30%", "30s–40s · Metro area", "Win-Win Cooperation +0.20, Ethical Management +0.35"] },
+          { "metric": "Metro/other, 20s", "values": ["13%", "20s · Metro/other", "Ethical Management −0.05, Establishment Purpose −0.05"] }
+        ],
+        "showDots": false
+      }
+    },
+    {
+      "id": "persona-reactions",
+      "sectionName": "Persona Reactions",
+      "headline": "Jeju parents agree with the direction but worry about execution delays and the exclusion of general schools — wording tied to trust needs polishing.",
+      "componentType": "UserCard",
+      "data": {
+        "items": [
+          {
+            "name": "Kim Ji-young",
+            "subtitle": "Female · 38 · Jeju City · Parent",
+            "description": "Sharing facilities and programs across international schools and linking in university and corporate mentoring — the direction looks good. Like the example of KAIST students coming to mentor, if kids actually get more chances to experience these things, Jeju will build competitiveness too. But I've seen articles that this agency's management evaluation hasn't been great lately, so if it just keeps saying 'this is needed' while execution drags, residents will lose trust. If everything revolves only around international schools, our neighborhood general-school kids could end up left out — so I'd want them to first show clearly how much they'll open experience and career programs to local schools too."
+          },
+          {
+            "name": "Park Jun-ho",
+            "subtitle": "Male · 41 · Seongnam · Office worker",
+            "description": "Expanding industry-academia partnerships with universities and companies and sharing programs across international schools is a clear direction — I like it. Growing it into a global hub also fits current trends. It used to feel like just a real-estate development image, but explaining it with real education and talent cases like this makes the agency feel like it's finding its proper role, so I trust it more. Next time I'd like to see results in numbers too."
+          },
+          {
+            "name": "Ko Seong-cheol",
+            "subtitle": "Male · 54 · Seogwipo · Self-employed",
+            "description": "If the education city grows, it helps nearby commerce and jobs, so from a local standpoint it's welcome news. But big words like industry-academia partnership and global hub take time to actually reach places like Seogwipo. They need to show concretely when things start to change and what comes back to local businesses and residents — otherwise people will just say 'another announcement.'"
+          },
+          {
+            "name": "Lee Su-min",
+            "subtitle": "Female · 24 · Incheon · Job seeker",
+            "description": "Honestly, the international-school and university/corporate mentoring talk feels a bit far from me. It's a good thing, but I wonder if it's ultimately about kids from well-off families. I'm also not sure whether this is really the agency's core job or just for show. If they explained more clearly who it actually helps and how, I'd be more interested."
+          }
+        ]
+      }
+    },
+    {
+      "id": "press-release-original",
+      "sectionName": "Press Release (Simulation Input)",
+      "componentType": "KeyFindings",
+      "data": {
+        "text": "[Press Release] Jeju English Education City reaches for a new leap as a global cooperation hub, 'from the island to the world'\n\nThe Jeju Free International City Development Center (JDC) announced that it will reposition Jeju English Education City as a global cooperation hub connecting 'from the island to the world.'\n\nThe Center plans to jointly use facilities and educational programs across the international schools within Jeju English Education City, and to expand industry-academia partnerships and mentoring with domestic and overseas universities and companies. The aim is to let students go beyond school walls and experience broader career and research opportunities.\n\nRecently, KAIST students visited an international school in Jeju English Education City and held career and research mentoring for enrolled students. Participating students said it helped them concretize their career paths through conversations with actual researchers.\n\nA Center official said, 'Amid intensifying global talent competition, strengthening the global competitiveness of international schools is essential,' and added, 'We will elevate Jeju English Education City into an international education hub representing Asia.'"
+      }
+    },
+    {
+      "id": "revision-suggestions",
+      "sectionName": "Revision Suggestions",
+      "headline": "Adding one line each for an execution timeline and a plan to open local schools can ease Jeju residents' Ethical Management drop (-0.2) and Alignment with Establishment Purpose drop (-0.2).",
+      "componentType": "InsightCard",
+      "data": {
+        "items": [
+          {
+            "badge": "Establishment Purpose · Equity",
+            "title": "Wording limited to international schools, omitting local general schools",
+            "description": "The original 「jointly use facilities and educational programs across the international schools within Jeju English Education City」 is limited to international schools — the point Jeju parents flagged as 'general-school kids could be left out,' and it links to the drop in Alignment with Establishment Purpose.",
+            "interpretation": "Revision (add): 「local general high and middle school students are also given regular access to career-experience and mentoring programs」, and specify the scale and schedule of access. Expected effect: when applied, it defends most of Jeju residents' -0.2 drop in Alignment with Establishment Purpose."
+          },
+          {
+            "badge": "Ethical Management · Trust",
+            "title": "Wording that stops at a directional declaration with no execution timeline",
+            "description": "The original 「Amid intensifying global talent competition, strengthening the global competitiveness of international schools is essential」 stays at a directional declaration — the point Jeju parents in their 30s worried about as 'if it's all talk and execution drags, trust falls,' directly linked to the drop in Ethical Management perception.",
+            "interpretation": "Revision: specify a start time and review cadence, e.g., 「from the second half of 2026, phase in joint use of inter-school facilities and programs and disclose progress each quarter」. Expected effect: when applied, Jeju residents' Ethical Management eases from -0.2 to around -0.05."
+          }
+        ]
+      }
+    }
+  ]
+}

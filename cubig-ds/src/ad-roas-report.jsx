@@ -148,16 +148,16 @@ export default function AdRoasReport() {
               text="ad_roas_202503.csv"
               leadingIcon={<DatabaseIcon size={14} color="#7B7E85" />}
             />
-            <Badge type="Outline" variant="Secondary" size="Large" text="Version 1" />
+            <Badge type="Outline" variant="Secondary" size="Large" text="버전 1" />
           </>
         }
         actions={
           <>
             <Btn variant="solid-secondary" size="md">
               <DownloadIcon size={20} />
-              Download PDF
+              PDF 다운로드
             </Btn>
-            <Btn variant="solid-primary" size="md">Create Discussion Room</Btn>
+            <Btn variant="solid-primary" size="md">토론방 만들기</Btn>
           </>
         }
         style={{ marginBottom: 60 }}
